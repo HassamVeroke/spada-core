@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="spada-auth-view is-active" id="spada-view-choice" data-view="choice">
 			<div class="spada-choice-grid">
 				<!-- Signup Card -->
-				<button type="button" class="spada-choice-card" id="spada-choice-signup" data-action="signup">
+				<a href="#" role="button" class="spada-choice-card" id="spada-choice-signup" data-action="signup">
 					<div class="spada-choice-icon-wrap">
 						<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 							<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -33,14 +33,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</svg>
 					</div>
 					<span class="spada-choice-label"><?php esc_html_e( 'Signup', 'spada-core' ); ?></span>
-				</button>
+				</a>
 
 				<div class="spada-choice-divider">
 					<span><?php esc_html_e( 'OR', 'spada-core' ); ?></span>
 				</div>
 
 				<!-- Login Card (active default) -->
-				<button type="button" class="spada-choice-card is-selected" id="spada-choice-login" data-action="login">
+				<a href="#" role="button" class="spada-choice-card is-selected" id="spada-choice-login" data-action="login">
 					<div class="spada-choice-icon-wrap">
 						<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 							<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
@@ -49,7 +49,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						</svg>
 					</div>
 					<span class="spada-choice-label"><?php esc_html_e( 'Login', 'spada-core' ); ?></span>
-				</button>
+				</a>
 			</div>
 		</div>
 

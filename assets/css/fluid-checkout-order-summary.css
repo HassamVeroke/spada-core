@@ -43,28 +43,55 @@
    2. Main Table & Cart Items
    ========================================================================== */
 
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table,
+body.woocommerce-checkout div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table,
 table.spada-order-summary-table,
 .woocommerce-checkout-review-order-table.spada-order-summary-table {
 	width: 100% !important;
+	max-width: 100% !important;
 	border: none !important;
 	border-collapse: collapse !important;
 	margin: 0 0 16px 0 !important;
 	font-family: var(--spada-font-body) !important;
 	background: transparent !important;
+	table-layout: auto !important;
 }
 
-table.spada-order-summary-table tbody tr.spada-cart-item {
+/* Reset default Fluid Checkout cell paddings that conflict with custom design */
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table th,
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td,
+body.woocommerce-checkout div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table th,
+body.woocommerce-checkout div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+	border: none !important;
+}
+
+table.spada-order-summary-table tbody tr.spada-cart-item,
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table tbody tr.spada-cart-item {
+	display: table-row !important;
+	width: 100% !important;
 	border-top: none !important;
 	border-bottom: none !important;
 	background: transparent !important;
 }
 
+table.spada-order-summary-table td.spada-cart-item-cell,
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spada-cart-item-cell,
 .spada-cart-item-cell {
-	display: flex !important;
-	gap: 14px !important;
+	display: table-cell !important;
+	width: 100% !important;
+	max-width: 100% !important;
 	padding: 12px 0 !important;
 	border: none !important;
 	background: transparent !important;
+	box-sizing: border-box !important;
+}
+
+.spada-cart-item-inner {
+	display: flex !important;
+	align-items: flex-start !important;
+	gap: 14px !important;
 	width: 100% !important;
 	box-sizing: border-box !important;
 }
@@ -80,6 +107,7 @@ table.spada-order-summary-table tbody tr.spada-cart-item {
 	display: flex !important;
 	align-items: center !important;
 	justify-content: center !important;
+	box-sizing: border-box !important;
 }
 
 .spada-item-thumb img {
@@ -94,10 +122,12 @@ table.spada-order-summary-table tbody tr.spada-cart-item {
 /* Product Content Details */
 .spada-item-details {
 	flex: 1 1 auto !important;
-	min-width: calc(100% - 20px) !important;
+	min-width: 0 !important;
+	width: calc(100% - 82px) !important;
 	display: flex !important;
 	flex-direction: column !important;
 	justify-content: space-between !important;
+	box-sizing: border-box !important;
 }
 
 /* Top Line: Title & Subtotal */
@@ -105,8 +135,10 @@ table.spada-order-summary-table tbody tr.spada-cart-item {
 	display: flex !important;
 	align-items: flex-start !important;
 	justify-content: space-between !important;
+	width: 100% !important;
 	gap: 8px !important;
 	margin-bottom: 2px !important;
+	box-sizing: border-box !important;
 }
 
 .spada-item-title {
@@ -203,16 +235,23 @@ table.spada-order-summary-table tbody tr.spada-cart-item {
 	outline: none !important;
 	user-select: none !important;
 	-webkit-user-select: none !important;
+	text-decoration: none !important;
 	transition: opacity 0.15s ease !important;
 }
 
-.spada-qty-btn:hover {
-	opacity: 0.65;
+.spada-qty-btn:hover,
+.spada-qty-btn:focus,
+.spada-qty-btn:active {
+	outline: none !important;
+	text-decoration: none !important;
 }
 
-.spada-qty-btn:disabled {
+.spada-qty-btn:disabled,
+.spada-qty-btn.disabled,
+.spada-qty-btn[aria-disabled="true"] {
 	opacity: 0.3 !important;
 	cursor: not-allowed !important;
+	pointer-events: none !important;
 }
 
 .spada-qty-input {
@@ -263,10 +302,15 @@ table.spada-order-summary-table tbody tr.spada-cart-item {
    3. Add More Products Button
    ========================================================================== */
 
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spada-add-more-cell,
+table.spada-order-summary-table td.spada-add-more-cell,
 .spada-add-more-cell {
-	padding: 14px 0 6px 0 !important;
+	display: table-cell !important;
+	width: 100% !important;
+	padding: 10px 0 14px 0 !important;
 	border: none !important;
 	background: transparent !important;
+	box-sizing: border-box !important;
 }
 
 .spada-add-more-btn {
@@ -274,6 +318,7 @@ table.spada-order-summary-table tbody tr.spada-cart-item {
 	align-items: center !important;
 	gap: 12px !important;
 	text-decoration: none !important;
+	outline: none !important;
 	cursor: pointer !important;
 }
 
@@ -281,8 +326,8 @@ table.spada-order-summary-table tbody tr.spada-cart-item {
 	width: 44px !important;
 	height: 44px !important;
 	border: 1.5px solid var(--spada-teal) !important;
-	border-radius: 8px !important;
-	background-color: var(--spada-teal-soft) !important;
+	border-radius: var(--spada-radius-sm) !important;
+	background-color: var(--spada-teal-light) !important;
 	display: flex !important;
 	align-items: center !important;
 	justify-content: center !important;
@@ -311,10 +356,15 @@ table.spada-order-summary-table tbody tr.spada-cart-item {
    4. Divider
    ========================================================================== */
 
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spada-divider-cell,
+table.spada-order-summary-table td.spada-divider-cell,
 .spada-divider-cell {
+	display: table-cell !important;
+	width: 100% !important;
 	padding: 10px 0 !important;
 	border: none !important;
 	background: transparent !important;
+	box-sizing: border-box !important;
 }
 
 .spada-order-divider {
@@ -334,6 +384,8 @@ table.spada-order-summary-table tfoot {
 	background: transparent !important;
 }
 
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table .spada-summary-row th,
+table.spada-order-summary-table .spada-summary-row th,
 .spada-summary-row th {
 	font-family: var(--spada-font-body) !important;
 	font-size: 13.5px !important;
@@ -343,8 +395,11 @@ table.spada-order-summary-table tfoot {
 	text-align: left !important;
 	border: none !important;
 	background: transparent !important;
+	width: auto !important;
 }
 
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table .spada-summary-row td,
+table.spada-order-summary-table .spada-summary-row td,
 .spada-summary-row td {
 	font-family: var(--spada-font-body) !important;
 	font-size: 13.5px !important;
@@ -354,6 +409,7 @@ table.spada-order-summary-table tfoot {
 	text-align: right !important;
 	border: none !important;
 	background: transparent !important;
+	width: auto !important;
 }
 
 .spada-remove-coupon-link {
@@ -367,110 +423,149 @@ table.spada-order-summary-table tfoot {
    6. + Add Coupon Code
    ========================================================================== */
 
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spada-coupon-toggle-cell,
+table.spada-order-summary-table td.spada-coupon-toggle-cell,
 .spada-coupon-toggle-cell {
+	display: table-cell !important;
+	width: 100% !important;
+	max-width: 100% !important;
 	padding: 10px 0 6px 0 !important;
 	border: none !important;
 	background: transparent !important;
-	text-align: start !important;
+	text-align: left !important;
+	box-sizing: border-box !important;
 }
 
 .spada-coupon-toggle-btn {
 	background: none !important;
 	border: none !important;
 	padding: 0 !important;
+	margin: 0 !important;
 	color: var(--spada-teal) !important;
 	font-family: var(--spada-font-body) !important;
-	font-size: 15px !important;
+	font-size: 14.5px !important;
 	font-weight: 500 !important;
 	cursor: pointer !important;
 	display: inline-flex !important;
 	align-items: center !important;
-	gap: 4px !important;
+	gap: 6px !important;
 	outline: none !important;
+	text-decoration: none !important;
 	transition: color 0.15s ease !important;
+	text-align: left !important;
+	line-height: 1.4 !important;
 }
 
 .spada-coupon-toggle-btn:hover {
 	color: var(--spada-teal-hover) !important;
+	text-decoration: none !important;
 }
 
 .spada-coupon-toggle-icon {
 	font-weight: 700 !important;
-	font-size: 14px !important;
+	font-size: 15px !important;
+	line-height: 1 !important;
+	display: inline-block !important;
 }
 
 .spada-coupon-form-wrap {
-	margin-top: 10px;
-	max-width: 380px;
+	margin-top: 10px !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	box-sizing: border-box !important;
 }
 
 .spada-coupon-form-wrap.is-hidden {
-	display: none;
+	display: none !important;
 }
 
 .spada-coupon-input-group {
-	display: flex;
-	gap: 8px;
+	display: flex !important;
+	width: 100% !important;
+	gap: 8px !important;
+	align-items: stretch !important;
+	box-sizing: border-box !important;
 }
 
 .spada-coupon-input {
-	flex: 1;
-	border: 1px solid var(--spada-border);
-	border-radius: 6px;
-	padding: 8px 12px;
-	font-family: var(--spada-font-body);
-	font-size: 13px;
-	color: var(--spada-dark);
-	outline: none;
-	box-sizing: border-box;
+	flex: 1 1 auto !important;
+	width: 100% !important;
+	min-width: 0 !important;
+	border: 1px solid var(--spada-border) !important;
+	border-radius: var(--spada-radius-sm) !important;
+	padding: 10px 14px !important;
+	font-family: var(--spada-font-body) !important;
+	font-size: 13.5px !important;
+	color: var(--spada-dark) !important;
+	outline: none !important;
+	box-sizing: border-box !important;
+	background: #ffffff !important;
+	height: 42px !important;
+	line-height: normal !important;
 }
 
 .spada-coupon-input:focus {
-	border-color: var(--spada-teal);
+	border-color: var(--spada-teal) !important;
 }
 
 .spada-coupon-apply-btn {
-	background-color: var(--spada-teal);
-	color: #ffffff;
-	border: none;
-	border-radius: 6px;
-	padding: 8px 16px;
-	font-family: var(--spada-font-button);
-	font-size: 13px;
-	cursor: pointer;
-	transition: background-color 0.15s ease;
+	flex: 0 0 auto !important;
+	background-color: var(--spada-teal) !important;
+	color: #ffffff !important;
+	border: none !important;
+	border-radius: var(--spada-radius-sm) !important;
+	padding: 0 20px !important;
+	height: 42px !important;
+	font-family: var(--spada-font-button) !important;
+	font-size: 13.5px !important;
+	font-weight: 600 !important;
+	cursor: pointer !important;
+	text-decoration: none !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	transition: background-color 0.15s ease !important;
+	white-space: nowrap !important;
+	box-sizing: border-box !important;
 }
 
 .spada-coupon-apply-btn:hover {
-	background-color: var(--spada-teal-hover);
+	background-color: var(--spada-teal-hover) !important;
+	text-decoration: none !important;
+	color: #ffffff !important;
 }
 
 .spada-coupon-message {
-	font-family: var(--spada-font-body);
-	font-size: 12px;
-	margin-top: 6px;
+	font-family: var(--spada-font-body) !important;
+	font-size: 12px !important;
+	margin-top: 6px !important;
 }
 
 .spada-coupon-message.is-success {
-	color: #059669;
+	color: #059669 !important;
 }
 
 .spada-coupon-message.is-error {
-	color: #dc2626;
+	color: #dc2626 !important;
 }
 
 .spada-coupon-message.is-hidden {
-	display: none;
+	display: none !important;
 }
 
 /* ==========================================================================
    7. Highlighted Bottom TOTAL Card
    ========================================================================== */
 
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spada-order-total-card-cell,
+table.spada-order-summary-table td.spada-order-total-card-cell,
 .spada-order-total-card-cell {
+	display: table-cell !important;
+	width: 100% !important;
 	padding: 16px 0 6px 0 !important;
 	border: none !important;
 	background: transparent !important;
+	box-sizing: border-box !important;
 }
 
 .spada-total-card {
@@ -524,14 +619,30 @@ html[dir="rtl"] .spada-item-subtotal {
 	text-align: left !important;
 }
 
+body.rtl div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table .spada-summary-row th,
+html[dir="rtl"] div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table .spada-summary-row th,
 body.rtl .spada-summary-row th,
 html[dir="rtl"] .spada-summary-row th {
 	text-align: right !important;
 }
 
+body.rtl div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table .spada-summary-row td,
+html[dir="rtl"] div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table .spada-summary-row td,
 body.rtl .spada-summary-row td,
 html[dir="rtl"] .spada-summary-row td {
 	text-align: left !important;
+}
+
+body.rtl div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spada-coupon-toggle-cell,
+html[dir="rtl"] div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spada-coupon-toggle-cell,
+body.rtl .spada-coupon-toggle-cell,
+html[dir="rtl"] .spada-coupon-toggle-cell {
+	text-align: right !important;
+}
+
+body.rtl .spada-coupon-toggle-btn,
+html[dir="rtl"] .spada-coupon-toggle-btn {
+	text-align: right !important;
 }
 
 body.rtl .spada-remove-coupon-link,

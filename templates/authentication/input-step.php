@@ -14,12 +14,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="spada-auth-view" id="spada-view-input" data-view="input">
 	<!-- Top Navigation -->
 	<div class="spada-view-nav">
-		<button type="button" class="spada-back-btn" id="spada-input-back-btn" aria-label="<?php esc_attr_e( 'Back to methods', 'spada-core' ); ?>">
+		<a href="#" role="button" class="spada-back-btn" id="spada-input-back-btn" aria-label="<?php esc_attr_e( 'Back to methods', 'spada-core' ); ?>">
 			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 				<line x1="19" y1="12" x2="5" y2="12"></line>
 				<polyline points="12 19 5 12 12 5"></polyline>
 			</svg>
-		</button>
+		</a>
 	</div>
 
 	<!-- Centered Circle Icon -->
@@ -67,10 +67,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<!-- Primary Continue Button -->
-		<button type="submit" class="spada-btn-primary" id="spada-input-submit-btn">
+		<a href="#" role="button" class="spada-btn-primary" id="spada-input-submit-btn">
 			<span class="spada-btn-text"><?php esc_html_e( 'Continue', 'spada-core' ); ?></span>
 			<span class="spada-btn-spinner is-hidden" aria-hidden="true"></span>
-		</button>
+		</a>
 
 		<!-- Divider OR -->
 		<div class="spada-choice-divider">
@@ -78,8 +78,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<!-- Secondary Button -->
-		<button type="button" class="spada-btn-outline" id="spada-input-choose-another-btn">
+		<a href="#" role="button" class="spada-btn-outline" id="spada-input-choose-another-btn">
 			<?php esc_html_e( 'Choose another option', 'spada-core' ); ?>
-		</button>
+		</a>
 	</form>
 </div>

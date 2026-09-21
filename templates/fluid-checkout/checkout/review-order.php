@@ -44,76 +44,78 @@ defined('ABSPATH') || exit;
 		?>
 				<tr class="<?php echo esc_attr(apply_filters('woocommerce_cart_item_class', 'cart_item cart-item spada-cart-item', $cart_item, $cart_item_key)); ?>" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>" data-product_id="<?php echo esc_attr($product_id); ?>">
 					<td colspan="2" class="spada-cart-item-cell" role="none">
-						<!-- Product Thumbnail -->
-						<div class="spada-item-thumb">
-							<?php
-							$thumbnail = apply_filters('woocommerce_cart_item_thumbnail', $_product->get_image('woocommerce_thumbnail'), $cart_item, $cart_item_key);
-							echo $thumbnail; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							?>
-						</div>
-
-						<!-- Product Details -->
-						<div class="spada-item-details">
-							<!-- Top Line: Title & Subtotal -->
-							<div class="spada-item-header">
-								<h4 class="spada-item-title">
-									<?php echo wp_kses_post(apply_filters('woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key)); ?>
-								</h4>
-								<span class="spada-item-subtotal">
-									<?php echo apply_filters('woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal($_product, $cart_item['quantity']), $cart_item, $cart_item_key); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-									?>
-								</span>
+						<div class="spada-cart-item-inner">
+							<!-- Product Thumbnail -->
+							<div class="spada-item-thumb">
+								<?php
+								$thumbnail = apply_filters('woocommerce_cart_item_thumbnail', $_product->get_image('woocommerce_thumbnail'), $cart_item, $cart_item_key);
+								echo $thumbnail; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+								?>
 							</div>
 
-							<!-- Middle Line: Pack Size / Variation Meta -->
-							<div class="spada-item-meta">
-								<?php if (! empty($pack_text)) : ?>
-									<span class="spada-pack-label"><?php echo esc_html(sprintf(__('Qty: %s', 'spada-core'), $pack_text)); ?></span>
-								<?php else : ?>
-									<?php echo wc_get_formatted_cart_item_data($cart_item); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-									?>
-								<?php endif; ?>
-							</div>
-
-							<!-- Bottom Line: Unit Price & Stepper + Remove Button -->
-							<div class="spada-item-footer">
-								<div class="spada-item-unit-price">
-									<?php echo WC()->cart->get_product_price($_product); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-									?>
+							<!-- Product Details -->
+							<div class="spada-item-details">
+								<!-- Top Line: Title & Subtotal -->
+								<div class="spada-item-header">
+									<h4 class="spada-item-title">
+										<?php echo wp_kses_post(apply_filters('woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key)); ?>
+									</h4>
+									<span class="spada-item-subtotal">
+										<?php echo apply_filters('woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal($_product, $cart_item['quantity']), $cart_item, $cart_item_key); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+										?>
+									</span>
 								</div>
 
-								<div class="spada-item-actions">
-									<!-- Stepper Pill -->
-									<div class="spada-qty-stepper">
-										<button type="button" class="spada-qty-btn is-minus" data-action="decrease" aria-label="<?php esc_attr_e('Decrease quantity', 'spada-core'); ?>" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>">−</button>
-										<input type="number"
-											id="quantity_<?php echo esc_attr($cart_item_key); ?>"
-											class="spada-qty-input fc-buttons-added buttons-added"
-											name="cart[<?php echo esc_attr($cart_item_key); ?>][qty]"
-											value="<?php echo esc_attr($cart_item['quantity']); ?>"
-											min="1"
-											max="<?php echo esc_attr($_product->get_max_purchase_quantity() > 0 ? $_product->get_max_purchase_quantity() : ''); ?>"
-											step="1"
-											data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>"
-											readonly />
-										<button type="button" class="spada-qty-btn is-plus" data-action="increase" aria-label="<?php esc_attr_e('Increase quantity', 'spada-core'); ?>" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>">+</button>
+								<!-- Middle Line: Pack Size / Variation Meta -->
+								<div class="spada-item-meta">
+									<?php if (! empty($pack_text)) : ?>
+										<span class="spada-pack-label"><?php echo esc_html(sprintf(__('Qty: %s', 'spada-core'), $pack_text)); ?></span>
+									<?php else : ?>
+										<?php echo wc_get_formatted_cart_item_data($cart_item); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+										?>
+									<?php endif; ?>
+								</div>
+
+								<!-- Bottom Line: Unit Price & Stepper + Remove Button -->
+								<div class="spada-item-footer">
+									<div class="spada-item-unit-price">
+										<?php echo WC()->cart->get_product_price($_product); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+										?>
 									</div>
 
-									<!-- Red Remove Button -->
-									<a href="<?php echo esc_url(wc_get_cart_remove_url($cart_item_key)); ?>"
-										class="spada-remove-btn remove"
-										data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>"
-										data-product_id="<?php echo esc_attr($product_id); ?>"
-										data-product_sku="<?php echo esc_attr($_product->get_sku()); ?>"
-										aria-label="<?php esc_attr_e('Remove item', 'spada-core'); ?>"
-										title="<?php esc_attr_e('Remove item', 'spada-core'); ?>">
-										<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-											<polyline points="3 6 5 6 21 6"></polyline>
-											<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-											<line x1="10" y1="11" x2="10" y2="17"></line>
-											<line x1="14" y1="11" x2="14" y2="17"></line>
-										</svg>
-									</a>
+									<div class="spada-item-actions">
+										<!-- Stepper Pill -->
+										<div class="spada-qty-stepper">
+											<a href="#" role="button" class="spada-qty-btn is-minus" data-action="decrease" aria-label="<?php esc_attr_e('Decrease quantity', 'spada-core'); ?>" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>">−</a>
+											<input type="number"
+												id="quantity_<?php echo esc_attr($cart_item_key); ?>"
+												class="spada-qty-input fc-buttons-added buttons-added"
+												name="cart[<?php echo esc_attr($cart_item_key); ?>][qty]"
+												value="<?php echo esc_attr($cart_item['quantity']); ?>"
+												min="1"
+												max="<?php echo esc_attr($_product->get_max_purchase_quantity() > 0 ? $_product->get_max_purchase_quantity() : ''); ?>"
+												step="1"
+												data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>"
+												readonly />
+											<a href="#" role="button" class="spada-qty-btn is-plus" data-action="increase" aria-label="<?php esc_attr_e('Increase quantity', 'spada-core'); ?>" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>">+</a>
+										</div>
+
+										<!-- Red Remove Button -->
+										<a href="<?php echo esc_url(wc_get_cart_remove_url($cart_item_key)); ?>"
+											class="spada-remove-btn remove"
+											data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>"
+											data-product_id="<?php echo esc_attr($product_id); ?>"
+											data-product_sku="<?php echo esc_attr($_product->get_sku()); ?>"
+											aria-label="<?php esc_attr_e('Remove item', 'spada-core'); ?>"
+											title="<?php esc_attr_e('Remove item', 'spada-core'); ?>">
+											<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+												<polyline points="3 6 5 6 21 6"></polyline>
+												<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+												<line x1="10" y1="11" x2="10" y2="17"></line>
+												<line x1="14" y1="11" x2="14" y2="17"></line>
+											</svg>
+										</a>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -154,46 +156,72 @@ defined('ABSPATH') || exit;
 
 	<tfoot>
 		<?php
-		// Calculate VAT breakdown matching Saudi Arabia 15% standard
-		$total_tax        = WC()->cart->get_total_tax();
-		$cart_contents_tax = WC()->cart->get_cart_contents_tax();
-		$cart_total_excl  = WC()->cart->get_cart_contents_total();
+		// Calculate subtotal inclusive of tax
+		$subtotal_incl_tax = 0.0;
+		if ( WC()->cart && ! WC()->cart->is_empty() ) {
+			foreach ( WC()->cart->get_cart() as $cart_item ) {
+				if ( isset( $cart_item['data'] ) && is_object( $cart_item['data'] ) ) {
+					$item_price = floatval( $cart_item['data']->get_price() );
+					$quantity   = intval( $cart_item['quantity'] );
+					$subtotal_incl_tax += ( $item_price * $quantity );
+				}
+			}
+		}
 
-		// If prices include tax, subtotal is total excl + contents tax
-		$subtotal_incl_tax = $cart_total_excl + $cart_contents_tax;
+		if ( $subtotal_incl_tax <= 0 && WC()->cart ) {
+			$subtotal_incl_tax = (float) WC()->cart->subtotal;
+		}
+		if ( $subtotal_incl_tax <= 0 && WC()->cart ) {
+			$subtotal_incl_tax = (float) WC()->cart->get_cart_contents_total();
+		}
+
+		// Calculate VAT breakdown matching Saudi Arabia 15% standard
+		$wc_tax = (float) WC()->cart->get_cart_contents_tax();
+		if ( $wc_tax <= 0 ) {
+			$wc_tax = (float) WC()->cart->get_total_tax();
+		}
+
+		if ( $wc_tax > 0 ) {
+			$total_vat         = $wc_tax;
+			$cart_total_excl   = (float) WC()->cart->get_cart_contents_total();
+			$subtotal_incl_tax = $cart_total_excl + $total_vat;
+		} else {
+			// In Saudi Arabia, catalog prices are inclusive of 15% VAT
+			// Total Price Excl VAT = Subtotal / 1.15
+			// Total VAT = Subtotal - Total Price Excl VAT
+			$cart_total_excl = round( $subtotal_incl_tax / 1.15, 2 );
+			$total_vat       = round( $subtotal_incl_tax - $cart_total_excl, 2 );
+		}
+
+		$is_arabic       = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$excl_vat_label  = $is_arabic ? 'الإجمالي بدون الضريبة' : __( 'Total Price Excluding VAT', 'spada-core' );
+		$vat_label       = $is_arabic ? 'إجمالي الضريبة (15٪)' : __( 'Total VAT (15%)', 'spada-core' );
+
+		if ( wc_tax_enabled() && WC()->cart && WC()->cart->get_tax_totals() ) {
+			$taxes = WC()->cart->get_tax_totals();
+			$tax_obj = reset( $taxes );
+			if ( $tax_obj && ! empty( $tax_obj->label ) ) {
+				$vat_label = $tax_obj->label;
+			}
+		}
 		?>
 
 		<!-- 1. Total Price Excluding VAT -->
 		<tr class="spada-summary-row spada-price-excl-vat">
-			<th><?php esc_html_e('Total Price Excluding VAT', 'spada-core'); ?></th>
-			<td><?php echo wc_price($cart_total_excl); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-				?></td>
+			<th><?php echo esc_html( $excl_vat_label ); ?></th>
+			<td><?php echo wc_price( $cart_total_excl ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td>
 		</tr>
 
 		<!-- 2. Total VAT (15%) -->
 		<tr class="spada-summary-row spada-vat-row">
-			<th>
-				<?php
-				$tax_label = __('Total VAT (15%)', 'spada-core');
-				if (wc_tax_enabled() && WC()->cart->get_tax_totals()) {
-					$taxes = WC()->cart->get_tax_totals();
-					$tax_obj = reset($taxes);
-					if ($tax_obj && ! empty($tax_obj->label)) {
-						$tax_label = $tax_obj->label;
-					}
-				}
-				echo esc_html($tax_label);
-				?>
-			</th>
-			<td><?php echo wc_price($total_tax); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-				?></td>
+			<th><?php echo esc_html( $vat_label ); ?></th>
+			<td><?php echo wc_price( $total_vat ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td>
 		</tr>
 
 		<!-- 3. Subtotal -->
 		<tr class="spada-summary-row spada-subtotal-row">
-			<th><?php esc_html_e('Subtotal', 'woocommerce'); ?></th>
-			<td><?php echo wc_price($subtotal_incl_tax); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-				?></td>
+			<th><?php esc_html_e( 'Subtotal', 'woocommerce' ); ?></th>
+			<td><?php echo wc_price( $subtotal_incl_tax ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td>
 		</tr>
 
 		<!-- 4. Shipping -->
@@ -242,15 +270,15 @@ defined('ABSPATH') || exit;
 		<!-- 5. + Add coupon code -->
 		<tr class="spada-coupon-toggle-row">
 			<td colspan="2" class="spada-coupon-toggle-cell">
-				<button type="button" class="spada-coupon-toggle-btn" id="spada-toggle-coupon-btn">
+				<a href="#" role="button" class="spada-coupon-toggle-btn" id="spada-toggle-coupon-btn">
 					<span class="spada-coupon-toggle-icon" aria-hidden="true">+</span>
 					<span><?php esc_html_e('Add coupon code', 'spada-core'); ?></span>
-				</button>
+				</a>
 				<!-- Collapsible Coupon Form -->
 				<div class="spada-coupon-form-wrap is-hidden" id="spada-inline-coupon-form">
 					<div class="spada-coupon-input-group">
 						<input type="text" name="spada_coupon_code" id="spada_coupon_code" class="spada-coupon-input" placeholder="<?php esc_attr_e('Coupon code', 'spada-core'); ?>" />
-						<button type="button" class="spada-coupon-apply-btn" id="spada_apply_coupon_btn"><?php esc_html_e('Apply', 'spada-core'); ?></button>
+						<a href="#" role="button" class="spada-coupon-apply-btn" id="spada_apply_coupon_btn"><?php esc_html_e('Apply', 'spada-core'); ?></a>
 					</div>
 					<div class="spada-coupon-message is-hidden" id="spada-coupon-msg"></div>
 				</div>

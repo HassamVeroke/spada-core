@@ -69,7 +69,8 @@
 			var self = this;
 
 			// 1. Choice cards click (Signup vs Login)
-			this.$choiceCards.on('click', function() {
+			this.$choiceCards.on('click', function(e) {
+				e.preventDefault();
 				var action = $(this).data('action');
 				self.state.action = action;
 				self.$choiceCards.removeClass('is-selected');
@@ -80,7 +81,8 @@
 			});
 
 			// 2. Method selection (Email, WhatsApp, SMS)
-			this.$methodBtns.on('click', function() {
+			this.$methodBtns.on('click', function(e) {
+				e.preventDefault();
 				var method = $(this).data('method');
 				self.state.method = method;
 				self.$methodBtns.removeClass('is-active');
@@ -91,41 +93,65 @@
 			});
 
 			// 3. Navigation buttons
-			$('#spada-methods-back-btn').on('click', function() {
+			$('#spada-methods-back-btn').on('click', function(e) {
+				e.preventDefault();
 				self.showView('choice');
 			});
 
-			this.$inputBackBtn.on('click', function() {
+			this.$inputBackBtn.on('click', function(e) {
+				e.preventDefault();
 				self.showView('methods');
 			});
 
-			this.$inputChooseAnother.on('click', function() {
+			this.$inputChooseAnother.on('click', function(e) {
+				e.preventDefault();
 				self.showView('methods');
 			});
 
-			this.$verifyBackBtn.on('click', function() {
+			this.$verifyBackBtn.on('click', function(e) {
+				e.preventDefault();
 				self.showView('input');
 			});
 
-			this.$changeTargetBtn.on('click', function() {
+			this.$changeTargetBtn.on('click', function(e) {
+				e.preventDefault();
 				self.showView('input');
 			});
 
 			// 4. Identifier Form Submit (Request OTP)
+			this.$inputSubmitBtn.on('click', function(e) {
+				e.preventDefault();
+				if (!$(this).hasClass('disabled') && !$(this).prop('disabled')) {
+					self.requestOtp();
+				}
+			});
+
 			$('#spada-identifier-form').on('submit', function(e) {
 				e.preventDefault();
-				self.requestOtp();
+				if (!self.$inputSubmitBtn.hasClass('disabled') && !self.$inputSubmitBtn.prop('disabled')) {
+					self.requestOtp();
+				}
 			});
 
 			// 5. Verify Form Submit (Verify OTP)
+			this.$verifySubmitBtn.on('click', function(e) {
+				e.preventDefault();
+				if (!$(this).hasClass('disabled') && !$(this).prop('disabled')) {
+					self.verifyOtp();
+				}
+			});
+
 			$('#spada-otp-form').on('submit', function(e) {
 				e.preventDefault();
-				self.verifyOtp();
+				if (!self.$verifySubmitBtn.hasClass('disabled') && !self.$verifySubmitBtn.prop('disabled')) {
+					self.verifyOtp();
+				}
 			});
 
 			// 6. Resend Click
-			this.$resendBtn.on('click', function() {
-				if (!$(this).prop('disabled')) {
+			this.$resendBtn.on('click', function(e) {
+				e.preventDefault();
+				if (!$(this).hasClass('disabled') && !$(this).prop('disabled')) {
 					self.resendOtp();
 				}
 			});
@@ -404,7 +430,7 @@
 			clearInterval(this.state.countdownTimer);
 			this.state.countdownSec = 60;
 
-			this.$resendBtn.prop('disabled', true).css('opacity', '0.5');
+			this.$resendBtn.addClass('disabled').attr('aria-disabled', 'true').prop('disabled', true).css('opacity', '0.5');
 			this.$countdownWrap.removeClass('is-hidden');
 			this.$countdownSec.text('60');
 
@@ -415,7 +441,7 @@
 				if (self.state.countdownSec <= 0) {
 					clearInterval(self.state.countdownTimer);
 					self.$countdownWrap.addClass('is-hidden');
-					self.$resendBtn.prop('disabled', false).css('opacity', '1');
+					self.$resendBtn.removeClass('disabled').removeAttr('aria-disabled').prop('disabled', false).css('opacity', '1');
 				}
 			}, 1000);
 		},
@@ -425,11 +451,11 @@
 			var $spinner = $btn.find('.spada-btn-spinner');
 
 			if (isLoading) {
-				$btn.prop('disabled', true);
+				$btn.addClass('disabled').attr('aria-disabled', 'true').prop('disabled', true);
 				$text.css('opacity', '0.6');
 				$spinner.removeClass('is-hidden');
 			} else {
-				$btn.prop('disabled', false);
+				$btn.removeClass('disabled').removeAttr('aria-disabled').prop('disabled', false);
 				$text.css('opacity', '1');
 				$spinner.addClass('is-hidden');
 			}

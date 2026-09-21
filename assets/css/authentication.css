@@ -21,6 +21,7 @@
 	display: none !important;
 }
 
+.spada-auth-wrapper a[role="button"],
 .spada-auth-wrapper button {
 	background-color: transparent !important;
 	font-family: "Inter", sans-serif !important;
@@ -28,6 +29,13 @@
 	font-size: 18px !important;
 	line-height: 26px !important;
 	color: #000 !important;
+	text-decoration: none !important;
+}
+
+.spada-auth-wrapper a[role="button"].disabled,
+.spada-auth-wrapper a[role="button"][aria-disabled="true"] {
+	pointer-events: none !important;
+	cursor: not-allowed !important;
 }
 
 /* 2. Main Portal Card (Blends directly into Elementor's white curved sheet) */

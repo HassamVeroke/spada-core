@@ -14,12 +14,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="spada-auth-view" id="spada-view-verify" data-view="verify">
 	<!-- Top Navigation -->
 	<div class="spada-view-nav">
-		<button type="button" class="spada-back-btn" id="spada-verify-back-btn" aria-label="<?php esc_attr_e( 'Back to identifier input', 'spada-core' ); ?>">
+		<a href="#" role="button" class="spada-back-btn" id="spada-verify-back-btn" aria-label="<?php esc_attr_e( 'Back to identifier input', 'spada-core' ); ?>">
 			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 				<line x1="19" y1="12" x2="5" y2="12"></line>
 				<polyline points="12 19 5 12 12 5"></polyline>
 			</svg>
-		</button>
+		</a>
 	</div>
 
 	<!-- Centered Circle Icon -->
@@ -69,25 +69,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<input type="hidden" id="spada-otp-full" name="otp_code" value="" />
 
 		<!-- Primary Continue Button -->
-		<button type="submit" class="spada-btn-primary" id="spada-verify-submit-btn">
+		<a href="#" role="button" class="spada-btn-primary" id="spada-verify-submit-btn">
 			<span class="spada-btn-text"><?php esc_html_e( 'Continue', 'spada-core' ); ?></span>
 			<span class="spada-btn-spinner is-hidden" aria-hidden="true"></span>
-		</button>
+		</a>
 
 		<!-- Resend Section -->
 		<div class="spada-resend-wrap">
 			<span id="spada-resend-prompt"><?php esc_html_e( "Didn't receive the email?", 'spada-core' ); ?></span>
-			<button type="button" class="spada-resend-link" id="spada-resend-btn">
+			<a href="#" role="button" class="spada-resend-link" id="spada-resend-btn">
 				<?php esc_html_e( 'Click to resend', 'spada-core' ); ?>
-			</button>
+			</a>
 			<span class="spada-countdown-text is-hidden" id="spada-countdown-wrap">
 				(<?php esc_html_e( 'resend in', 'spada-core' ); ?> <span id="spada-countdown-sec">60</span>s)
 			</span>
 		</div>
 
 		<!-- Change Email / Number Secondary Button -->
-		<button type="button" class="spada-btn-outline" id="spada-change-target-btn">
+		<a href="#" role="button" class="spada-btn-outline" id="spada-change-target-btn">
 			<span id="spada-change-target-text"><?php esc_html_e( 'Change Email', 'spada-core' ); ?></span>
-		</button>
+		</a>
 	</form>
 </div>
