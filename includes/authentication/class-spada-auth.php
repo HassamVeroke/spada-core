@@ -70,6 +70,12 @@ class Spada_Auth {
 				'accountUrl'   => function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '',
 				'isRtl'        => is_rtl(),
 				'i18n'         => array(
+					'signInEmail'      => __( 'Sign in with Email', 'spada-core' ),
+					'signInWhatsapp'   => __( 'Sign in with Whatsapp', 'spada-core' ),
+					'signInSms'        => __( 'Sign in with SMS', 'spada-core' ),
+					'signupEmail'      => __( 'Signup using Email', 'spada-core' ),
+					'signupWhatsapp'   => __( 'Signup using Whatsapp', 'spada-core' ),
+					'signupSms'        => __( 'Signup using SMS', 'spada-core' ),
 					'enterEmail'       => __( 'Enter your email address', 'spada-core' ),
 					'subEmail'         => __( "We'll send a six digit code to your email adress.", 'spada-core' ),
 					'enterWhatsapp'    => __( 'Enter your whatsapp number', 'spada-core' ),

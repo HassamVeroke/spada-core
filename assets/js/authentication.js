@@ -22,6 +22,7 @@
 			this.cacheDom();
 			this.bindEvents();
 			this.initOtpGrid();
+			this.checkInitialAction();
 		},
 
 		cacheDom: function() {
@@ -77,6 +78,7 @@
 				$(this).addClass('is-selected');
 
 				self.$mainTitle.text(action === 'signup' ? 'SIGNUP' : 'LOGIN');
+				self.updateMethodButtons(action);
 				self.showView('methods');
 			});
 
@@ -161,7 +163,58 @@
 			this.state.currentView = viewName;
 			this.$views.removeClass('is-active');
 			$('#spada-view-' + viewName).addClass('is-active');
+			if (viewName === 'methods') {
+				this.updateMethodButtons(this.state.action);
+			}
 			this.clearNotices();
+		},
+
+		checkInitialAction: function() {
+			try {
+				var searchParams = new URLSearchParams(window.location.search);
+				var action = searchParams.get('action');
+				if (action === 'signup' || action === 'register' || window.location.hash === '#signup' || searchParams.has('signup')) {
+					this.state.action = 'signup';
+					this.$choiceCards.removeClass('is-selected');
+					$('#spada-choice-signup').addClass('is-selected');
+					this.$mainTitle.text('SIGNUP');
+				}
+			} catch (e) {}
+			this.updateMethodButtons(this.state.action);
+		},
+
+		updateMethodButtons: function(action) {
+			action = action || this.state.action || 'login';
+			var isSignup = (action === 'signup');
+			var i18n = (window.SpadaAuthData && window.SpadaAuthData.i18n) || {};
+
+			this.$methodBtns.each(function() {
+				var $btn = $(this);
+				var method = $btn.data('method');
+				var text = '';
+
+				if (isSignup) {
+					if (method === 'email') {
+						text = i18n.signupEmail || $btn.data('signup-text') || 'Signup using Email';
+					} else if (method === 'whatsapp') {
+						text = i18n.signupWhatsapp || $btn.data('signup-text') || 'Signup using Whatsapp';
+					} else if (method === 'sms') {
+						text = i18n.signupSms || $btn.data('signup-text') || 'Signup using SMS';
+					}
+				} else {
+					if (method === 'email') {
+						text = i18n.signInEmail || $btn.data('login-text') || 'Sign in with Email';
+					} else if (method === 'whatsapp') {
+						text = i18n.signInWhatsapp || $btn.data('login-text') || 'Sign in with Whatsapp';
+					} else if (method === 'sms') {
+						text = i18n.signInSms || $btn.data('login-text') || 'Sign in with SMS';
+					}
+				}
+
+				if (text) {
+					$btn.find('.spada-method-text').text(text);
+				}
+			});
 		},
 
 		setupInputView: function(method) {

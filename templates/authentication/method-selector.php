@@ -29,7 +29,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<div class="spada-method-list">
 		<!-- Option 1: Email (Selected by default) -->
-		<a href="#" role="button" class="spada-method-btn is-active" id="spada-method-email" data-method="email">
+		<a href="#" role="button" class="spada-method-btn is-active" id="spada-method-email" data-method="email"
+		   data-login-text="<?php esc_attr_e( 'Sign in with Email', 'spada-core' ); ?>"
+		   data-signup-text="<?php esc_attr_e( 'Signup using Email', 'spada-core' ); ?>">
 			<div class="spada-method-icon">
 				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
@@ -40,7 +42,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</a>
 
 		<!-- Option 2: WhatsApp -->
-		<a href="#" role="button" class="spada-method-btn" id="spada-method-whatsapp" data-method="whatsapp">
+		<a href="#" role="button" class="spada-method-btn" id="spada-method-whatsapp" data-method="whatsapp"
+		   data-login-text="<?php esc_attr_e( 'Sign in with Whatsapp', 'spada-core' ); ?>"
+		   data-signup-text="<?php esc_attr_e( 'Signup using Whatsapp', 'spada-core' ); ?>">
 			<div class="spada-method-icon">
 				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
@@ -50,7 +54,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</a>
 
 		<!-- Option 3: SMS -->
-		<a href="#" role="button" class="spada-method-btn" id="spada-method-sms" data-method="sms">
+		<a href="#" role="button" class="spada-method-btn" id="spada-method-sms" data-method="sms"
+		   data-login-text="<?php esc_attr_e( 'Sign in with SMS', 'spada-core' ); ?>"
+		   data-signup-text="<?php esc_attr_e( 'Signup using SMS', 'spada-core' ); ?>">
 			<div class="spada-method-icon">
 				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
