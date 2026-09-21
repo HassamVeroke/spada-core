@@ -31,6 +31,68 @@ class Spada_Mobile_Login {
 		add_filter( 'xoo_ml_phone_input_field_args', array( __CLASS__, 'filter_phone_input_args' ), 999 );
 		add_action( 'template_redirect', array( __CLASS__, 'cleanup_account_page_phone_fields' ), 20 );
 		add_action( 'wp_footer', array( __CLASS__, 'output_unfocusable_fix_script' ), 99 );
+
+		// Prevent Mobile Login from throwing "Phone field cannot be empty" on standard account details save
+		add_filter( 'xoo_ml_get_phone_forms', array( __CLASS__, 'filter_phone_forms' ), 999 );
+		add_action( 'template_redirect', array( __CLASS__, 'handle_account_details_sync' ), 5 );
+	}
+
+	/**
+	 * Remove save-account-details-nonce from mobile login's intercepted phone forms.
+	 *
+	 * Without this, mobile login intercepts save_account_details submissions on init,
+	 * expects its own xoo-ml-reg-phone and xoo-ml-form-token fields, and throws
+	 * 'Phone field cannot be empty' before the account update handler ever runs.
+	 *
+	 * @param array $forms Array of intercepted form definitions.
+	 * @return array Filtered form definitions.
+	 */
+	public static function filter_phone_forms( $forms ) {
+		if ( is_array( $forms ) ) {
+			foreach ( $forms as $key => $form ) {
+				if ( isset( $form['key'] ) && 'save-account-details-nonce' === $form['key'] ) {
+					unset( $forms[ $key ] );
+				}
+			}
+			$forms = array_values( $forms );
+		}
+		return $forms;
+	}
+
+	/**
+	 * Sync account details (first_name, display_name, billing_phone, shipping_phone, xoo_ml_phone_no)
+	 * when save_account_details is submitted.
+	 */
+	public static function handle_account_details_sync() {
+		if ( ! is_user_logged_in() || ! isset( $_POST['save_account_details'] ) ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return;
+		}
+
+		if ( ! empty( $_POST['account_first_name'] ) ) {
+			$name = sanitize_text_field( wp_unslash( $_POST['account_first_name'] ) );
+			wp_update_user(
+				array(
+					'ID'           => $user_id,
+					'first_name'   => $name,
+					'display_name' => $name,
+				)
+			);
+		}
+
+		if ( ! empty( $_POST['billing_phone'] ) ) {
+			$phone = sanitize_text_field( wp_unslash( $_POST['billing_phone'] ) );
+			update_user_meta( $user_id, 'billing_phone', $phone );
+			update_user_meta( $user_id, 'shipping_phone', $phone );
+
+			$norm = self::normalize_phone( $phone );
+			update_user_meta( $user_id, 'xoo_ml_phone_no', $norm['number'] );
+			update_user_meta( $user_id, 'xoo_ml_phone_code', $norm['code'] );
+		}
 	}
 
 	/**
