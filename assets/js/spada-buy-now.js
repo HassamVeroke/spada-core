@@ -76,6 +76,9 @@ jQuery(function ($) {
 		var decimalSeparator = settings.decimalSeparator || '.';
 		var thousandSeparator = settings.thousandSeparator || ',';
 		var symbol = settings.htmlSymbol || escapeHtml(settings.symbol || '');
+		if (symbol && typeof symbol === 'string') {
+			symbol = symbol.replace(/margin\s*:\s*0\s*!important\s*;?/gi, '');
+		}
 
 		var number = price.toFixed(decimals).split('.');
 		number[0] = number[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeparator);
@@ -93,7 +96,17 @@ jQuery(function ($) {
 	}
 
 	function setButtonHtml($button, html) {
-		getButtonTextElement($button).html(html);
+		if (html && typeof html === 'string') {
+			html = html.replace(/margin\s*:\s*0\s*!important\s*;?/gi, '');
+		}
+		var $textEl = getButtonTextElement($button);
+		$textEl.html(html);
+		$textEl.find('img').each(function() {
+			var style = $(this).attr('style');
+			if (style && /margin\s*:\s*0\s*!important/i.test(style)) {
+				$(this).attr('style', style.replace(/margin\s*:\s*0\s*!important\s*;?/gi, ''));
+			}
+		});
 	}
 
 	function setVariableSelectOptionsText($button) {

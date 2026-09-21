@@ -13,6 +13,7 @@
 		init: function() {
 			this.bindEvents();
 			this.initHeroTitleSync();
+			this.initEmailSync();
 		},
 
 		bindEvents: function() {
@@ -264,6 +265,95 @@
 					});
 				}
 			}
+		},
+
+		initEmailSync: function() {
+			var self = this;
+			var placeholderText = (window.SpadaFCOrderSummary && SpadaFCOrderSummary.isRtl) ? 'أدخل بريدك الإلكتروني' : 'Enter you email';
+			var savedUserEmail = (window.SpadaFCOrderSummary && SpadaFCOrderSummary.userEmail) ? SpadaFCOrderSummary.userEmail : '';
+
+			var syncEmails = function() {
+				var $shippingEmail = $('input[name="shipping_email"]');
+				var $billingEmail  = $('input[name="billing_email"]');
+
+				// 1. Ensure placeholder on shipping_email
+				if ($shippingEmail.length) {
+					var currentPlaceholder = $shippingEmail.attr('placeholder');
+					if (!currentPlaceholder || currentPlaceholder !== placeholderText) {
+						$shippingEmail.attr('placeholder', placeholderText);
+					}
+				}
+
+				// 2. Auto-fill saved email for logged-in users if field is currently empty
+				if (savedUserEmail) {
+					if ($shippingEmail.length && !$shippingEmail.val()) {
+						$shippingEmail.val(savedUserEmail).trigger('input').trigger('change');
+					}
+					if ($billingEmail.length && !$billingEmail.val()) {
+						$billingEmail.val(savedUserEmail).trigger('input').trigger('change');
+					}
+				}
+
+				// 3. Make shipping_email, billing_email and any email fields optional in DOM
+				var $allEmailFields = $('input[name="shipping_email"], input[name="billing_email"], input[type="email"]');
+				$allEmailFields.each(function() {
+					var $input = $(this);
+					$input.prop('required', false).removeAttr('required');
+					var $row = $input.closest('.form-row, .fc-substep__field, .fc-field');
+					$row.removeClass('validate-required is-required').addClass('validate-optional is-optional');
+					$row.find('label .required, label .fc-field__required-mark').remove();
+				});
+
+				// 4. Ensure billing_email input exists in checkout form so POST always carries it
+				var currentShippingVal = $shippingEmail.length ? $.trim($shippingEmail.val()) : '';
+				if (currentShippingVal) {
+					if ($billingEmail.length) {
+						if ($billingEmail.val() !== currentShippingVal) {
+							$billingEmail.val(currentShippingVal);
+						}
+					} else {
+						// If billing_email input does not exist in DOM (e.g. single-step shipping only), create hidden field
+						var $checkoutForm = $('form.checkout');
+						if ($checkoutForm.length && !$('#spada_synced_billing_email').length) {
+							$checkoutForm.append('<input type="hidden" id="spada_synced_billing_email" name="billing_email" value="' + currentShippingVal + '" />');
+						} else if ($('#spada_synced_billing_email').length) {
+							$('#spada_synced_billing_email').val(currentShippingVal);
+						}
+					}
+				}
+			};
+
+			// Run sync on load and checkout lifecycle events
+			syncEmails();
+			$(window).on('load', syncEmails);
+			$(document.body).on('updated_checkout init_checkout checkout_error fc_step_loaded fc_substep_loaded', syncEmails);
+
+			// Real-time synchronization when user types or changes shipping email
+			$(document).on('input change blur', 'input[name="shipping_email"]', function() {
+				var val = $.trim($(this).val());
+				var $billingEmail = $('input[name="billing_email"]');
+				if ($billingEmail.length) {
+					$billingEmail.val(val);
+				}
+				var $hiddenBilling = $('#spada_synced_billing_email');
+				if ($hiddenBilling.length) {
+					$hiddenBilling.val(val);
+				} else if (!$billingEmail.length) {
+					var $checkoutForm = $('form.checkout');
+					if ($checkoutForm.length) {
+						$checkoutForm.append('<input type="hidden" id="spada_synced_billing_email" name="billing_email" value="' + val + '" />');
+					}
+				}
+			});
+
+			// If billing email is changed directly, sync back to shipping email
+			$(document).on('input change blur', 'input[name="billing_email"]:not(#spada_synced_billing_email)', function() {
+				var val = $.trim($(this).val());
+				var $shippingEmail = $('input[name="shipping_email"]');
+				if ($shippingEmail.length && val && !$shippingEmail.val()) {
+					$shippingEmail.val(val);
+				}
+			});
 		}
 	};
 

@@ -178,6 +178,7 @@ class Spada_FC_Order_Summary {
 				'shopUrl'     => function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' ),
 				'isRtl'       => is_rtl(),
 				'couponEmpty' => __( 'Please enter a coupon code.', 'spada-core' ),
+				'userEmail'   => class_exists( 'Spada_FC_Checkout_Fields' ) ? Spada_FC_Checkout_Fields::get_logged_in_user_email() : '',
 			)
 		);
 	}

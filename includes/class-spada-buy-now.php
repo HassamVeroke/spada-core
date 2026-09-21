@@ -42,7 +42,8 @@ class Spada_Buy_Now {
 			return;
 		}
 
-		$currency_symbol = get_woocommerce_currency_symbol();
+		$currency_symbol        = get_woocommerce_currency_symbol();
+		$button_currency_symbol = preg_replace( '/margin\s*:\s*0\s*!important\s*;?/i', '', $currency_symbol );
 
 		wp_enqueue_script( 'wc-add-to-cart' );
 		wp_enqueue_script( 'wc-add-to-cart-variation' );
@@ -73,7 +74,7 @@ class Spada_Buy_Now {
 				'currency'    => array(
 					'symbol'           => wp_strip_all_tags( $currency_symbol ),
 					'htmlSymbol'       => wp_kses(
-						$currency_symbol,
+						$button_currency_symbol,
 						array(
 							'img' => array(
 								'src'     => true,
@@ -125,15 +126,21 @@ class Spada_Buy_Now {
 			);
 		}
 
+		$price_html = ( $product->is_type( 'simple' ) && '' !== $product->get_price() )
+			? wp_kses_post( wc_price( $product->get_price() ) )
+			: '';
+
+		if ( ! empty( $price_html ) ) {
+			$price_html = preg_replace( '/margin\s*:\s*0\s*!important\s*;?/i', '', $price_html );
+		}
+
 		wp_send_json_success(
 			array(
 				'id'          => $product->get_id(),
 				'type'        => $product->is_type( 'variable' ) ? 'variable' : 'simple',
 				'in_stock'    => $product->is_in_stock(),
 				'purchasable' => $product->is_purchasable(),
-				'price_html'  => $product->is_type( 'simple' ) && '' !== $product->get_price()
-					? wp_kses_post( wc_price( $product->get_price() ) )
-					: '',
+				'price_html'  => $price_html,
 			)
 		);
 	}

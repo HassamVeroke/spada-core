@@ -40,6 +40,9 @@ require_once SPADA_CORE_PATH . 'includes/my-account/class-spada-my-account.php';
 // Load Fluid Checkout Order Summary customization module
 require_once SPADA_CORE_PATH . 'includes/fluid-checkout/class-spada-fc-order-summary.php';
 
+// Load Fluid Checkout Fields & Email Sync module
+require_once SPADA_CORE_PATH . 'includes/fluid-checkout/class-spada-fc-checkout-fields.php';
+
 // Initialize Buy Now instance
 Spada_Buy_Now::instance();
 
@@ -49,6 +52,7 @@ add_action( 'plugins_loaded', function() {
 		Spada_Auth::init();
 		Spada_My_Account::init();
 		Spada_FC_Order_Summary::init();
+		Spada_FC_Checkout_Fields::init();
 	}
 }, 20 );
 
