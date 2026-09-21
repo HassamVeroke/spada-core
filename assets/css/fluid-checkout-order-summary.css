@@ -5,19 +5,7 @@
  * Fonts: Helvetica (body/labels), Oswald (headings & TOTAL), GW Flatgrip (buttons).
  */
 
-:root {
-	--spada-teal: #00adb5;
-	--spada-teal-hover: #00939a;
-	--spada-teal-soft: #e0f7fa;
-	--spada-dark: #111827;
-	--spada-muted: #6b7280;
-	--spada-border: #e5e7eb;
-	--spada-border-light: #f3f4f6;
-	--spada-bg-card: #f4f5f7;
-	--spada-font-display: 'Oswald', sans-serif;
-	--spada-font-body: 'Helvetica', Arial, sans-serif;
-	--spada-font-button: 'GW Flatgrip Regular', 'GW Flatgrip', sans-serif;
-}
+@import url('./spada-variables.css');
 
 /* ==========================================================================
    1. Order Summary Section Header
@@ -194,6 +182,13 @@ table.spada-order-summary-table tbody tr.spada-cart-item {
 	padding: 2px 6px !important;
 	height: 30px !important;
 	box-sizing: border-box !important;
+	direction: ltr !important;
+}
+
+/* Hide any injected spinner buttons from Fluid Checkout Pro or third-party plugins */
+.spada-qty-stepper .fc-number-spin-button,
+.spada-qty-stepper .number-spin-button {
+	display: none !important;
 }
 
 .spada-qty-btn {
@@ -206,6 +201,8 @@ table.spada-order-summary-table tbody tr.spada-cart-item {
 	padding: 0 4px !important;
 	line-height: 1 !important;
 	outline: none !important;
+	user-select: none !important;
+	-webkit-user-select: none !important;
 	transition: opacity 0.15s ease !important;
 }
 

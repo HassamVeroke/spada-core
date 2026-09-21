@@ -85,9 +85,10 @@ defined('ABSPATH') || exit;
 								<div class="spada-item-actions">
 									<!-- Stepper Pill -->
 									<div class="spada-qty-stepper">
+										<button type="button" class="spada-qty-btn is-minus" data-action="decrease" aria-label="<?php esc_attr_e('Decrease quantity', 'spada-core'); ?>" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>">−</button>
 										<input type="number"
 											id="quantity_<?php echo esc_attr($cart_item_key); ?>"
-											class="spada-qty-input"
+											class="spada-qty-input fc-buttons-added buttons-added"
 											name="cart[<?php echo esc_attr($cart_item_key); ?>][qty]"
 											value="<?php echo esc_attr($cart_item['quantity']); ?>"
 											min="1"
@@ -95,6 +96,7 @@ defined('ABSPATH') || exit;
 											step="1"
 											data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>"
 											readonly />
+										<button type="button" class="spada-qty-btn is-plus" data-action="increase" aria-label="<?php esc_attr_e('Increase quantity', 'spada-core'); ?>" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>">+</button>
 									</div>
 
 									<!-- Red Remove Button -->

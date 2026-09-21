@@ -3,19 +3,7 @@
  *
  * Scoped strictly to My Account dashboard and endpoints.
  */
-:root {
-	--spada-teal: #00adb5;
-	--spada-teal-hover: #00939a;
-	--spada-teal-soft: #e0f7fa;
-	--spada-dark: #111827;
-	--spada-muted: #6b7280;
-	--spada-border: #e5e7eb;
-	--spada-border-light: #f3f4f6;
-	--spada-bg-card: #f4f5f7;
-	--spada-font-display: 'Oswald', sans-serif;
-	--spada-font-body: 'Helvetica', Arial, sans-serif;
-	--spada-font-button: 'GW Flatgrip Regular', 'GW Flatgrip', sans-serif;
-}
+@import url('./spada-variables.css');
 
 /* My Account Container */
 .spada-account-welcome-banner {

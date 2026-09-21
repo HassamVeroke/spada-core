@@ -51,3 +51,13 @@ add_action( 'plugins_loaded', function() {
 		Spada_FC_Order_Summary::init();
 	}
 }, 20 );
+
+// Register global design tokens & CSS variables stylesheet
+add_action( 'wp_enqueue_scripts', function() {
+	wp_register_style(
+		'spada-variables',
+		SPADA_CORE_URL . 'assets/css/spada-variables.css',
+		array(),
+		SPADA_CORE_VERSION
+	);
+}, 5 );

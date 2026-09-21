@@ -1,3 +1,5 @@
+@import url('./spada-variables.css');
+
 .spada-buy-now {
 	display: flex !important;
 	width: 100% !important;

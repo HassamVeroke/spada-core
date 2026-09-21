@@ -30,6 +30,9 @@ class Spada_FC_Order_Summary {
 		// Enqueue Order Summary styles and scripts
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ), 30 );
 
+		// Prevent Fluid Checkout Pro number spinner from injecting duplicate buttons into custom review order table
+		add_filter( 'fc_pro_number_spinner_settings', array( __CLASS__, 'disable_fc_pro_number_spinner_on_checkout' ), 50 );
+
 		// AJAX endpoints for interactive quantity stepper, item removal, and inline coupons
 		add_action( 'wp_ajax_spada_fc_update_cart_qty', array( __CLASS__, 'ajax_update_cart_qty' ) );
 		add_action( 'wp_ajax_nopriv_spada_fc_update_cart_qty', array( __CLASS__, 'ajax_update_cart_qty' ) );
@@ -120,6 +123,20 @@ class Spada_FC_Order_Summary {
 	}
 
 	/**
+	 * Prevent Fluid Checkout PRO number spinner from injecting duplicate buttons into the checkout review order table.
+	 *
+	 * @param array $settings Settings array.
+	 * @return array Modified settings array.
+	 */
+	public static function disable_fc_pro_number_spinner_on_checkout( $settings ) {
+		if ( isset( $settings['numberSpinnerOptions']['containerSelector'] ) ) {
+			// Clear checkout review order table selector from number spinner so FC Pro does not add duplicate buttons
+			$settings['numberSpinnerOptions']['containerSelector'] = '';
+		}
+		return $settings;
+	}
+
+	/**
 	 * Enqueue checkout assets.
 	 */
 	public static function enqueue_assets() {
@@ -139,7 +156,7 @@ class Spada_FC_Order_Summary {
 		wp_enqueue_style(
 			'spada-fc-order-summary',
 			SPADA_CORE_URL . 'assets/css/fluid-checkout-order-summary.css',
-			array(),
+			array( 'spada-variables', 'spada-google-font-oswald' ),
 			SPADA_CORE_VERSION
 		);
 

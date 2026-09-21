@@ -50,7 +50,7 @@ class Spada_Buy_Now {
 		wp_enqueue_style(
 			'spada-buy-now',
 			SPADA_BUY_NOW_URL . 'assets/css/spada-buy-now.css',
-			array(),
+			array( 'spada-variables' ),
 			SPADA_BUY_NOW_VERSION
 		);
 

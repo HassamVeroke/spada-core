@@ -1,0 +1,44 @@
+/**
+ * SPADA Core - Global Design Tokens & CSS Variables
+ *
+ * Centralized design system variables for colors, typography, border radius, and shadows.
+ *
+ * @package Spada
+ */
+
+:root {
+	/* Brand & Accent Colors */
+	--spada-teal: #00adb5;
+	--spada-teal-hover: #00939a;
+	--spada-teal-soft: #e0f7fa;
+
+	/* Neutral / Dark Colors */
+	--spada-dark: #111827;
+	--spada-muted: #6b7280;
+	--spada-border: #e5e7eb;
+	--spada-border-light: #f3f4f6;
+	--spada-bg-card: #f4f5f7;
+	--spada-bg-white: #ffffff;
+
+	/* Status & Validation Colors */
+	--spada-danger: #ef4444;
+	--spada-danger-border: #fca5a5;
+	--spada-danger-soft: #fef2f2;
+	--spada-success: #10b981;
+
+	/* Border Radius */
+	--spada-radius-sm: 6px;
+	--spada-radius-md: 8px;
+	--spada-radius-lg: 12px;
+	--spada-radius-xl: 16px;
+	--spada-radius-full: 9999px;
+
+	/* Typography */
+	--spada-font-display: 'Oswald', sans-serif;
+	--spada-font-body: 'Helvetica', Arial, sans-serif;
+	--spada-font-button: 'GW Flatgrip Regular', 'GW Flatgrip', sans-serif;
+
+	/* Shadows & Animations */
+	--spada-transition: all 0.2s ease;
+	--spada-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+}

@@ -47,7 +47,7 @@ class Spada_Auth {
 		wp_enqueue_style(
 			'spada-authentication',
 			SPADA_CORE_URL . 'assets/css/authentication.css',
-			array( 'spada-google-font-oswald' ),
+			array( 'spada-variables', 'spada-google-font-oswald' ),
 			SPADA_CORE_VERSION
 		);
 

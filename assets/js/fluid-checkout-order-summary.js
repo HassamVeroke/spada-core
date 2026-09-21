@@ -8,6 +8,8 @@
 	'use strict';
 
 	var SpadaOrderSummary = {
+		qtyTimer: null,
+
 		init: function() {
 			this.bindEvents();
 		},
@@ -15,8 +17,8 @@
 		bindEvents: function() {
 			var self = this;
 
-			// Quantity Stepper Click
-			$(document).on('click', '.spada-qty-btn', function(e) {
+			// Quantity Stepper Click (supports custom buttons and any fallback spinner buttons)
+			$(document).on('click', '.spada-qty-btn, .spada-qty-stepper .fc-number-spin-button, .spada-qty-stepper .number-spin-button', function(e) {
 				e.preventDefault();
 				self.handleQuantityChange($(this));
 			});
@@ -24,7 +26,15 @@
 			// Item Removal Click
 			$(document).on('click', '.spada-remove-btn', function(e) {
 				e.preventDefault();
+				if (self.qtyTimer) {
+					clearTimeout(self.qtyTimer);
+				}
 				self.handleRemoveItem($(this));
+			});
+
+			// Remove is-loading when WooCommerce finishes checkout fragment refresh
+			$(document.body).on('updated_checkout checkout_error', function() {
+				$('.spada-order-summary-table').removeClass('is-loading');
 			});
 
 			// Toggle Coupon Form
@@ -52,15 +62,34 @@
 		},
 
 		handleQuantityChange: function($btn) {
+			var self = this;
+			var $stepper = $btn.closest('.spada-qty-stepper');
+			var $input = $stepper.find('.spada-qty-input');
+			if (!$input.length) {
+				$input = $btn.siblings('.spada-qty-input');
+			}
+
+			var cartKey = $btn.data('cart_item_key') || $input.data('cart_item_key') || $btn.closest('.spada-cart-item').data('cart_item_key');
+			if (!cartKey) {
+				return;
+			}
+
 			var action = $btn.data('action');
-			var cartKey = $btn.data('cart_item_key');
-			var $input = $btn.siblings('.spada-qty-input');
+			if (!action) {
+				if ($btn.hasClass('is-minus') || $btn.hasClass('fc-minus') || $btn.hasClass('minus') || $btn.data('number-spinner-button') === 'minus') {
+					action = 'decrease';
+				} else if ($btn.hasClass('is-plus') || $btn.hasClass('fc-plus') || $btn.hasClass('plus') || $btn.data('number-spinner-button') === 'plus') {
+					action = 'increase';
+				}
+			}
+
 			var currentVal = parseInt($input.val(), 10) || 1;
+			var minVal = parseInt($input.attr('min'), 10) || 1;
 			var maxVal = parseInt($input.attr('max'), 10);
 			var newVal = currentVal;
 
 			if (action === 'decrease') {
-				if (currentVal > 1) {
+				if (currentVal > minVal) {
 					newVal = currentVal - 1;
 				} else {
 					return;
@@ -74,7 +103,15 @@
 			}
 
 			$input.val(newVal);
-			this.updateQuantityAjax(cartKey, newVal);
+
+			// Debounce AJAX request slightly so quick clicks update instantly
+			if (self.qtyTimer) {
+				clearTimeout(self.qtyTimer);
+			}
+
+			self.qtyTimer = setTimeout(function() {
+				self.updateQuantityAjax(cartKey, newVal);
+			}, 300);
 		},
 
 		updateQuantityAjax: function(cartKey, qty) {

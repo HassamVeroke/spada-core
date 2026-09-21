@@ -5,22 +5,7 @@
  * Styled to blend seamlessly with Elementor Hero Section.
  */
 
-:root {
-	--spada-teal: #00adb5;
-	--spada-teal-hover: #00939a;
-	--spada-teal-soft: #e0f7fa;
-	--spada-dark: #111827;
-	--spada-muted: #6b7280;
-	--spada-border: #e5e7eb;
-	--spada-border-light: #f3f4f6;
-	--spada-radius-sm: 6px;
-	--spada-radius-md: 8px;
-	--spada-radius-lg: 12px;
-	--spada-radius-xl: 16px;
-	--spada-font-display: 'Oswald', sans-serif;
-	--spada-font-body: 'Helvetica', Arial, sans-serif;
-	--spada-font-button: 'GW Flatgrip Regular', 'GW Flatgrip', sans-serif;
-}
+@import url('./spada-variables.css');
 
 /* 1. Global Wrapper */
 .spada-auth-wrapper {

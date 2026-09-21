@@ -34,7 +34,7 @@ class Spada_My_Account {
 		wp_enqueue_style(
 			'spada-my-account',
 			SPADA_CORE_URL . 'assets/css/my-account.css',
-			array(),
+			array( 'spada-variables' ),
 			SPADA_CORE_VERSION
 		);
 
