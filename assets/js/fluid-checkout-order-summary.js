@@ -12,6 +12,7 @@
 
 		init: function() {
 			this.bindEvents();
+			this.initHeroTitleSync();
 		},
 
 		bindEvents: function() {
@@ -195,6 +196,74 @@
 					$table.removeClass('is-loading');
 				}
 			});
+		},
+
+		originalHeroTitle: null,
+
+		initHeroTitleSync: function() {
+			var self = this;
+
+			var updateHeroTitle = function() {
+				var $paymentStep = $('.fc-checkout-step[data-step-id="payment"]');
+				var isPayment = $paymentStep.length > 0 && (
+					$paymentStep.is('[data-step-current]') ||
+					$paymentStep.attr('data-step-current') !== undefined ||
+					document.body.classList.contains('fc-checkout-step-current--payment')
+				);
+
+				var $heroHeading = $('.hero_title h1');
+				if (!$heroHeading.length) {
+					return;
+				}
+
+				if (self.originalHeroTitle === null) {
+					var initialText = $.trim($heroHeading.text());
+					if (initialText && initialText.toLowerCase() !== 'payment') {
+						self.originalHeroTitle = initialText;
+					} else {
+						self.originalHeroTitle = 'Checkout';
+					}
+				}
+
+				if (isPayment) {
+					if ($.trim($heroHeading.text()) !== 'Payment') {
+						$heroHeading.text('Payment');
+					}
+				} else if (self.originalHeroTitle) {
+					if ($.trim($heroHeading.text()) !== self.originalHeroTitle) {
+						$heroHeading.text(self.originalHeroTitle);
+					}
+				}
+			};
+
+			// Run on initial execution, ready, and window load
+			updateHeroTitle();
+			$(window).on('load', updateHeroTitle);
+
+			// Listen to WooCommerce checkout refresh events
+			$(document.body).on('updated_checkout update_checkout checkout_error init_checkout', updateHeroTitle);
+
+			// Listen to step navigation clicks (next, edit, progress bar steps)
+			$(document).on('click', '[data-step-next], [data-step-edit], .fc-checkout-step, .fc-step__substep, .fc-progress-bar__step', function() {
+				setTimeout(updateHeroTitle, 50);
+				setTimeout(updateHeroTitle, 250);
+			});
+
+			// MutationObserver to catch attribute changes (data-step-current) on payment step or container
+			if (window.MutationObserver) {
+				var observer = new MutationObserver(function() {
+					updateHeroTitle();
+				});
+
+				var stepsContainer = document.querySelector('.fc-checkout-steps') || document.querySelector('.fc-wrapper') || document.body;
+				if (stepsContainer) {
+					observer.observe(stepsContainer, {
+						attributes: true,
+						subtree: true,
+						attributeFilter: ['data-step-current', 'class']
+					});
+				}
+			}
 		}
 	};
 
