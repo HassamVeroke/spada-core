@@ -10,9 +10,15 @@
 
 	var SpadaAccount = {
 		init: function() {
+			this.disarmUnfocusableInputs();
 			this.hideHeroSection();
 			this.bindEvents();
 			this.checkQueryParams();
+		},
+
+		disarmUnfocusableInputs: function() {
+			$('input[name="xoo-ml-reg-phone"], input[name="xoo-ml-reg-phone-cc"], input.xoo-ml-phone-input').prop('required', false).removeAttr('required').removeAttr('aria-required');
+			$('.custom-account-form, #spada-profile-form, form.woocommerce-EditAccountForm').attr('novalidate', 'novalidate');
 		},
 
 		hideHeroSection: function() {
@@ -59,6 +65,7 @@
 			// 2. Profile Form Submission via AJAX
 			$(document).on('submit', '#spada-profile-form', function(e) {
 				e.preventDefault();
+				self.disarmUnfocusableInputs();
 				self.handleSaveProfile();
 			});
 

@@ -26,6 +26,93 @@ class Spada_Mobile_Login {
 
 		add_action( 'wp_ajax_nopriv_spada_resend_phone_otp', array( __CLASS__, 'ajax_resend_phone_otp' ) );
 		add_action( 'wp_ajax_spada_resend_phone_otp', array( __CLASS__, 'ajax_resend_phone_otp' ) );
+
+		// Prevent HTML5 "An invalid form control with name='xoo-ml-reg-phone' is not focusable" crash
+		add_filter( 'xoo_ml_phone_input_field_args', array( __CLASS__, 'filter_phone_input_args' ), 999 );
+		add_action( 'template_redirect', array( __CLASS__, 'cleanup_account_page_phone_fields' ), 20 );
+		add_action( 'wp_footer', array( __CLASS__, 'output_unfocusable_fix_script' ), 99 );
+	}
+
+	/**
+	 * Prevent HTML5 'An invalid form control is not focusable' browser error.
+	 *
+	 * When show_phone is 'required', the mobile login template outputs required attribute
+	 * on input[name="xoo-ml-reg-phone"]. If this field is hidden (e.g. in multi-step, tabs,
+	 * or hidden native WooCommerce forms), browser form submission crashes because hidden
+	 * required inputs cannot receive focus.
+	 *
+	 * Setting show_phone to 'optional' removes the HTML5 required attribute from the DOM element,
+	 * while preserving mobile login's server-side and JS verification logic.
+	 *
+	 * @param array $args Phone input field arguments.
+	 * @return array
+	 */
+	public static function filter_phone_input_args( $args ) {
+		if ( isset( $args['show_phone'] ) && $args['show_phone'] === 'required' ) {
+			$args['show_phone'] = 'optional';
+		}
+		return $args;
+	}
+
+	/**
+	 * Unhook mobile login from default WooCommerce account forms on My Account page
+	 * where Spada's custom authentication portal and dashboard are active.
+	 */
+	public static function cleanup_account_page_phone_fields() {
+		if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+			if ( class_exists( 'Xoo_Ml_Phone_Frontend' ) ) {
+				$frontend = Xoo_Ml_Phone_Frontend::get_instance();
+				remove_action( 'woocommerce_register_form_start', array( $frontend, 'wc_register_phone_input' ) );
+				remove_action( 'woocommerce_edit_account_form_start', array( $frontend, 'wc_myaccount_edit_phone_input' ) );
+				remove_action( 'woocommerce_login_form_end', array( $frontend, 'wc_login_with_otp_form' ) );
+			}
+		}
+	}
+
+	/**
+	 * Global client-side safeguard to ensure hidden required inputs cannot block form submission.
+	 */
+	public static function output_unfocusable_fix_script() {
+		?>
+		<script>
+		(function() {
+			function fixUnfocusablePhoneFields() {
+				var phoneInputs = document.querySelectorAll('input[name="xoo-ml-reg-phone"], input[name="xoo-ml-reg-phone-cc"], input.xoo-ml-phone-input');
+				for (var i = 0; i < phoneInputs.length; i++) {
+					phoneInputs[i].removeAttribute('required');
+					phoneInputs[i].removeAttribute('aria-required');
+					phoneInputs[i].required = false;
+				}
+				var hiddenContainers = document.querySelectorAll('.spada-native-login-hidden, .register-form[style*="none"], [style*="display: none"] form, [style*="display:none"] form');
+				for (var j = 0; j < hiddenContainers.length; j++) {
+					var hiddenInputs = hiddenContainers[j].querySelectorAll('input, select, textarea');
+					for (var k = 0; k < hiddenInputs.length; k++) {
+						hiddenInputs[k].removeAttribute('required');
+						hiddenInputs[k].removeAttribute('aria-required');
+						hiddenInputs[k].required = false;
+					}
+					var forms = hiddenContainers[j].matches('form') ? [hiddenContainers[j]] : hiddenContainers[j].querySelectorAll('form');
+					for (var f = 0; f < forms.length; f++) {
+						forms[f].setAttribute('novalidate', 'novalidate');
+					}
+				}
+				var targetForms = document.querySelectorAll('form.woocommerce-form, form.register, form.login, form.custom-account-form, form.woocommerce-EditAccountForm, #spada-profile-form, #spada-identifier-form');
+				for (var m = 0; m < targetForms.length; m++) {
+					targetForms[m].setAttribute('novalidate', 'novalidate');
+				}
+			}
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', fixUnfocusablePhoneFields);
+			} else {
+				fixUnfocusablePhoneFields();
+			}
+			window.addEventListener('load', fixUnfocusablePhoneFields);
+			document.addEventListener('submit', function() {
+				fixUnfocusablePhoneFields();
+			}, true);
+		})();
+		</script>
+		<?php
 	}
 
 	/**

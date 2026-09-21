@@ -120,6 +120,13 @@ class Spada_Auth {
 		}
 		$rendered = true;
 
+		// Unhook mobile login from hidden native forms
+		if ( class_exists( 'Xoo_Ml_Phone_Frontend' ) ) {
+			$frontend = Xoo_Ml_Phone_Frontend::get_instance();
+			remove_action( 'woocommerce_register_form_start', array( $frontend, 'wc_register_phone_input' ) );
+			remove_action( 'woocommerce_login_form_end', array( $frontend, 'wc_login_with_otp_form' ) );
+		}
+
 		include SPADA_CORE_PATH . 'templates/authentication/account-portal.php';
 
 		// Prevent default unstyled WooCommerce forms from appearing below
@@ -128,6 +135,25 @@ class Spada_Auth {
 			'woocommerce_after_customer_login_form',
 			function() {
 				echo '</div>';
+				?>
+				<script>
+				(function() {
+					var wrap = document.querySelector('.spada-native-login-hidden');
+					if (wrap) {
+						var controls = wrap.querySelectorAll('input, select, textarea, button');
+						for (var i = 0; i < controls.length; i++) {
+							controls[i].removeAttribute('required');
+							controls[i].removeAttribute('aria-required');
+							controls[i].disabled = true;
+						}
+						var forms = wrap.querySelectorAll('form');
+						for (var j = 0; j < forms.length; j++) {
+							forms[j].setAttribute('novalidate', 'novalidate');
+						}
+					}
+				})();
+				</script>
+				<?php
 			},
 			99
 		);

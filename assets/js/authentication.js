@@ -20,9 +20,16 @@
 
 		init: function() {
 			this.cacheDom();
+			this.disarmUnfocusableInputs();
 			this.bindEvents();
 			this.initOtpGrid();
 			this.checkInitialAction();
+		},
+
+		disarmUnfocusableInputs: function() {
+			$('input[name="xoo-ml-reg-phone"], input[name="xoo-ml-reg-phone-cc"], input.xoo-ml-phone-input').prop('required', false).removeAttr('required').removeAttr('aria-required');
+			$('.spada-native-login-hidden').find('input, select, textarea, button').prop('required', false).removeAttr('required').prop('disabled', true);
+			$('form').attr('novalidate', 'novalidate');
 		},
 
 		cacheDom: function() {
@@ -167,6 +174,7 @@
 				this.updateMethodButtons(this.state.action);
 			}
 			this.clearNotices();
+			this.disarmUnfocusableInputs();
 		},
 
 		checkInitialAction: function() {
