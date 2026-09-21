@@ -108,7 +108,7 @@ defined('ABSPATH') || exit;
 											data-product_sku="<?php echo esc_attr($_product->get_sku()); ?>"
 											aria-label="<?php esc_attr_e('Remove item', 'spada-core'); ?>"
 											title="<?php esc_attr_e('Remove item', 'spada-core'); ?>">
-											<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+											<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 												<polyline points="3 6 5 6 21 6"></polyline>
 												<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
 												<line x1="10" y1="11" x2="10" y2="17"></line>
@@ -136,7 +136,7 @@ defined('ABSPATH') || exit;
 				?>
 				<a href="<?php echo esc_url($shop_url); ?>" class="spada-add-more-btn" id="spada-add-more-link">
 					<span class="spada-add-more-box" aria-hidden="true">
-						<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 							<line x1="12" y1="5" x2="12" y2="19"></line>
 							<line x1="5" y1="12" x2="19" y2="12"></line>
 						</svg>

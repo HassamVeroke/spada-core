@@ -22,12 +22,12 @@
 
 .fc-checkout-order-review-title,
 #order_review_heading {
-	font-family: var(--spada-font-display) !important;
-	font-size: 16px !important;
+	font-family: var(--spada-font-body) !important;
+	font-size: 14px !important;
 	font-weight: 700 !important;
 	text-transform: uppercase !important;
 	letter-spacing: 0.5px !important;
-	color: var(--spada-dark) !important;
+	color: #374151 !important;
 	margin: 0 !important;
 	line-height: 1.2 !important;
 }
@@ -35,7 +35,7 @@
 .fc-cart-items-count {
 	font-family: var(--spada-font-body) !important;
 	font-size: 14px !important;
-	color: var(--spada-muted) !important;
+	color: #6b7280 !important;
 	font-weight: 400 !important;
 }
 
@@ -91,7 +91,7 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 .spada-cart-item-inner {
 	display: flex !important;
 	align-items: flex-start !important;
-	gap: 14px !important;
+	gap: 16px !important;
 	width: 100% !important;
 	box-sizing: border-box !important;
 }
@@ -117,16 +117,18 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 	padding: 4px !important;
 	border: none !important;
 	box-shadow: none !important;
+	display: block !important;
 }
 
 /* Product Content Details */
 .spada-item-details {
 	flex: 1 1 auto !important;
 	min-width: 0 !important;
-	width: calc(100% - 82px) !important;
+	width: calc(100% - 84px) !important;
 	display: flex !important;
 	flex-direction: column !important;
 	justify-content: space-between !important;
+	min-height: 68px !important;
 	box-sizing: border-box !important;
 }
 
@@ -136,16 +138,16 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 	align-items: flex-start !important;
 	justify-content: space-between !important;
 	width: 100% !important;
-	gap: 8px !important;
+	gap: 12px !important;
 	margin-bottom: 2px !important;
 	box-sizing: border-box !important;
 }
 
 .spada-item-title {
 	font-family: var(--spada-font-body) !important;
-	font-size: 14.5px !important;
+	font-size: 15px !important;
 	font-weight: 700 !important;
-	color: var(--spada-dark) !important;
+	color: #111827 !important;
 	margin: 0 !important;
 	line-height: 1.3 !important;
 	flex: 1 1 auto !important;
@@ -153,19 +155,22 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 
 .spada-item-subtotal {
 	font-family: var(--spada-font-body) !important;
-	font-size: 14.5px !important;
+	font-size: 15.5px !important;
 	font-weight: 700 !important;
-	color: var(--spada-dark) !important;
+	color: #111827 !important;
 	white-space: nowrap !important;
 	text-align: right !important;
+	line-height: 1.3 !important;
+	margin: 0 !important;
 }
 
 /* Middle Line: Pack Size / Variation Meta */
 .spada-item-meta {
 	font-family: var(--spada-font-body) !important;
-	font-size: 12.5px !important;
-	color: var(--spada-muted) !important;
-	margin-bottom: 6px !important;
+	font-size: 13.5px !important;
+	font-weight: 400 !important;
+	color: #6b7280 !important;
+	margin: 2px 0 6px 0 !important;
 	line-height: 1.3 !important;
 }
 
@@ -180,7 +185,8 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 .spada-item-meta dl.variation dd {
 	margin: 0 !important;
 	display: inline-block !important;
-	font-size: 12px !important;
+	font-size: 13.5px !important;
+	color: #6b7280 !important;
 }
 
 /* Bottom Line: Unit Price & Stepper + Remove */
@@ -188,31 +194,37 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 	display: flex !important;
 	align-items: center !important;
 	justify-content: space-between !important;
+	width: 100% !important;
 	margin-top: 4px !important;
+	box-sizing: border-box !important;
 }
 
 .spada-item-unit-price {
 	font-family: var(--spada-font-body) !important;
-	font-size: 13.5px !important;
+	font-size: 15px !important;
 	font-weight: 600 !important;
-	color: var(--spada-dark) !important;
+	color: #111827 !important;
+	line-height: 1 !important;
+	margin: 0 !important;
 }
 
 .spada-item-actions {
 	display: inline-flex !important;
 	align-items: center !important;
 	gap: 8px !important;
+	margin: 0 !important;
 }
 
 /* Stepper Pill */
 .spada-qty-stepper {
 	display: inline-flex !important;
 	align-items: center !important;
-	border: 1px solid #d1d5db !important;
+	justify-content: center !important;
+	border: 1px solid #9ca3af !important;
 	border-radius: 9999px !important;
 	background: #ffffff !important;
-	padding: 2px 6px !important;
-	height: 30px !important;
+	padding: 0 4px !important;
+	height: 32px !important;
 	box-sizing: border-box !important;
 	direction: ltr !important;
 }
@@ -226,16 +238,20 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 .spada-qty-btn {
 	background: none !important;
 	border: none !important;
-	font-size: 14px !important;
-	font-weight: 600 !important;
-	color: var(--spada-dark) !important;
+	font-size: 16px !important;
+	font-weight: 500 !important;
+	color: #374151 !important;
 	cursor: pointer !important;
-	padding: 0 4px !important;
+	padding: 0 6px !important;
 	line-height: 1 !important;
 	outline: none !important;
 	user-select: none !important;
 	-webkit-user-select: none !important;
 	text-decoration: none !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	height: 100% !important;
 	transition: opacity 0.15s ease !important;
 }
 
@@ -244,6 +260,7 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 .spada-qty-btn:active {
 	outline: none !important;
 	text-decoration: none !important;
+	color: #111827 !important;
 }
 
 .spada-qty-btn:disabled,
@@ -260,13 +277,15 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 	background: transparent !important;
 	text-align: center !important;
 	font-family: var(--spada-font-body) !important;
-	font-size: 13px !important;
-	font-weight: 700 !important;
-	color: var(--spada-dark) !important;
+	font-size: 14px !important;
+	font-weight: 600 !important;
+	color: #111827 !important;
 	padding: 0 !important;
 	margin: 0 !important;
 	outline: none !important;
 	-moz-appearance: textfield !important;
+	height: 100% !important;
+	line-height: normal !important;
 }
 
 .spada-qty-input::-webkit-outer-spin-button,
@@ -277,9 +296,9 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 
 /* Red Remove Button */
 .spada-remove-btn {
-	width: 30px !important;
-	height: 30px !important;
-	border: 1px solid #fca5a5 !important;
+	width: 34px !important;
+	height: 32px !important;
+	border: 1px solid #ef4444 !important;
 	border-radius: 6px !important;
 	background-color: #ffffff !important;
 	display: inline-flex !important;
@@ -287,15 +306,21 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 	justify-content: center !important;
 	color: #ef4444 !important;
 	cursor: pointer !important;
-	transition: all 0.2s ease !important;
+	transition: background-color 0.15s ease, border-color 0.15s ease !important;
 	text-decoration: none !important;
 	box-sizing: border-box !important;
+	padding: 0 !important;
 }
 
 .spada-remove-btn:hover {
 	background-color: #fee2e2 !important;
-	border-color: #ef4444 !important;
+	border-color: #dc2626 !important;
 	color: #dc2626 !important;
+}
+
+.spada-remove-btn svg {
+	display: block !important;
+	stroke: #ef4444 !important;
 }
 
 /* ==========================================================================
@@ -307,7 +332,7 @@ table.spada-order-summary-table td.spada-add-more-cell,
 .spada-add-more-cell {
 	display: table-cell !important;
 	width: 100% !important;
-	padding: 10px 0 14px 0 !important;
+	padding: 12px 0 16px 0 !important;
 	border: none !important;
 	background: transparent !important;
 	box-sizing: border-box !important;
@@ -316,40 +341,51 @@ table.spada-order-summary-table td.spada-add-more-cell,
 .spada-add-more-btn {
 	display: inline-flex !important;
 	align-items: center !important;
-	gap: 12px !important;
+	gap: 16px !important;
 	text-decoration: none !important;
 	outline: none !important;
 	cursor: pointer !important;
 }
 
 .spada-add-more-box {
-	width: 44px !important;
-	height: 44px !important;
+	flex: 0 0 68px !important;
+	width: 68px !important;
+	height: 68px !important;
 	border: 1.5px solid var(--spada-teal) !important;
-	border-radius: var(--spada-radius-sm) !important;
-	background-color: var(--spada-teal-light) !important;
+	border-radius: 8px !important;
+	background-color: #e6f8fa !important;
 	display: flex !important;
 	align-items: center !important;
 	justify-content: center !important;
 	color: var(--spada-teal) !important;
+	box-sizing: border-box !important;
 	transition: transform 0.15s ease, background-color 0.15s ease !important;
+}
+
+.spada-add-more-box svg {
+	width: 26px !important;
+	height: 26px !important;
+	stroke: var(--spada-teal) !important;
+	stroke-width: 2.5 !important;
 }
 
 .spada-add-more-btn:hover .spada-add-more-box {
 	background-color: #cffafe !important;
-	transform: scale(1.04);
+	transform: scale(1.02);
 }
 
 .spada-add-more-label {
-	font-family: var(--spada-font-button) !important;
-	font-size: 15px !important;
-	font-weight: 500 !important;
+	font-family: var(--spada-font-body) !important;
+	font-size: 16px !important;
+	font-weight: 600 !important;
 	color: var(--spada-teal) !important;
 	text-decoration: none !important;
+	line-height: 1 !important;
 }
 
 .spada-add-more-btn:hover .spada-add-more-label {
 	color: var(--spada-teal-hover) !important;
+	text-decoration: none !important;
 }
 
 /* ==========================================================================
