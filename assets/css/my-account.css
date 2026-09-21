@@ -2,127 +2,445 @@
  * SPADA My Account Custom Styles
  *
  * Scoped strictly to My Account dashboard and endpoints.
+ * Matches design in user screenshot: clean white profile card, floating notch labels,
+ * black SAVE CHANGES button, centered ORDERS and SUBSCRIPTIONS tabs, outline LOG OUT button.
+ * Completely hides the hero section and default WooCommerce sidebar navigation when logged in.
  */
 @import url('./spada-variables.css');
 
-/* My Account Container */
-.spada-account-welcome-banner {
-	background: #ffffff;
-	border: 1px solid var(--spada-border);
-	border-radius: var(--spada-radius-lg);
-	padding: 24px 28px;
-	margin-bottom: 28px;
-	display: flex;
-	align-items: center;
-	gap: 20px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+/* 1. HIDE HERO SECTION ON LOGGED-IN ACCOUNT PAGE */
+body.woocommerce-account.logged-in .hero_title,
+body.woocommerce-account.logged-in .hero-lg,
+body.woocommerce-account.logged-in .hero-sm,
+body.woocommerce-account.logged-in .w1200-hero-cc,
+body.woocommerce-account.logged-in .page-header,
+body.woocommerce-account.logged-in .entry-header,
+body.woocommerce-account.logged-in .spada-auth-header,
+body.woocommerce-account.logged-in .elementor-element.hero-lg,
+body.woocommerce-account.logged-in .elementor-element.hero-sm,
+body.woocommerce-account.logged-in .elementor-element.hero_title,
+body.woocommerce-account.logged-in .elementor-section:has(.hero_title),
+body.woocommerce-account.logged-in .elementor-top-section:has(.hero_title),
+body.woocommerce-account.logged-in .elementor-section:has(h1.elementor-heading-title:empty),
+body.woocommerce-account.logged-in .spada-hero-hidden {
+	display: none !important;
 }
 
-.spada-welcome-avatar img {
-	border-radius: 50%;
-	border: 2px solid var(--spada-teal);
+/* 2. HIDE DEFAULT WOOCOMMERCE SIDEBAR NAVIGATION & FULL WIDTH CONTENT */
+body.woocommerce-account.logged-in .woocommerce-MyAccount-navigation {
+	display: none !important;
+}
+
+body.woocommerce-account.logged-in .woocommerce-MyAccount-content {
+	width: 100% !important;
+	float: none !important;
+	margin: 0 auto !important;
+	padding: 0 !important;
+	border: none !important;
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
+body.woocommerce-account.logged-in .woocommerce {
+	max-width: 100% !important;
+	margin: 0 auto !important;
+	padding: 10px 0 40px !important;
+}
+
+/* 3. MAIN ACCOUNT WRAPPER */
+.spada-account-wrapper {
+	max-width: 960px;
+	width: 100%;
+	margin: 20px auto 40px;
+	padding: 0 16px;
+	box-sizing: border-box;
+	font-family: var(--spada-font-body, system-ui, -apple-system, sans-serif);
+}
+
+/* 4. MAIN PROFILE CARD */
+.spada-account-card {
+	background: #ffffff;
+	border: 1px solid rgba(0, 0, 0, 0.05);
+	border-radius: 28px;
+	padding: 40px 38px 38px;
+	box-shadow: 0 6px 28px rgba(0, 0, 0, 0.04);
+	box-sizing: border-box;
+	margin-bottom: 24px;
+}
+
+/* Form Notice Alerts */
+.spada-profile-notice {
+	padding: 12px 16px;
+	border-radius: 8px;
+	margin-bottom: 22px;
+	font-size: 14px;
+	font-weight: 500;
+	box-sizing: border-box;
+}
+
+.spada-profile-notice.is-hidden {
+	display: none;
+}
+
+.spada-profile-notice.is-success {
+	background-color: #ecfdf5;
+	color: #065f46;
+	border: 1px solid #a7f3d0;
+}
+
+.spada-profile-notice.is-error {
+	background-color: #fef2f2;
+	color: #991b1b;
+	border: 1px solid #fecaca;
+}
+
+/* 5. GRID & FLOATING NOTCHED INPUTS */
+.spada-profile-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	column-gap: 24px;
+	row-gap: 22px;
+	margin-bottom: 24px;
+}
+
+.spada-profile-col {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.spada-profile-col.is-full {
+	grid-column: 1 / -1;
+}
+
+.spada-floating-field {
+	position: relative;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.spada-floating-field label {
+	position: absolute;
+	top: -9px;
+	left: 14px;
+	background: #ffffff;
+	padding: 0 6px;
+	font-size: 13px;
+	font-weight: 500;
+	color: #111827;
+	z-index: 2;
+	pointer-events: none;
+	line-height: 1;
+}
+
+.spada-floating-field input {
+	width: 100% !important;
+	height: 52px !important;
+	border: 1px solid #d1d5db !important;
+	border-radius: 10px !important;
+	padding: 0 16px !important;
+	font-size: 15px !important;
+	color: #111827 !important;
+	background: #ffffff !important;
+	outline: none !important;
+	box-sizing: border-box !important;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.spada-floating-field input:focus {
+	border-color: #00A9BB !important;
+	box-shadow: 0 0 0 1px #00A9BB !important;
+}
+
+.spada-floating-field input::placeholder {
+	color: #9ca3af !important;
+	opacity: 1 !important;
+}
+
+/* Password Toggle Icon */
+.spada-floating-field.spada-has-toggle input {
+	padding-right: 48px !important;
+}
+
+.spada-pwd-toggle {
+	position: absolute;
+	right: 14px;
+	top: 50%;
+	transform: translateY(-50%);
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #111827;
+	z-index: 3;
+}
+
+.spada-pwd-toggle svg {
 	display: block;
 }
 
-.spada-welcome-title {
-	font-size: 22px !important;
-	font-weight: 700 !important;
-	color: var(--spada-dark) !important;
-	margin: 0 0 4px 0 !important;
+.spada-pwd-toggle svg.is-hidden {
+	display: none;
 }
 
-.spada-welcome-subtitle {
-	font-size: 14px !important;
-	color: var(--spada-muted) !important;
-	margin: 0 !important;
+/* 6. SAVE CHANGES BUTTON */
+.spada-account-save-btn {
+	width: 100%;
+	height: 52px;
+	background: #000000;
+	color: #ffffff;
+	border: none;
+	border-radius: 10px;
+	font-family: var(--spada-font-heading, 'Oswald', sans-serif);
+	font-size: 18px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.2s ease, opacity 0.2s ease;
+	box-sizing: border-box;
 }
 
-/* Navigation Sidebar */
-.woocommerce-account .woocommerce-MyAccount-navigation {
-	background: #ffffff;
-	border: 1px solid var(--spada-border);
-	border-radius: var(--spada-radius-lg);
-	padding: 16px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+.spada-account-save-btn:hover {
+	background: #222222;
 }
 
-.woocommerce-account .woocommerce-MyAccount-navigation ul {
-	list-style: none !important;
-	margin: 0 !important;
-	padding: 0 !important;
+.spada-account-save-btn.is-loading {
+	opacity: 0.7;
+	cursor: wait;
+	pointer-events: none;
 }
 
-.woocommerce-account .woocommerce-MyAccount-navigation li {
-	margin-bottom: 6px !important;
+.spada-btn-spinner {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	margin-left: 10px;
+	border: 2px solid rgba(255, 255, 255, 0.4);
+	border-top-color: #ffffff;
+	border-radius: 50%;
+	animation: spada-spin 0.7s linear infinite;
 }
 
-.woocommerce-account .woocommerce-MyAccount-navigation li a {
-	display: block !important;
-	padding: 12px 18px !important;
-	color: var(--spada-dark) !important;
-	font-weight: 600 !important;
-	font-size: 15px !important;
-	text-decoration: none !important;
-	border-radius: var(--spada-radius-md) !important;
-	transition: all 0.2s ease !important;
+.spada-btn-spinner.is-hidden {
+	display: none;
 }
 
-.woocommerce-account .woocommerce-MyAccount-navigation li a:hover {
-	background-color: #f3f4f6 !important;
-	color: var(--spada-teal) !important;
+@keyframes spada-spin {
+	to { transform: rotate(360deg); }
 }
 
-.woocommerce-account .woocommerce-MyAccount-navigation li.is-active a {
-	background-color: #ecfeff !important;
-	color: var(--spada-teal) !important;
+/* 7. NAVIGATION TABS (ORDERS & SUBSCRIPTIONS) */
+.spada-account-nav-tabs {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 14px;
+	margin: 24px 0;
 }
 
-/* Content Area */
-.woocommerce-account .woocommerce-MyAccount-content {
-	background: #ffffff;
-	border: 1px solid var(--spada-border);
-	border-radius: var(--spada-radius-lg);
-	padding: 28px;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-}
-
-/* Orders Table */
-.woocommerce-account table.my_account_orders {
-	border: none !important;
-	width: 100% !important;
-	border-collapse: collapse !important;
-}
-
-.woocommerce-account table.my_account_orders th {
-	font-size: 13px !important;
-	text-transform: uppercase !important;
-	letter-spacing: 0.5px !important;
-	color: var(--spada-muted) !important;
-	padding: 12px 16px !important;
-	border-bottom: 1px solid var(--spada-border) !important;
-}
-
-.woocommerce-account table.my_account_orders td {
-	padding: 16px !important;
-	font-size: 14px !important;
-	border-bottom: 1px solid var(--spada-border) !important;
-}
-
-.woocommerce-account table.my_account_orders .button.view {
-	background-color: var(--spada-teal) !important;
+.spada-tab-btn {
+	background: #00A9BB;
 	color: #ffffff !important;
-	border-radius: var(--spada-radius-sm) !important;
-	padding: 8px 16px !important;
+	border: none;
+	border-radius: 6px;
+	padding: 12px 38px;
+	font-family: var(--spada-font-heading, 'Oswald', sans-serif);
+	font-size: 16px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	text-decoration: none !important;
+	cursor: pointer;
+	transition: background-color 0.2s ease, transform 0.1s ease;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 8px rgba(0, 169, 187, 0.2);
+}
+
+.spada-tab-btn:hover {
+	background: #0093a3;
+	color: #ffffff !important;
+}
+
+.spada-tab-btn.is-active {
+	background: #008896;
+}
+
+/* 8. TAB PANELS & TABLES */
+.spada-account-tab-panels {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.spada-tab-panel {
+	background: #ffffff;
+	border: 1px solid rgba(0, 0, 0, 0.05);
+	border-radius: 20px;
+	padding: 24px 28px;
+	box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+	margin-bottom: 24px;
+}
+
+.spada-tab-panel.is-hidden {
+	display: none;
+}
+
+.spada-account-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.spada-account-table th {
+	font-family: var(--spada-font-heading, 'Oswald', sans-serif);
+	font-size: 14px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--spada-dark, #111827);
+	padding: 12px 14px;
+	border-bottom: 2px solid #e5e7eb;
+	text-align: left;
+}
+
+.spada-account-table td {
+	padding: 14px;
+	border-bottom: 1px solid #f3f4f6;
+	font-size: 14px;
+	color: #374151;
+}
+
+.spada-order-status {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: capitalize;
+	background: #f3f4f6;
+	color: #4b5563;
+}
+
+.spada-order-status.spada-status-completed {
+	background: #ecfdf5;
+	color: #065f46;
+}
+
+.spada-order-status.spada-status-processing {
+	background: #eff6ff;
+	color: #1e40af;
+}
+
+.spada-order-status.spada-status-active {
+	background: #ecfdf5;
+	color: #065f46;
+}
+
+.spada-table-view-btn {
+	display: inline-block;
+	background: #00A9BB !important;
+	color: #ffffff !important;
+	border-radius: 6px !important;
+	padding: 6px 14px !important;
+	font-size: 13px !important;
 	font-weight: 600 !important;
 	text-decoration: none !important;
+	transition: background 0.2s !important;
 }
 
-.woocommerce-account table.my_account_orders .button.view:hover {
-	background-color: var(--spada-teal-hover) !important;
+.spada-table-view-btn:hover {
+	background: #008896 !important;
 }
 
-/* RTL Support */
-body.rtl.woocommerce-account {
-	direction: rtl;
+.spada-empty-state {
+	text-align: center;
+	padding: 24px;
+	color: #6b7280;
+	font-size: 15px;
+}
+
+/* 9. LOG OUT BUTTON */
+.spada-account-logout-btn {
+	display: block;
+	max-width: 440px;
+	width: 100%;
+	margin: 28px auto 40px;
+	padding: 13px 20px;
+	border: 1.5px solid #00A9BB;
+	border-radius: 6px;
+	background: transparent;
+	color: #00A9BB !important;
+	font-family: var(--spada-font-heading, 'Oswald', sans-serif);
+	font-size: 16px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	text-align: center;
+	text-decoration: none !important;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	box-sizing: border-box;
+}
+
+.spada-account-logout-btn:hover {
+	background: #00A9BB;
+	color: #ffffff !important;
+}
+
+/* 10. RTL (ARABIC) SUPPORT */
+body.rtl .spada-floating-field label {
+	left: auto;
+	right: 14px;
+}
+
+body.rtl .spada-floating-field.spada-has-toggle input {
+	padding-right: 16px !important;
+	padding-left: 48px !important;
+}
+
+body.rtl .spada-pwd-toggle {
+	right: auto;
+	left: 14px;
+}
+
+body.rtl .spada-account-table th,
+body.rtl .spada-account-table td {
 	text-align: right;
+}
+
+body.rtl .spada-btn-spinner {
+	margin-left: 0;
+	margin-right: 10px;
+}
+
+/* 11. RESPONSIVE MOBILE */
+@media (max-width: 680px) {
+	.spada-profile-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.spada-account-card {
+		padding: 28px 20px 24px;
+		border-radius: 20px;
+	}
+
+	.spada-account-nav-tabs {
+		gap: 8px;
+	}
+
+	.spada-tab-btn {
+		flex: 1;
+		padding: 11px 16px;
+		font-size: 14px;
+	}
+
+	.spada-account-logout-btn {
+		max-width: 100%;
+	}
 }
