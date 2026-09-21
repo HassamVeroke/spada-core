@@ -288,6 +288,10 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table td.spa
 	line-height: normal !important;
 }
 
+.spada-qty-input:focus {
+	outline: none !important;
+}
+
 .spada-qty-input::-webkit-outer-spin-button,
 .spada-qty-input::-webkit-inner-spin-button {
 	-webkit-appearance: none !important;
@@ -348,9 +352,9 @@ table.spada-order-summary-table td.spada-add-more-cell,
 }
 
 .spada-add-more-box {
-	flex: 0 0 68px !important;
-	width: 68px !important;
-	height: 68px !important;
+	flex: 0 0 48px !important;
+	width: 48px !important;
+	height: 48px !important;
 	border: 1.5px solid var(--spada-teal) !important;
 	border-radius: 8px !important;
 	background-color: #e6f8fa !important;
@@ -363,8 +367,8 @@ table.spada-order-summary-table td.spada-add-more-cell,
 }
 
 .spada-add-more-box svg {
-	width: 26px !important;
-	height: 26px !important;
+	width: 22px !important;
+	height: 22px !important;
 	stroke: var(--spada-teal) !important;
 	stroke-width: 2.5 !important;
 }
@@ -552,7 +556,6 @@ table.spada-order-summary-table td.spada-coupon-toggle-cell,
 	border-radius: var(--spada-radius-sm) !important;
 	padding: 0 20px !important;
 	height: 42px !important;
-	font-family: var(--spada-font-button) !important;
 	font-size: 13.5px !important;
 	font-weight: 600 !important;
 	cursor: pointer !important;
