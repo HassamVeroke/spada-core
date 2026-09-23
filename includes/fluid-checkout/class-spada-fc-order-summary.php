@@ -131,13 +131,53 @@ class Spada_FC_Order_Summary {
 	}
 
 	/**
+	 * Check if current context is Arabic / RTL.
+	 *
+	 * @return bool True if Arabic or RTL.
+	 */
+	public static function is_arabic() {
+		if ( function_exists( 'is_rtl' ) && is_rtl() ) {
+			return true;
+		}
+
+		$locale = get_locale();
+		if ( ! empty( $locale ) && strpos( $locale, 'ar' ) === 0 ) {
+			return true;
+		}
+
+		if ( class_exists( 'TRP_Translate_Press' ) ) {
+			global $TRP_LANGUAGE;
+			if ( ! empty( $TRP_LANGUAGE ) && strpos( $TRP_LANGUAGE, 'ar' ) === 0 ) {
+				return true;
+			}
+		}
+
+		if ( function_exists( 'trp_get_locale' ) ) {
+			$trp_locale = trp_get_locale();
+			if ( ! empty( $trp_locale ) && strpos( $trp_locale, 'ar' ) === 0 ) {
+				return true;
+			}
+		}
+
+		if ( ! empty( $_SERVER['REQUEST_URI'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/ar/' ) !== false ) {
+			return true;
+		}
+
+		if ( ! empty( $_SERVER['HTTP_REFERER'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ), '/ar/' ) !== false ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get the formatted cart items count HTML.
 	 *
 	 * @return string HTML span with count.
 	 */
 	public static function get_cart_items_count_html() {
 		$count     = self::get_cart_products_count();
-		$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$is_arabic = self::is_arabic();
 
 		if ( $is_arabic ) {
 			if ( 0 === $count ) {
@@ -195,7 +235,14 @@ class Spada_FC_Order_Summary {
 	}
 
 	/**
-	 * Reorder coupon HTML so .woocommerce-remove-coupon is placed at the start of the price.
+	 * Reorder coupon HTML so .woocommerce-remove-coupon is placed appropriately
+	 * and alignment matches the other order summary amounts.
+	 *
+	 * In Arabic:
+	 * - 428.16 [currency icon] [إزالة]
+	 *
+	 * In English:
+	 * [Remove] -$428.16
 	 *
 	 * @param string           $coupon_html          Full coupon HTML.
 	 * @param WC_Coupon|string $coupon               Coupon object or code.
@@ -203,7 +250,12 @@ class Spada_FC_Order_Summary {
 	 * @return string Modified coupon HTML.
 	 */
 	public static function filter_coupon_html_order( $coupon_html, $coupon, $discount_amount_html ) {
-		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+		$is_checkout = ( function_exists( 'is_checkout' ) && is_checkout() )
+			|| ( defined( 'WOOCOMMERCE_CHECKOUT' ) && WOOCOMMERCE_CHECKOUT )
+			|| ( isset( $_GET['wc-ajax'] ) && in_array( $_GET['wc-ajax'], array( 'update_order_review', 'apply_coupon', 'remove_coupon' ), true ) )
+			|| ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() && isset( $_POST['action'] ) && strpos( $_POST['action'], 'spada_fc_' ) === 0 );
+
+		if ( ! $is_checkout ) {
 			return $coupon_html;
 		}
 
@@ -214,12 +266,27 @@ class Spada_FC_Order_Summary {
 			return $coupon_html;
 		}
 
+		$amount = ( function_exists( 'WC' ) && WC()->cart ) ? WC()->cart->get_coupon_discount_amount( $coupon->get_code(), WC()->cart->display_cart_ex_tax ) : 0;
+		if ( $amount > 0 ) {
+			$price_html = wc_price( $amount );
+		} else {
+			$price_html = preg_replace( '/^[-\s\x{2212}\x{2013}]+/u', '', $discount_amount_html );
+		}
+
 		$remove_url  = esc_url( add_query_arg( 'remove_coupon', rawurlencode( $coupon->get_code() ), wc_get_checkout_url() ) );
-		$is_arabic   = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$is_arabic   = self::is_arabic();
 		$remove_text = $is_arabic ? '[إزالة]' : __( '[Remove]', 'woocommerce' );
 		$remove_link = '<a href="' . $remove_url . '" class="woocommerce-remove-coupon" data-coupon="' . esc_attr( $coupon->get_code() ) . '">' . esc_html( $remove_text ) . '</a>';
 
-		return $remove_link . ' ' . $discount_amount_html;
+		if ( $is_arabic ) {
+			// Arabic: - 428.16 [currency icon] [إزالة]
+			$amount_html = '<span class="spada-discount-amount" dir="ltr">-&nbsp;' . $price_html . '</span>';
+			return $amount_html . ' ' . $remove_link;
+		} else {
+			// English: [Remove] -$428.16
+			$amount_html = '<span class="spada-discount-amount">-' . $price_html . '</span>';
+			return $remove_link . ' ' . $amount_html;
+		}
 	}
 
 	/**

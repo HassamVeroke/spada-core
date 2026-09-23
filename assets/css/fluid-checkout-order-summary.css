@@ -465,13 +465,26 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table .spada
 	gap: 6px !important;
 }
 
+.spada-discount-row .spada-discount-amount {
+	display: inline-flex !important;
+	align-items: center !important;
+	white-space: nowrap !important;
+	font-weight: 700 !important;
+	color: var(--spada-dark) !important;
+}
+
+.spada-discount-row .spada-discount-amount .woocommerce-Price-amount {
+	font-weight: 700 !important;
+	color: var(--spada-dark) !important;
+}
+
 .spada-discount-row .woocommerce-remove-coupon {
 	color: #ef4444 !important;
 	font-size: 12.5px !important;
 	font-weight: 500 !important;
 	text-decoration: none !important;
 	cursor: pointer;
-	margin-right: 2px;
+	margin: 0 !important;
 }
 
 .spada-discount-row .woocommerce-remove-coupon:hover {
@@ -706,15 +719,21 @@ html[dir="rtl"] .spada-coupon-toggle-btn {
 
 body.rtl table.spada-order-summary-table .spada-discount-row td,
 html[dir="rtl"] table.spada-order-summary-table .spada-discount-row td,
+html[lang="ar"] table.spada-order-summary-table .spada-discount-row td,
 body.rtl .spada-discount-row td,
-html[dir="rtl"] .spada-discount-row td {
+html[dir="rtl"] .spada-discount-row td,
+html[lang="ar"] .spada-discount-row td {
+	display: flex !important;
+	direction: ltr !important;
 	justify-content: flex-start !important;
+	align-items: center !important;
+	gap: 6px !important;
 }
 
 body.rtl .spada-discount-row .woocommerce-remove-coupon,
-html[dir="rtl"] .spada-discount-row .woocommerce-remove-coupon {
-	margin-right: 0 !important;
-	margin-left: 2px !important;
+html[dir="rtl"] .spada-discount-row .woocommerce-remove-coupon,
+html[lang="ar"] .spada-discount-row .woocommerce-remove-coupon {
+	margin: 0 !important;
 }
 
 /* ==========================================================================
