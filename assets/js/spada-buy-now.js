@@ -158,9 +158,6 @@ jQuery(function ($) {
 		var labelParts = template.split('%s');
 		var label = escapeHtml(labelParts.shift()) + formattedPrice + escapeHtml(labelParts.join('%s'));
 
-		// Append small arrow to allow changing variation
-		label += ' <span class="spada-change-option-arrow" title="' + (SpadaBuyNow.strings.selectOptions || 'Change') + '" aria-label="Change option">▾</span>';
-
 		setButtonHtml($button, label);
 		$button.attr('data-spada-variable-state', 'ready');
 	}
@@ -204,8 +201,8 @@ jQuery(function ($) {
 
 		var $form = $container.find('.variations_form');
 
-		// Flag the form as NOT user-initiated during setup so automatic found_variation won't close dropdown
-		$form.data('user-initiated', false);
+		// Flag the form as initializing during setup so automatic found_variation won't close dropdown
+		$form.data('spada-initializing', true);
 
 		var $selects = $container.find('.variations select');
 		var hasSelectedVariation = $button.data('selected-variation-id');
@@ -225,6 +222,11 @@ jQuery(function ($) {
 		if ($selects.length) {
 			$selects.first().trigger('focus');
 		}
+
+		// Clear initializing flag after WooCommerce initialization completes
+		setTimeout(function () {
+			$form.data('spada-initializing', false);
+		}, 250);
 	}
 
 	/**
@@ -455,17 +457,6 @@ jQuery(function ($) {
 			return;
 		}
 
-		// If clicked on the change option arrow specifically
-		if ($(event.target).closest('.spada-change-option-arrow').length) {
-			event.preventDefault();
-			event.stopPropagation();
-			var pId = findProductId($wrapper);
-			if (pId) {
-				openVariationDropdown(pId, $wrapper, $button);
-			}
-			return false;
-		}
-
 		// If button is disabled or product is out of stock, do nothing
 		if ($button.hasClass('spada-buy-now-disabled') || $button.prop('disabled') || $wrapper.hasClass('is-out-of-stock') || $button.hasClass('spada-buy-now-loading')) {
 			event.preventDefault();
@@ -510,15 +501,46 @@ jQuery(function ($) {
 	});
 
 	/**
-	 * Mark user interaction when user changes the dropdown select.
+	 * When user selects an option in the variations select:
+	 * Instantly update button to Buy Now for {price} and close dropdown.
 	 */
 	$(document).on('change', '.spada-buy-now-variation .variations select', function () {
 		var $select = $(this);
 		var $form = $select.closest('.variations_form');
-		if ($select.val()) {
-			$form.data('user-initiated', true);
-		} else {
-			$form.data('user-initiated', false);
+		var $container = $form.closest('.spada-buy-now-variation');
+		var $wrapper = $container.closest('.spada-buy-now');
+		var $button = $wrapper.find('.elementor-button').length ? $wrapper.find('.elementor-button') : $wrapper;
+
+		var selectedVal = $select.val();
+		if (!selectedVal) {
+			$button.removeData('selected-variation-id');
+			$button.removeData('selected-variation-data');
+			setVariableSelectOptionsText($button);
+			$button.attr('data-spada-variable-state', 'select');
+			return;
+		}
+
+		// Match variation directly from product_variations data
+		var variations = $form.data('product_variations');
+		if (variations && variations.length) {
+			var chosenAttr = $select.attr('name');
+			for (var i = 0; i < variations.length; i++) {
+				var v = variations[i];
+				if (v.attributes && (v.attributes[chosenAttr] === selectedVal || v.attributes[chosenAttr] === '')) {
+					if (v.is_in_stock && v.is_purchasable) {
+						$button.data('selected-variation-id', v.variation_id);
+						$button.data('selected-variation-data', v);
+						setVariableBuyNowText($button, v);
+						$button.attr('data-spada-variable-state', 'ready');
+
+						// Close dropdown IMMEDIATELY without waiting for blur/click-away
+						$container.removeClass('is-open');
+						$wrapper.removeClass('is-dropdown-open');
+						$select.trigger('blur');
+						return;
+					}
+				}
+			}
 		}
 	});
 
@@ -528,6 +550,10 @@ jQuery(function ($) {
 	 */
 	$(document).on('found_variation', '.spada-buy-now-variation .variations_form', function (event, variation) {
 		var $form = $(this);
+		if ($form.data('spada-initializing')) {
+			return;
+		}
+
 		var $container = $form.closest('.spada-buy-now-variation');
 		var $wrapper = $container.closest('.spada-buy-now');
 		var $button = $wrapper.find('.elementor-button').length ? $wrapper.find('.elementor-button') : $wrapper;
@@ -536,16 +562,13 @@ jQuery(function ($) {
 			$button.data('selected-variation-id', variation.variation_id);
 			$button.data('selected-variation-data', variation);
 
-			// ONLY close dropdown and transition to Buy Now button if user actively made the selection!
-			if ($form.data('user-initiated')) {
-				$form.data('user-initiated', false);
-				setVariableBuyNowText($button, variation);
-				$button.attr('data-spada-variable-state', 'ready');
+			setVariableBuyNowText($button, variation);
+			$button.attr('data-spada-variable-state', 'ready');
 
-				// Close dropdown
-				$container.removeClass('is-open');
-				$wrapper.removeClass('is-dropdown-open');
-			}
+			// Close dropdown immediately without waiting for blur/click-away
+			$container.removeClass('is-open');
+			$wrapper.removeClass('is-dropdown-open');
+			$form.find('select').trigger('blur');
 		}
 	});
 
