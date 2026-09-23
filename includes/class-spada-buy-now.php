@@ -33,7 +33,7 @@ class Spada_Buy_Now {
 	}
 
 	private function is_archive_context() {
-		return is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy();
+		return is_shop() || is_product_category() || is_product_tag() || is_product_taxonomy() || is_front_page() || is_home() || is_search();
 	}
 
 	public function enqueue_assets() {
@@ -66,6 +66,9 @@ class Spada_Buy_Now {
 
 		$is_arabic = ( get_locale() === 'ar' || strpos( get_locale(), 'ar' ) === 0 || ( function_exists( 'is_rtl' ) && is_rtl() ) );
 		if ( function_exists( 'trp_get_current_language' ) && 'ar' === trp_get_current_language() ) {
+			$is_arabic = true;
+		}
+		if ( ! empty( $_SERVER['REQUEST_URI'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/ar/' ) !== false ) {
 			$is_arabic = true;
 		}
 
