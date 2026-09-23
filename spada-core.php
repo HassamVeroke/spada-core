@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'SPADA_CORE_VERSION', '1.7.3' );
+define( 'SPADA_CORE_VERSION', '1.7.4' );
 define( 'SPADA_CORE_FILE', __FILE__ );
 define( 'SPADA_CORE_URL', plugin_dir_url( __FILE__ ) );
 define( 'SPADA_CORE_PATH', plugin_dir_path( __FILE__ ) );

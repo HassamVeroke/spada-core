@@ -53,6 +53,8 @@ jQuery(function ($) {
 
 	function setButtonText($button, text) {
 		var $textEl = getButtonTextElement($button);
+		$button.attr('data-no-translation', 'true').attr('data-no-dynamic-translation', 'true').addClass('notranslate trp-no-translation');
+		$textEl.attr('data-no-translation', 'true').attr('data-no-dynamic-translation', 'true').addClass('notranslate trp-no-translation');
 		$textEl.text(text);
 		$textEl.removeData('spada-original-html');
 	}
@@ -62,6 +64,8 @@ jQuery(function ($) {
 			html = html.replace(/margin\s*:\s*0\s*!important\s*;?/gi, '');
 		}
 		var $textEl = getButtonTextElement($button);
+		$button.attr('data-no-translation', 'true').attr('data-no-dynamic-translation', 'true').addClass('notranslate trp-no-translation');
+		$textEl.attr('data-no-translation', 'true').attr('data-no-dynamic-translation', 'true').addClass('notranslate trp-no-translation');
 		$textEl.html(html);
 		$textEl.removeData('spada-original-html');
 		$textEl.find('img').each(function () {
@@ -103,7 +107,7 @@ jQuery(function ($) {
 	}
 
 	/**
-	 * Format price for variations.
+	 * Format price for variations matching WooCommerce standard price HTML.
 	 */
 	function formatVariationPrice(price) {
 		price = parseFloat(String(price).replace(/[^0-9.-]/g, ''));
@@ -124,7 +128,24 @@ jQuery(function ($) {
 		number[0] = number[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeparator);
 		var formattedNumber = number.join(decimalSeparator);
 
-		return symbol ? symbol + ' ' + formattedNumber : formattedNumber;
+		var symbolHtml = symbol ? '<span class="woocommerce-Price-currencySymbol">' + symbol + '</span>' : '';
+		var pos = settings.position || 'right_space';
+
+		var priceInner;
+		if (!symbolHtml) {
+			priceInner = formattedNumber;
+		} else if (pos === 'left') {
+			priceInner = symbolHtml + formattedNumber;
+		} else if (pos === 'left_space') {
+			priceInner = symbolHtml + '&nbsp;' + formattedNumber;
+		} else if (pos === 'right') {
+			priceInner = formattedNumber + symbolHtml;
+		} else {
+			// 'right_space' or default
+			priceInner = formattedNumber + '&nbsp;' + symbolHtml;
+		}
+
+		return '<span class="woocommerce-Price-amount amount">' + priceInner + '</span>';
 	}
 
 	/**
@@ -156,13 +177,16 @@ jQuery(function ($) {
 
 		var template = SpadaBuyNow.strings.buyNowFor || 'Buy Now for %s';
 		var labelParts = template.split('%s');
+		var prefix = labelParts[0] || '';
+		var suffix = labelParts[1] || '';
+
 		var arrowSvg = '<span class="spada-change-option-arrow" role="button" tabindex="0" title="' + (SpadaBuyNow.strings.selectOptions || 'Change option') + '" aria-label="' + (SpadaBuyNow.strings.selectOptions || 'Change option') + '">' +
 			'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
 			'<path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
 			'</svg>' +
 			'</span>';
 
-		label += ' ' + arrowSvg;
+		var label = prefix + formattedPrice + suffix + ' ' + arrowSvg;
 
 		setButtonHtml($button, label);
 		$button.attr('data-spada-variable-state', 'ready');
@@ -387,12 +411,17 @@ jQuery(function ($) {
 			var $wrapper = $(this);
 			var $button = $wrapper.find('.elementor-button').length ? $wrapper.find('.elementor-button') : $wrapper;
 			var $product = $wrapper.closest('.product, [data-elementor-type="loop-item"]');
+			var $text = getButtonTextElement($button);
+
+			// Mark button, wrapper and text element with no-translation attributes so TranslatePress won't intercept or delay
+			$wrapper.attr('data-no-translation', 'true').attr('data-no-dynamic-translation', 'true').addClass('notranslate trp-no-translation');
+			$button.attr('data-no-translation', 'true').attr('data-no-dynamic-translation', 'true').addClass('notranslate trp-no-translation');
+			$text.attr('data-no-translation', 'true').attr('data-no-dynamic-translation', 'true').addClass('notranslate trp-no-translation');
 
 			var isOutOfStock = $product.hasClass('outofstock');
 			var isVariable = $product.hasClass('product-type-variable');
 
 			// Save original text if not already saved
-			var $text = getButtonTextElement($button);
 			if (!$text.data('spada-original-buy-text')) {
 				$text.data('spada-original-buy-text', $text.text().trim());
 			}

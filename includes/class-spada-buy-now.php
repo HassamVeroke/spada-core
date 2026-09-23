@@ -105,9 +105,9 @@ class Spada_Buy_Now {
 				'strings'    => array(
 					'loading'          => $is_arabic ? 'جاري التحميل...' : __( 'Loading...', 'spada-core' ),
 					'loadingVariations' => $is_arabic ? 'جاري تحميل الخيارات...' : __( 'Loading options...', 'spada-core' ),
-					'buyNow'           => $is_arabic ? 'اشتري الآن' : __( 'Buy Now', 'spada-core' ),
+					'buyNow'           => $is_arabic ? 'اشترِ الآن' : __( 'Buy Now', 'spada-core' ),
 					'selectOptions'    => $is_arabic ? 'اختر الخيارات' : __( 'Select Options', 'spada-core' ),
-					'buyNowFor'        => $is_arabic ? 'اشتري الآن مقابل %s' : __( 'Buy Now for %s', 'spada-core' ),
+					'buyNowFor'        => $is_arabic ? 'اشترِ الآن مقابل %s' : __( 'Buy Now for %s', 'spada-core' ),
 					'outOfStock'       => $is_arabic ? 'نفدت الكمية' : __( 'Out of Stock', 'spada-core' ),
 					'unavailable'      => $is_arabic ? 'غير متوفر' : __( 'Unavailable', 'spada-core' ),
 					'selectVariation'  => $is_arabic ? 'يرجى تحديد جميع الخيارات المتاحة.' : __( 'Please select all available options.', 'spada-core' ),
