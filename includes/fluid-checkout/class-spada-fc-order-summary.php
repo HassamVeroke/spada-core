@@ -36,7 +36,6 @@ class Spada_FC_Order_Summary {
 		add_filter( 'fc_pro_cart_removed_item_message', '__return_empty_string', 999 );
 		add_filter( 'fc_pro_cart_removed_item_undo_button_label', '__return_empty_string', 999 );
 		add_filter( 'fc_pro_cart_restore_item_message_dismiss_button', '__return_empty_string', 999 );
-		add_filter( 'pre_option_fc_pro_cart_restore_item_message_dismiss_button_enabled', '__return_zero', 999 );
 
 		// Enqueue Order Summary styles and scripts
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ), 30 );
