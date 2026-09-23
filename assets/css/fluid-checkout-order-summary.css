@@ -429,7 +429,7 @@ div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table .spada
 table.spada-order-summary-table .spada-summary-row th,
 .spada-summary-row th,
 .spada-summary-row th label,
-.spada-summary-row th span:not(.spada-remove-coupon-link) {
+.spada-summary-row th span {
 	font-family: var(--spada-font-body) !important;
 	font-size: 13.5px !important;
 	font-weight: 700 !important;
@@ -455,11 +455,28 @@ table.spada-order-summary-table .spada-summary-row td,
 	width: auto !important;
 }
 
-.spada-remove-coupon-link {
-	margin-left: 6px;
-	color: #ef4444;
-	text-decoration: none;
-	font-weight: bold;
+/* Coupon discount row: place .woocommerce-remove-coupon at start of price */
+table.spada-order-summary-table .spada-discount-row td,
+div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table .spada-discount-row td,
+.spada-discount-row td {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: flex-end !important;
+	gap: 6px !important;
+}
+
+.spada-discount-row .woocommerce-remove-coupon {
+	color: #ef4444 !important;
+	font-size: 12.5px !important;
+	font-weight: 500 !important;
+	text-decoration: none !important;
+	cursor: pointer;
+	margin-right: 2px;
+}
+
+.spada-discount-row .woocommerce-remove-coupon:hover {
+	text-decoration: underline !important;
+	color: #dc2626 !important;
 }
 
 /* ==========================================================================
@@ -687,8 +704,45 @@ html[dir="rtl"] .spada-coupon-toggle-btn {
 	text-align: right !important;
 }
 
-body.rtl .spada-remove-coupon-link,
-html[dir="rtl"] .spada-remove-coupon-link {
-	margin-left: 0;
-	margin-right: 6px;
+body.rtl table.spada-order-summary-table .spada-discount-row td,
+html[dir="rtl"] table.spada-order-summary-table .spada-discount-row td,
+body.rtl .spada-discount-row td,
+html[dir="rtl"] .spada-discount-row td {
+	justify-content: flex-start !important;
+}
+
+body.rtl .spada-discount-row .woocommerce-remove-coupon,
+html[dir="rtl"] .spada-discount-row .woocommerce-remove-coupon {
+	margin-right: 0 !important;
+	margin-left: 2px !important;
+}
+
+/* ==========================================================================
+   8. Checkout Form Field & Step Overrides
+   ========================================================================== */
+
+/* Disable Contact Step */
+.fc-checkout-step[data-step-id="contact"],
+.fc-progress-bar__step[data-step-id="contact"],
+.fc-step__substep[data-substep-id="contact"] {
+	display: none !important;
+}
+
+/* Remove word (optional) from shipping email label */
+#shipping_email_field label .optional,
+.shipping_email_field label .optional,
+.woocommerce-shipping-fields #shipping_email_field label .optional {
+	display: none !important;
+}
+
+/* Billing Address: Phone Field & Zip code full width */
+#billing_phone_field,
+#billing_postcode_field,
+.woocommerce-billing-fields #billing_phone_field,
+.woocommerce-billing-fields #billing_postcode_field {
+	width: 100% !important;
+	max-width: 100% !important;
+	flex: 0 0 100% !important;
+	float: none !important;
+	clear: both !important;
 }

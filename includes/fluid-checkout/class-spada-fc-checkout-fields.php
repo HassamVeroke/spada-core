@@ -48,6 +48,17 @@ class Spada_FC_Checkout_Fields {
 
 		// 8. Save email into order and ensure all order notifications use this email
 		add_action( 'woocommerce_checkout_create_order', array( __CLASS__, 'save_shipping_email_to_order' ), 20, 2 );
+
+		// 9. Disable Contact step in Fluid Checkout
+		add_action( 'fc_register_steps', array( __CLASS__, 'disable_contact_step' ), 100 );
+		add_action( 'wp', array( __CLASS__, 'disable_contact_step' ), 20 );
+
+		// 10. Remove (optional) text from shipping_email field
+		add_filter( 'woocommerce_form_field_args', array( __CLASS__, 'remove_optional_label_from_shipping_email' ), 20, 2 );
+
+		// 11. Make Phone and Zip code fields full width in billing address
+		add_filter( 'woocommerce_billing_fields', array( __CLASS__, 'customize_billing_fields' ), 1000 );
+		add_filter( 'woocommerce_checkout_fields', array( __CLASS__, 'customize_billing_checkout_fields' ), 1000 );
 	}
 
 	/**
@@ -403,5 +414,83 @@ class Spada_FC_Checkout_Fields {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Disable the Contact step in Fluid Checkout so checkout starts directly with Shipping.
+	 */
+	public static function disable_contact_step() {
+		if ( ! class_exists( 'FluidCheckout_Steps' ) ) {
+			return;
+		}
+
+		$steps = FluidCheckout_Steps::instance();
+		$steps->unregister_checkout_substep( 'contact', 'contact' );
+		$steps->unregister_checkout_step( 'contact' );
+
+		// Remove login link section before customer details if hooked
+		remove_action( 'woocommerce_checkout_before_customer_details', array( $steps, 'output_substep_contact_login_link_section' ), 1 );
+	}
+
+	/**
+	 * Remove the (optional) text label from the shipping email field.
+	 *
+	 * @param array  $args Form field args.
+	 * @param string $key  Field key.
+	 * @return array Modified field args.
+	 */
+	public static function remove_optional_label_from_shipping_email( $args, $key ) {
+		if ( 'shipping_email' === $key ) {
+			$args['optional_label'] = '';
+		}
+		return $args;
+	}
+
+	/**
+	 * Make Phone and Postcode/Zip fields full width in billing fields.
+	 *
+	 * @param array $fields Billing fields.
+	 * @return array Modified fields.
+	 */
+	public static function customize_billing_fields( $fields ) {
+		if ( isset( $fields['billing_phone'] ) ) {
+			if ( ! isset( $fields['billing_phone']['class'] ) || ! is_array( $fields['billing_phone']['class'] ) ) {
+				$fields['billing_phone']['class'] = array();
+			}
+			$fields['billing_phone']['class'] = array_values( array_diff( $fields['billing_phone']['class'], array( 'form-row-first', 'form-row-last' ) ) );
+			$fields['billing_phone']['class'][] = 'form-row-wide';
+		}
+		if ( isset( $fields['billing_postcode'] ) ) {
+			if ( ! isset( $fields['billing_postcode']['class'] ) || ! is_array( $fields['billing_postcode']['class'] ) ) {
+				$fields['billing_postcode']['class'] = array();
+			}
+			$fields['billing_postcode']['class'] = array_values( array_diff( $fields['billing_postcode']['class'], array( 'form-row-first', 'form-row-last' ) ) );
+			$fields['billing_postcode']['class'][] = 'form-row-wide';
+		}
+		return $fields;
+	}
+
+	/**
+	 * Make Phone and Postcode/Zip fields full width in billing checkout fields.
+	 *
+	 * @param array $fields All checkout fields.
+	 * @return array Modified fields.
+	 */
+	public static function customize_billing_checkout_fields( $fields ) {
+		if ( isset( $fields['billing']['billing_phone'] ) ) {
+			if ( ! isset( $fields['billing']['billing_phone']['class'] ) || ! is_array( $fields['billing']['billing_phone']['class'] ) ) {
+				$fields['billing']['billing_phone']['class'] = array();
+			}
+			$fields['billing']['billing_phone']['class'] = array_values( array_diff( $fields['billing']['billing_phone']['class'], array( 'form-row-first', 'form-row-last' ) ) );
+			$fields['billing']['billing_phone']['class'][] = 'form-row-wide';
+		}
+		if ( isset( $fields['billing']['billing_postcode'] ) ) {
+			if ( ! isset( $fields['billing']['billing_postcode']['class'] ) || ! is_array( $fields['billing']['billing_postcode']['class'] ) ) {
+				$fields['billing']['billing_postcode']['class'] = array();
+			}
+			$fields['billing']['billing_postcode']['class'] = array_values( array_diff( $fields['billing']['billing_postcode']['class'], array( 'form-row-first', 'form-row-last' ) ) );
+			$fields['billing']['billing_postcode']['class'][] = 'form-row-wide';
+		}
+		return $fields;
 	}
 }

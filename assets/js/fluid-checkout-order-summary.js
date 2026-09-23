@@ -55,6 +55,11 @@
 				self.handleApplyCoupon();
 			});
 
+			// Coupon removal click loading
+			$(document).on('click', '.woocommerce-remove-coupon', function () {
+				$('.spada-order-summary-table').addClass('is-loading');
+			});
+
 			$(document).on('keypress', '#spada_coupon_code', function (e) {
 				if (e.which === 13) {
 					e.preventDefault();
@@ -243,6 +248,9 @@
 					$row.removeClass('validate-required is-required').addClass('validate-optional is-optional');
 					$row.find('label .required, label .fc-field__required-mark').remove();
 				});
+
+				// Remove (optional) from shipping email label
+				$('#shipping_email_field label .optional, .shipping_email_field label .optional').remove();
 
 				// 4. Ensure billing_email input exists in checkout form so POST always carries it
 				var currentShippingVal = $shippingEmail.length ? $.trim($shippingEmail.val()) : '';

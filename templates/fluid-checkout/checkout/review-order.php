@@ -238,7 +238,6 @@ defined('ABSPATH') || exit;
 			<tr class="spada-summary-row spada-discount-row coupon-<?php echo esc_attr(sanitize_title($code)); ?>">
 				<th>
 					<?php wc_cart_totals_coupon_label($coupon); ?>
-					<a href="<?php echo esc_url(add_query_arg('remove_coupon', rawurlencode($code), wc_get_checkout_url())); ?>" class="spada-remove-coupon-link" data-coupon="<?php echo esc_attr($code); ?>" title="<?php esc_attr_e('Remove coupon', 'spada-core'); ?>">&times;</a>
 				</th>
 				<td><?php wc_cart_totals_coupon_html($coupon); ?></td>
 			</tr>

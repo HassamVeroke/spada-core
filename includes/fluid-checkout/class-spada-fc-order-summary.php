@@ -29,6 +29,9 @@ class Spada_FC_Order_Summary {
 		add_filter( 'woocommerce_update_order_review_fragments', array( __CLASS__, 'add_cart_items_count_fragment' ), 50 );
 		add_action( 'fc_checkout_after_order_review_title_after', array( __CLASS__, 'output_cart_items_count_fallback' ), 15 );
 
+		// Place .woocommerce-remove-coupon at start of the Price
+		add_filter( 'woocommerce_cart_totals_coupon_html', array( __CLASS__, 'filter_coupon_html_order' ), 20, 3 );
+
 		// Enqueue Order Summary styles and scripts
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ), 30 );
 
@@ -176,6 +179,30 @@ class Spada_FC_Order_Summary {
 		}
 		$rendered = true;
 		echo self::get_cart_items_count_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Reorder coupon HTML so .woocommerce-remove-coupon is placed at the start of the price.
+	 *
+	 * @param string           $coupon_html          Full coupon HTML.
+	 * @param WC_Coupon|string $coupon               Coupon object or code.
+	 * @param string           $discount_amount_html Discount amount HTML.
+	 * @return string Modified coupon HTML.
+	 */
+	public static function filter_coupon_html_order( $coupon_html, $coupon, $discount_amount_html ) {
+		if ( is_string( $coupon ) ) {
+			$coupon = new WC_Coupon( $coupon );
+		}
+		if ( ! is_a( $coupon, 'WC_Coupon' ) ) {
+			return $coupon_html;
+		}
+
+		$remove_url  = esc_url( add_query_arg( 'remove_coupon', rawurlencode( $coupon->get_code() ), wc_get_checkout_url() ) );
+		$is_arabic   = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$remove_text = $is_arabic ? '[إزالة]' : __( '[Remove]', 'woocommerce' );
+		$remove_link = '<a href="' . $remove_url . '" class="woocommerce-remove-coupon" data-coupon="' . esc_attr( $coupon->get_code() ) . '">' . esc_html( $remove_text ) . '</a>';
+
+		return $remove_link . ' ' . $discount_amount_html;
 	}
 
 	/**
