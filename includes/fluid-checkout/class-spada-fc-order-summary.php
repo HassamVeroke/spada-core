@@ -346,6 +346,7 @@ class Spada_FC_Order_Summary {
 				'isRtl'       => is_rtl(),
 				'couponEmpty' => __( 'Please enter a coupon code.', 'spada-core' ),
 				'userEmail'   => class_exists( 'Spada_FC_Checkout_Fields' ) ? Spada_FC_Checkout_Fields::get_logged_in_user_email() : '',
+				'userProfile' => class_exists( 'Spada_FC_Checkout_Fields' ) ? Spada_FC_Checkout_Fields::get_logged_in_user_profile() : array(),
 			)
 		);
 	}

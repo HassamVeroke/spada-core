@@ -364,6 +364,21 @@ jQuery(function ($) {
 					.addClass('spada-buy-now-disabled')
 					.prop('disabled', true)
 					.attr('aria-disabled', 'true');
+
+				// Out of stock variable products: do not show price range, show only first/lowest variation price
+				if (isVariable) {
+					var $firstPrice = $text.find('.woocommerce-Price-amount').first();
+					if ($firstPrice.length) {
+						if ($text.find('.woocommerce-Price-amount').length > 1 || $text.text().indexOf('–') !== -1 || $text.text().indexOf('-') !== -1 || $text.text().indexOf('through') !== -1) {
+							var prefix = $text.clone().children().remove().end().text().trim();
+							prefix = prefix.replace(/[-:–\s]+$/, '');
+							if (!prefix) {
+								prefix = SpadaBuyNow.strings.buyNowFor ? SpadaBuyNow.strings.buyNowFor.replace('%s', '').trim() : 'Buy Now for';
+							}
+							$text.empty().append(document.createTextNode(prefix + ' ')).append($firstPrice.clone());
+						}
+					}
+				}
 				return;
 			}
 

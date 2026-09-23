@@ -19,28 +19,34 @@ class Spada_FC_Checkout_Fields {
 	 * Init hooks.
 	 */
 	public static function init() {
-		// 1. Make all email fields (billing, shipping, account) optional in WooCommerce checkout validation
+		// 1. Make billing email optional in WooCommerce checkout validation (shipping_email is required)
 		add_filter( 'woocommerce_billing_fields', array( __CLASS__, 'make_email_fields_optional_section' ), 999 );
-		add_filter( 'woocommerce_shipping_fields', array( __CLASS__, 'make_email_fields_optional_section' ), 999 );
 		add_filter( 'woocommerce_checkout_fields', array( __CLASS__, 'make_all_checkout_email_fields_optional' ), 999 );
 
-		// 2. Register & customize shipping_email in shipping address form
+		// 2. Register & customize shipping_email in shipping address form (REQUIRED)
 		add_filter( 'woocommerce_shipping_fields', array( __CLASS__, 'customize_shipping_fields' ), 1000 );
 		add_filter( 'woocommerce_checkout_fields', array( __CLASS__, 'customize_shipping_checkout_fields' ), 1000 );
 
 		// 3. Prevent Fluid Checkout from collapsing optional email fields behind expansible links
 		add_filter( 'fc_hide_optional_fields_skip_list', array( __CLASS__, 'skip_hide_email_fields' ), 20 );
 
-		// 4. Auto-fill email for registered users on page load
-		add_filter( 'woocommerce_checkout_get_value', array( __CLASS__, 'autofill_shipping_email_for_registered_user' ), 20, 2 );
-		add_filter( 'default_checkout_shipping_email', array( __CLASS__, 'default_checkout_shipping_email' ), 20, 2 );
+		// 4. Auto-fill registered user profile (Name, Phone, Email, Address) on checkout page load
+		add_filter( 'woocommerce_checkout_get_value', array( __CLASS__, 'autofill_registered_user_checkout_fields' ), 20, 2 );
+		add_filter( 'default_checkout_shipping_first_name', array( __CLASS__, 'default_checkout_field_value' ), 20, 2 );
+		add_filter( 'default_checkout_billing_first_name', array( __CLASS__, 'default_checkout_field_value' ), 20, 2 );
+		add_filter( 'default_checkout_shipping_last_name', array( __CLASS__, 'default_checkout_field_value' ), 20, 2 );
+		add_filter( 'default_checkout_billing_last_name', array( __CLASS__, 'default_checkout_field_value' ), 20, 2 );
+		add_filter( 'default_checkout_shipping_phone', array( __CLASS__, 'default_checkout_field_value' ), 20, 2 );
+		add_filter( 'default_checkout_billing_phone', array( __CLASS__, 'default_checkout_field_value' ), 20, 2 );
+		add_filter( 'default_checkout_shipping_email', array( __CLASS__, 'default_checkout_field_value' ), 20, 2 );
+		add_filter( 'default_checkout_billing_email', array( __CLASS__, 'default_checkout_field_value' ), 20, 2 );
 
 		// 5. Sync shipping_email to billing_email before validation & processing
 		add_action( 'woocommerce_checkout_process', array( __CLASS__, 'sync_shipping_email_to_post_superglobal' ), 5 );
 		add_filter( 'woocommerce_checkout_posted_data', array( __CLASS__, 'sync_shipping_email_to_billing_email_posted_data' ), 999 );
 
-		// 6. Suppress any lingering required email validation errors (English or Arabic)
-		add_action( 'woocommerce_after_checkout_validation', array( __CLASS__, 'prevent_email_required_validation_errors' ), 999, 2 );
+		// 6. Suppress billing_email required error since it syncs from required shipping_email
+		add_action( 'woocommerce_after_checkout_validation', array( __CLASS__, 'prevent_billing_email_required_validation_error' ), 999, 2 );
 
 		// 7. Fluid Checkout PRO "same as shipping" sync filter
 		add_filter( 'fc_billing_same_as_shipping_field_value', array( __CLASS__, 'fc_mirror_shipping_email_to_billing' ), 20, 4 );
@@ -53,16 +59,14 @@ class Spada_FC_Checkout_Fields {
 		add_action( 'fc_register_steps', array( __CLASS__, 'disable_contact_step' ), 100 );
 		add_action( 'wp', array( __CLASS__, 'disable_contact_step' ), 20 );
 
-		// 10. Remove (optional) text from shipping_email field
-		add_filter( 'woocommerce_form_field_args', array( __CLASS__, 'remove_optional_label_from_shipping_email' ), 20, 2 );
-
-		// 11. Make Phone and Zip code fields full width in billing address
+		// 10. Make Phone and Zip code fields full width in billing address
 		add_filter( 'woocommerce_billing_fields', array( __CLASS__, 'customize_billing_fields' ), 1000 );
 		add_filter( 'woocommerce_checkout_fields', array( __CLASS__, 'customize_billing_checkout_fields' ), 1000 );
 	}
 
 	/**
-	 * Make any email fields optional in single-section field arrays (billing, shipping).
+	 * Make billing email fields optional in single-section field arrays (billing).
+	 * Shipping email is REQUIRED.
 	 *
 	 * @param array $fields Section fields.
 	 * @return array Modified fields.
@@ -70,6 +74,9 @@ class Spada_FC_Checkout_Fields {
 	public static function make_email_fields_optional_section( $fields ) {
 		if ( is_array( $fields ) ) {
 			foreach ( $fields as $key => &$field ) {
+				if ( 'shipping_email' === $key ) {
+					continue;
+				}
 				if ( false !== strpos( $key, 'email' ) || ( isset( $field['type'] ) && 'email' === $field['type'] ) ) {
 					$field['required'] = false;
 					if ( ! isset( $field['class'] ) || ! is_array( $field['class'] ) ) {
@@ -85,7 +92,8 @@ class Spada_FC_Checkout_Fields {
 	}
 
 	/**
-	 * Make all email fields optional across all checkout sections.
+	 * Make billing email fields optional across all checkout sections.
+	 * Shipping email is REQUIRED.
 	 *
 	 * @param array $fields All checkout fields.
 	 * @return array Modified fields.
@@ -95,6 +103,9 @@ class Spada_FC_Checkout_Fields {
 			foreach ( $fields as $section => &$section_fields ) {
 				if ( is_array( $section_fields ) ) {
 					foreach ( $section_fields as $key => &$field ) {
+						if ( 'shipping_email' === $key ) {
+							continue;
+						}
 						if ( false !== strpos( $key, 'email' ) || ( isset( $field['type'] ) && 'email' === $field['type'] ) ) {
 							$field['required'] = false;
 							if ( ! isset( $field['class'] ) || ! is_array( $field['class'] ) ) {
@@ -130,30 +141,14 @@ class Spada_FC_Checkout_Fields {
 	}
 
 	/**
-	 * Prevent any email required validation errors from halting checkout.
+	 * Prevent billing_email required error from halting checkout since it syncs from required shipping_email.
 	 *
 	 * @param array    $data Posted data.
 	 * @param WP_Error $errors Validation errors object.
 	 */
-	public static function prevent_email_required_validation_errors( $data, $errors ) {
+	public static function prevent_billing_email_required_validation_error( $data, $errors ) {
 		if ( is_wp_error( $errors ) ) {
 			$errors->remove( 'billing_email_required' );
-			$errors->remove( 'shipping_email_required' );
-
-			$codes = $errors->get_error_codes();
-			foreach ( $codes as $code ) {
-				$messages = $errors->get_error_messages( $code );
-				foreach ( $messages as $msg ) {
-					$lower = strtolower( wp_strip_all_tags( $msg ) );
-					if (
-						( false !== strpos( $lower, 'email' ) && false !== strpos( $lower, 'required' ) ) ||
-						( false !== strpos( $lower, 'البريد' ) && false !== strpos( $lower, 'مطلوب' ) )
-					) {
-						$errors->remove( $code );
-						break;
-					}
-				}
-			}
 		}
 	}
 
@@ -181,15 +176,15 @@ class Spada_FC_Checkout_Fields {
 			$fields['shipping_email']['placeholder'] = self::get_email_placeholder();
 			$fields['shipping_email']['label']       = $label;
 			$fields['shipping_email']['type']        = 'email';
-			$fields['shipping_email']['required']    = false;
-			$fields['shipping_email']['class']       = array( 'form-row-wide', 'fc-skip-hide-optional-field' );
+			$fields['shipping_email']['required']    = true;
+			$fields['shipping_email']['class']       = array( 'form-row-wide' );
 		} else {
 			$fields['shipping_email'] = array(
 				'type'        => 'email',
 				'label'       => $label,
 				'placeholder' => self::get_email_placeholder(),
-				'required'    => false,
-				'class'       => array( 'form-row-wide', 'fc-skip-hide-optional-field' ),
+				'required'    => true,
+				'class'       => array( 'form-row-wide' ),
 				'clear'       => true,
 				'priority'    => 25,
 				'validate'    => array( 'email' ),
@@ -213,15 +208,15 @@ class Spada_FC_Checkout_Fields {
 			$fields['shipping']['shipping_email']['placeholder'] = self::get_email_placeholder();
 			$fields['shipping']['shipping_email']['label']       = $label;
 			$fields['shipping']['shipping_email']['type']        = 'email';
-			$fields['shipping']['shipping_email']['required']    = false;
-			$fields['shipping']['shipping_email']['class']       = array( 'form-row-wide', 'fc-skip-hide-optional-field' );
+			$fields['shipping']['shipping_email']['required']    = true;
+			$fields['shipping']['shipping_email']['class']       = array( 'form-row-wide' );
 		} else {
 			$fields['shipping']['shipping_email'] = array(
 				'type'        => 'email',
 				'label'       => $label,
 				'placeholder' => self::get_email_placeholder(),
-				'required'    => false,
-				'class'       => array( 'form-row-wide', 'fc-skip-hide-optional-field' ),
+				'required'    => true,
+				'class'       => array( 'form-row-wide' ),
 				'clear'       => true,
 				'priority'    => 25,
 				'validate'    => array( 'email' ),
@@ -232,74 +227,134 @@ class Spada_FC_Checkout_Fields {
 	}
 
 	/**
+	 * Get registered user profile details (Name, Phone, Email, Address).
+	 *
+	 * @return array User details array.
+	 */
+	public static function get_logged_in_user_profile() {
+		if ( ! is_user_logged_in() ) {
+			return array();
+		}
+
+		$user_id      = get_current_user_id();
+		$current_user = wp_get_current_user();
+		if ( ! $user_id || ! $current_user ) {
+			return array();
+		}
+
+		// 1. Name
+		$first_name = ! empty( $current_user->first_name ) ? $current_user->first_name : '';
+		$last_name  = ! empty( $current_user->last_name ) ? $current_user->last_name : '';
+
+		if ( empty( $first_name ) && ! empty( $current_user->display_name ) ) {
+			$parts      = explode( ' ', trim( $current_user->display_name ), 2 );
+			$first_name = $parts[0];
+			if ( empty( $last_name ) && isset( $parts[1] ) ) {
+				$last_name = $parts[1];
+			}
+		}
+
+		// 2. Phone
+		$phone = get_user_meta( $user_id, 'billing_phone', true );
+		if ( empty( $phone ) ) {
+			$phone = get_user_meta( $user_id, 'shipping_phone', true );
+		}
+
+		// 3. Email
+		$email         = '';
+		$saved_billing = get_user_meta( $user_id, 'billing_email', true );
+		if ( ! empty( $saved_billing ) && is_email( $saved_billing ) ) {
+			$email = $saved_billing;
+		}
+		if ( empty( $email ) ) {
+			$saved_shipping = get_user_meta( $user_id, 'shipping_email', true );
+			if ( ! empty( $saved_shipping ) && is_email( $saved_shipping ) ) {
+				$email = $saved_shipping;
+			}
+		}
+		if ( empty( $email ) && ! empty( $current_user->user_email ) && is_email( $current_user->user_email ) ) {
+			if ( strpos( $current_user->user_email, '@spada.local' ) === false ) {
+				$email = $current_user->user_email;
+			}
+		}
+
+		// 4. Address
+		$address = get_user_meta( $user_id, 'shipping_address_1', true );
+		if ( empty( $address ) ) {
+			$address = get_user_meta( $user_id, 'billing_address_1', true );
+		}
+
+		return array(
+			'first_name' => $first_name,
+			'last_name'  => $last_name,
+			'phone'      => $phone,
+			'email'      => $email,
+			'address'    => $address,
+		);
+	}
+
+	/**
 	 * Get saved user email for autofilling.
 	 *
 	 * @return string User email or empty string.
 	 */
 	public static function get_logged_in_user_email() {
-		if ( ! is_user_logged_in() ) {
-			return '';
-		}
-
-		$current_user = wp_get_current_user();
-		if ( ! $current_user || empty( $current_user->ID ) ) {
-			return '';
-		}
-
-		// 1. Check user meta billing_email
-		$saved_billing = get_user_meta( $current_user->ID, 'billing_email', true );
-		if ( ! empty( $saved_billing ) && is_email( $saved_billing ) ) {
-			return sanitize_email( $saved_billing );
-		}
-
-		// 2. Check user meta shipping_email
-		$saved_shipping = get_user_meta( $current_user->ID, 'shipping_email', true );
-		if ( ! empty( $saved_shipping ) && is_email( $saved_shipping ) ) {
-			return sanitize_email( $saved_shipping );
-		}
-
-		// 3. Check WP user_email account property (skip internal dummy @spada.local if needed)
-		if ( ! empty( $current_user->user_email ) && is_email( $current_user->user_email ) ) {
-			if ( strpos( $current_user->user_email, '@spada.local' ) === false ) {
-				return sanitize_email( $current_user->user_email );
-			}
-		}
-
-		return '';
+		$profile = self::get_logged_in_user_profile();
+		return ! empty( $profile['email'] ) ? $profile['email'] : '';
 	}
 
 	/**
-	 * Auto-fill shipping_email for logged-in registered users on page load.
+	 * Auto-fill checkout fields for registered users on page load.
+	 * Allows full editing by the user at checkout.
 	 *
 	 * @param mixed  $value Field value.
 	 * @param string $input Field input name.
 	 * @return mixed Auto-filled value or original.
 	 */
-	public static function autofill_shipping_email_for_registered_user( $value, $input ) {
-		if ( 'shipping_email' === $input && empty( $value ) ) {
-			$email = self::get_logged_in_user_email();
-			if ( ! empty( $email ) ) {
-				return $email;
-			}
+	public static function autofill_registered_user_checkout_fields( $value, $input ) {
+		if ( ! empty( $value ) || ! is_user_logged_in() ) {
+			return $value;
 		}
+
+		$profile = self::get_logged_in_user_profile();
+		if ( empty( $profile ) ) {
+			return $value;
+		}
+
+		switch ( $input ) {
+			case 'shipping_first_name':
+			case 'billing_first_name':
+				return ! empty( $profile['first_name'] ) ? $profile['first_name'] : $value;
+
+			case 'shipping_last_name':
+			case 'billing_last_name':
+				return ! empty( $profile['last_name'] ) ? $profile['last_name'] : $value;
+
+			case 'shipping_phone':
+			case 'billing_phone':
+				return ! empty( $profile['phone'] ) ? $profile['phone'] : $value;
+
+			case 'shipping_email':
+			case 'billing_email':
+				return ! empty( $profile['email'] ) ? $profile['email'] : $value;
+
+			case 'shipping_address_1':
+			case 'billing_address_1':
+				return ! empty( $profile['address'] ) ? $profile['address'] : $value;
+		}
+
 		return $value;
 	}
 
 	/**
-	 * Default checkout value filter for shipping_email.
+	 * Default checkout value filter for registered user fields.
 	 *
 	 * @param mixed  $value Field value.
 	 * @param string $input Input key.
 	 * @return mixed Value.
 	 */
-	public static function default_checkout_shipping_email( $value, $input ) {
-		if ( empty( $value ) ) {
-			$email = self::get_logged_in_user_email();
-			if ( ! empty( $email ) ) {
-				return $email;
-			}
-		}
-		return $value;
+	public static function default_checkout_field_value( $value, $input ) {
+		return self::autofill_registered_user_checkout_fields( $value, $input );
 	}
 
 	/**

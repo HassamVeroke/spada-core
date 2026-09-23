@@ -14,6 +14,7 @@
 			this.bindEvents();
 			this.initHeroTitleSync();
 			this.initEmailSync();
+			this.initUserProfileAutofill();
 		},
 
 		bindEvents: function () {
@@ -315,6 +316,60 @@
 					$shippingEmail.val(val);
 				}
 			});
+		},
+
+		initUserProfileAutofill: function () {
+			if (!window.SpadaFCOrderSummary || !SpadaFCOrderSummary.userProfile) {
+				return;
+			}
+			var profile = SpadaFCOrderSummary.userProfile;
+
+			var populateIfEmpty = function () {
+				if (profile.first_name) {
+					var $fn = $('input[name="shipping_first_name"], input[name="billing_first_name"]');
+					$fn.each(function () {
+						if (!$(this).val()) {
+							$(this).val(profile.first_name);
+						}
+					});
+				}
+				if (profile.last_name) {
+					var $ln = $('input[name="shipping_last_name"], input[name="billing_last_name"]');
+					$ln.each(function () {
+						if (!$(this).val()) {
+							$(this).val(profile.last_name);
+						}
+					});
+				}
+				if (profile.phone) {
+					var $ph = $('input[name="shipping_phone"], input[name="billing_phone"]');
+					$ph.each(function () {
+						if (!$(this).val()) {
+							$(this).val(profile.phone);
+						}
+					});
+				}
+				if (profile.email) {
+					var $em = $('input[name="shipping_email"], input[name="billing_email"]');
+					$em.each(function () {
+						if (!$(this).val()) {
+							$(this).val(profile.email);
+						}
+					});
+				}
+				if (profile.address) {
+					var $addr = $('input[name="shipping_address_1"], input[name="billing_address_1"]');
+					$addr.each(function () {
+						if (!$(this).val()) {
+							$(this).val(profile.address);
+						}
+					});
+				}
+			};
+
+			populateIfEmpty();
+			$(window).on('load', populateIfEmpty);
+			$(document.body).on('updated_checkout init_checkout fc_step_loaded fc_substep_loaded', populateIfEmpty);
 		}
 	};
 
