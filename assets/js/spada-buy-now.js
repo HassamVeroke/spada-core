@@ -83,6 +83,11 @@ jQuery(function ($) {
 		$button.toggleClass('spada-buy-now-loading', loading);
 		$button.attr('aria-busy', loading ? 'true' : 'false');
 
+		var $wrapper = $button.closest('.spada-buy-now');
+		if ($wrapper.length) {
+			$wrapper.toggleClass('spada-buy-now-loading', loading);
+		}
+
 		var $text = getButtonTextElement($button);
 		if ($text.length) {
 			if (loading) {
@@ -155,18 +160,65 @@ jQuery(function ($) {
 	}
 
 	/**
-	 * Get or create the inline variation dropdown container INSIDE the .spada-buy-now wrapper.
+	 * Get or create the inline variation dropdown container INSIDE the .elementor-button-wrapper.
 	 * Positioned absolute on top of the button.
 	 */
 	function getInlineContainer($wrapper) {
-		var $existing = $wrapper.find('.spada-buy-now-variation');
+		var $btnWrapper = $wrapper.find('.elementor-button-wrapper');
+		var $parent = $btnWrapper.length ? $btnWrapper : $wrapper;
+
+		var $existing = $parent.find('.spada-buy-now-variation');
 		if ($existing.length) {
 			return $existing.first();
 		}
 
 		var $container = $('<div class="spada-buy-now-variation" aria-live="polite"></div>');
-		$wrapper.append($container);
+		$parent.append($container);
 		return $container;
+	}
+
+	/**
+	 * Prepare variation dropdown and open it cleanly without auto-closing.
+	 */
+	function prepareAndOpenDropdown($container, $wrapper, $button) {
+		// Close any other open variation dropdowns on the page first
+		$('.spada-buy-now-variation.is-open').not($container).each(function () {
+			var $otherContainer = $(this);
+			var $otherWrapper = $otherContainer.closest('.spada-buy-now');
+			var $otherButton = $otherWrapper.find('.elementor-button').length ? $otherWrapper.find('.elementor-button') : $otherWrapper;
+			var otherSelectedId = $otherButton.data('selected-variation-id');
+
+			$otherContainer.removeClass('is-open');
+			$otherWrapper.removeClass('is-dropdown-open');
+			if (!otherSelectedId) {
+				setVariableSelectOptionsText($otherButton);
+				$otherButton.attr('data-spada-variable-state', 'select');
+			}
+		});
+
+		var $form = $container.find('.variations_form');
+
+		// Flag the form as NOT user-initiated during setup so automatic found_variation won't close dropdown
+		$form.data('user-initiated', false);
+
+		var $selects = $container.find('.variations select');
+		var hasSelectedVariation = $button.data('selected-variation-id');
+		if (!hasSelectedVariation) {
+			$selects.each(function () {
+				$(this).val('');
+			});
+		}
+
+		initVariationForm($container, $wrapper, $button);
+
+		// Now display the dropdown
+		$container.addClass('is-open');
+		$wrapper.addClass('is-dropdown-open');
+
+		// Focus the first select field
+		if ($selects.length) {
+			$selects.first().trigger('focus');
+		}
 	}
 
 	/**
@@ -179,11 +231,7 @@ jQuery(function ($) {
 		var cachedHtml = $wrapper.data('variation-form-html');
 		if (cachedHtml) {
 			$container.html(cachedHtml);
-			initVariationForm($container, $wrapper, $button);
-			$container.addClass('is-open');
-			$wrapper.addClass('is-dropdown-open');
-			setButtonLoading($button, false);
-			focusVariationSelect($container);
+			prepareAndOpenDropdown($container, $wrapper, $button);
 			return;
 		}
 
@@ -199,23 +247,18 @@ jQuery(function ($) {
 				product_id: productId
 			}
 		}).done(function (response) {
+			setButtonLoading($button, false);
 			if (!response.success || !response.data.html) {
 				alert(SpadaBuyNow.strings.error || 'Something went wrong. Please try again.');
-				setButtonLoading($button, false);
 				return;
 			}
 
 			$wrapper.data('variation-form-html', response.data.html);
 			$container.html(response.data.html);
-			initVariationForm($container, $wrapper, $button);
-
-			$container.addClass('is-open');
-			$wrapper.addClass('is-dropdown-open');
-			setButtonLoading($button, false);
-			focusVariationSelect($container);
+			prepareAndOpenDropdown($container, $wrapper, $button);
 		}).fail(function () {
-			alert(SpadaBuyNow.strings.error || 'Something went wrong. Please try again.');
 			setButtonLoading($button, false);
+			alert(SpadaBuyNow.strings.error || 'Something went wrong. Please try again.');
 		});
 	}
 
@@ -230,23 +273,6 @@ jQuery(function ($) {
 				$this.wc_variation_form();
 				$this.trigger('check_variations');
 			});
-		}
-	}
-
-	/**
-	 * Focus the select element inside the dropdown.
-	 */
-	function focusVariationSelect($container) {
-		var $select = $container.find('.variations select').first();
-		if ($select.length) {
-			$select.trigger('focus');
-			if ($select[0] && typeof $select[0].showPicker === 'function') {
-				try {
-					$select[0].showPicker();
-				} catch (e) {
-					// showPicker may throw if not triggered by direct user gesture
-				}
-			}
 		}
 	}
 
@@ -411,6 +437,16 @@ jQuery(function ($) {
 		var $wrapper = $target.closest('.spada-buy-now');
 		var $button = $wrapper.find('.elementor-button').length ? $wrapper.find('.elementor-button') : $wrapper;
 
+		// If clicked inside the variation dropdown container, do not trigger button action
+		if ($(event.target).closest('.spada-buy-now-variation').length) {
+			return;
+		}
+
+		// If dropdown is currently open on this button, do nothing
+		if ($wrapper.hasClass('is-dropdown-open')) {
+			return;
+		}
+
 		// If clicked on the change option arrow specifically
 		if ($(event.target).closest('.spada-change-option-arrow').length) {
 			event.preventDefault();
@@ -466,6 +502,19 @@ jQuery(function ($) {
 	});
 
 	/**
+	 * Mark user interaction when user changes the dropdown select.
+	 */
+	$(document).on('change', '.spada-buy-now-variation .variations select', function () {
+		var $select = $(this);
+		var $form = $select.closest('.variations_form');
+		if ($select.val()) {
+			$form.data('user-initiated', true);
+		} else {
+			$form.data('user-initiated', false);
+		}
+	});
+
+	/**
 	 * When user selects a variation in the dropdown:
 	 * Dropdown closes, Buy Now button shows up with variation price.
 	 */
@@ -479,12 +528,16 @@ jQuery(function ($) {
 			$button.data('selected-variation-id', variation.variation_id);
 			$button.data('selected-variation-data', variation);
 
-			setVariableBuyNowText($button, variation);
-			$button.attr('data-spada-variable-state', 'ready');
+			// ONLY close dropdown and transition to Buy Now button if user actively made the selection!
+			if ($form.data('user-initiated')) {
+				$form.data('user-initiated', false);
+				setVariableBuyNowText($button, variation);
+				$button.attr('data-spada-variable-state', 'ready');
 
-			// Close dropdown immediately
-			$container.removeClass('is-open');
-			$wrapper.removeClass('is-dropdown-open');
+				// Close dropdown
+				$container.removeClass('is-open');
+				$wrapper.removeClass('is-dropdown-open');
+			}
 		}
 	});
 
