@@ -427,11 +427,13 @@ table.spada-order-summary-table tfoot {
 
 div.woocommerce .fc-wrapper #order_review table.spada-order-summary-table .spada-summary-row th,
 table.spada-order-summary-table .spada-summary-row th,
-.spada-summary-row th {
+.spada-summary-row th,
+.spada-summary-row th label,
+.spada-summary-row th span:not(.spada-remove-coupon-link) {
 	font-family: var(--spada-font-body) !important;
 	font-size: 13.5px !important;
-	font-weight: 500 !important;
-	color: #4b5563 !important;
+	font-weight: 700 !important;
+	color: var(--spada-dark, #111827) !important;
 	padding: 7px 0 !important;
 	text-align: left !important;
 	border: none !important;

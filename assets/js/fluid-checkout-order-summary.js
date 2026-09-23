@@ -4,29 +4,29 @@
  * Handles quantity stepper, item removal, and inline coupon codes with WooCommerce AJAX sync.
  */
 
-(function($) {
+(function ($) {
 	'use strict';
 
 	var SpadaOrderSummary = {
 		qtyTimer: null,
 
-		init: function() {
+		init: function () {
 			this.bindEvents();
 			this.initHeroTitleSync();
 			this.initEmailSync();
 		},
 
-		bindEvents: function() {
+		bindEvents: function () {
 			var self = this;
 
 			// Quantity Stepper Click (supports custom buttons and any fallback spinner buttons)
-			$(document).on('click', '.spada-qty-btn, .spada-qty-stepper .fc-number-spin-button, .spada-qty-stepper .number-spin-button', function(e) {
+			$(document).on('click', '.spada-qty-btn, .spada-qty-stepper .fc-number-spin-button, .spada-qty-stepper .number-spin-button', function (e) {
 				e.preventDefault();
 				self.handleQuantityChange($(this));
 			});
 
 			// Item Removal Click
-			$(document).on('click', '.spada-remove-btn', function(e) {
+			$(document).on('click', '.spada-remove-btn', function (e) {
 				e.preventDefault();
 				if (self.qtyTimer) {
 					clearTimeout(self.qtyTimer);
@@ -35,12 +35,12 @@
 			});
 
 			// Remove is-loading when WooCommerce finishes checkout fragment refresh
-			$(document.body).on('updated_checkout checkout_error', function() {
+			$(document.body).on('updated_checkout checkout_error', function () {
 				$('.spada-order-summary-table').removeClass('is-loading');
 			});
 
 			// Toggle Coupon Form
-			$(document).on('click', '#spada-toggle-coupon-btn', function(e) {
+			$(document).on('click', '#spada-toggle-coupon-btn', function (e) {
 				e.preventDefault();
 				var $form = $('#spada-inline-coupon-form');
 				$form.toggleClass('is-hidden');
@@ -50,12 +50,12 @@
 			});
 
 			// Apply Coupon Code
-			$(document).on('click', '#spada_apply_coupon_btn', function(e) {
+			$(document).on('click', '#spada_apply_coupon_btn', function (e) {
 				e.preventDefault();
 				self.handleApplyCoupon();
 			});
 
-			$(document).on('keypress', '#spada_coupon_code', function(e) {
+			$(document).on('keypress', '#spada_coupon_code', function (e) {
 				if (e.which === 13) {
 					e.preventDefault();
 					self.handleApplyCoupon();
@@ -63,7 +63,7 @@
 			});
 		},
 
-		handleQuantityChange: function($btn) {
+		handleQuantityChange: function ($btn) {
 			var self = this;
 			var $stepper = $btn.closest('.spada-qty-stepper');
 			var $input = $stepper.find('.spada-qty-input');
@@ -106,17 +106,25 @@
 
 			$input.val(newVal);
 
+			// Immediately update the Qty: label in the item meta
+			var $item = $btn.closest('.spada-cart-item');
+			var $qtyLabel = $item.find('.spada-item-qty, .spada-pack-label');
+			if ($qtyLabel.length) {
+				var isRtl = (window.SpadaFCOrderSummary && SpadaFCOrderSummary.isRtl);
+				$qtyLabel.text((isRtl ? 'الكمية: ' : 'Qty: ') + newVal);
+			}
+
 			// Debounce AJAX request slightly so quick clicks update instantly
 			if (self.qtyTimer) {
 				clearTimeout(self.qtyTimer);
 			}
 
-			self.qtyTimer = setTimeout(function() {
+			self.qtyTimer = setTimeout(function () {
 				self.updateQuantityAjax(cartKey, newVal);
 			}, 300);
 		},
 
-		updateQuantityAjax: function(cartKey, qty) {
+		updateQuantityAjax: function (cartKey, qty) {
 			var $table = $('.spada-order-summary-table');
 			$table.addClass('is-loading');
 
@@ -129,17 +137,17 @@
 					cart_item_key: cartKey,
 					quantity: qty
 				},
-				success: function(response) {
+				success: function (response) {
 					// Refresh WooCommerce checkout fragments
 					$(document.body).trigger('update_checkout');
 				},
-				error: function() {
+				error: function () {
 					$table.removeClass('is-loading');
 				}
 			});
 		},
 
-		handleRemoveItem: function($btn) {
+		handleRemoveItem: function ($btn) {
 			var cartKey = $btn.data('cart_item_key');
 			var $table = $('.spada-order-summary-table');
 			$table.addClass('is-loading');
@@ -152,17 +160,17 @@
 					security: SpadaFCOrderSummary.nonce,
 					cart_item_key: cartKey
 				},
-				success: function(response) {
+				success: function (response) {
 					// Refresh WooCommerce checkout fragments
 					$(document.body).trigger('update_checkout');
 				},
-				error: function() {
+				error: function () {
 					$table.removeClass('is-loading');
 				}
 			});
 		},
 
-		handleApplyCoupon: function() {
+		handleApplyCoupon: function () {
 			var $input = $('#spada_coupon_code');
 			var code = $.trim($input.val());
 			var $msg = $('#spada-coupon-msg');
@@ -183,7 +191,7 @@
 					security: SpadaFCOrderSummary.nonce,
 					coupon_code: code
 				},
-				success: function(response) {
+				success: function (response) {
 					if (response.success) {
 						$msg.text(response.data.message).removeClass('is-hidden is-error').addClass('is-success');
 						$input.val('');
@@ -193,88 +201,20 @@
 						$msg.text(response.data.message).removeClass('is-hidden is-success').addClass('is-error');
 					}
 				},
-				error: function() {
+				error: function () {
 					$table.removeClass('is-loading');
 				}
 			});
 		},
 
-		originalHeroTitle: null,
-
-		initHeroTitleSync: function() {
-			var self = this;
-
-			var updateHeroTitle = function() {
-				var $paymentStep = $('.fc-checkout-step[data-step-id="payment"]');
-				var isPayment = $paymentStep.length > 0 && (
-					$paymentStep.is('[data-step-current]') ||
-					$paymentStep.attr('data-step-current') !== undefined ||
-					document.body.classList.contains('fc-checkout-step-current--payment')
-				);
-
-				var $heroHeading = $('.hero_title h1');
-				if (!$heroHeading.length) {
-					return;
-				}
-
-				if (self.originalHeroTitle === null) {
-					var initialText = $.trim($heroHeading.text());
-					if (initialText && initialText.toLowerCase() !== 'payment') {
-						self.originalHeroTitle = initialText;
-					} else {
-						self.originalHeroTitle = 'Checkout';
-					}
-				}
-
-				if (isPayment) {
-					if ($.trim($heroHeading.text()) !== 'Payment') {
-						$heroHeading.text('Payment');
-					}
-				} else if (self.originalHeroTitle) {
-					if ($.trim($heroHeading.text()) !== self.originalHeroTitle) {
-						$heroHeading.text(self.originalHeroTitle);
-					}
-				}
-			};
-
-			// Run on initial execution, ready, and window load
-			updateHeroTitle();
-			$(window).on('load', updateHeroTitle);
-
-			// Listen to WooCommerce checkout refresh events
-			$(document.body).on('updated_checkout update_checkout checkout_error init_checkout', updateHeroTitle);
-
-			// Listen to step navigation clicks (next, edit, progress bar steps)
-			$(document).on('click', '[data-step-next], [data-step-edit], .fc-checkout-step, .fc-step__substep, .fc-progress-bar__step', function() {
-				setTimeout(updateHeroTitle, 50);
-				setTimeout(updateHeroTitle, 250);
-			});
-
-			// MutationObserver to catch attribute changes (data-step-current) on payment step or container
-			if (window.MutationObserver) {
-				var observer = new MutationObserver(function() {
-					updateHeroTitle();
-				});
-
-				var stepsContainer = document.querySelector('.fc-checkout-steps') || document.querySelector('.fc-wrapper') || document.body;
-				if (stepsContainer) {
-					observer.observe(stepsContainer, {
-						attributes: true,
-						subtree: true,
-						attributeFilter: ['data-step-current', 'class']
-					});
-				}
-			}
-		},
-
-		initEmailSync: function() {
+		initEmailSync: function () {
 			var self = this;
 			var placeholderText = (window.SpadaFCOrderSummary && SpadaFCOrderSummary.isRtl) ? 'أدخل بريدك الإلكتروني' : 'Enter you email';
 			var savedUserEmail = (window.SpadaFCOrderSummary && SpadaFCOrderSummary.userEmail) ? SpadaFCOrderSummary.userEmail : '';
 
-			var syncEmails = function() {
+			var syncEmails = function () {
 				var $shippingEmail = $('input[name="shipping_email"]');
-				var $billingEmail  = $('input[name="billing_email"]');
+				var $billingEmail = $('input[name="billing_email"]');
 
 				// 1. Ensure placeholder on shipping_email
 				if ($shippingEmail.length) {
@@ -296,7 +236,7 @@
 
 				// 3. Make shipping_email, billing_email and any email fields optional in DOM
 				var $allEmailFields = $('input[name="shipping_email"], input[name="billing_email"], input[type="email"]');
-				$allEmailFields.each(function() {
+				$allEmailFields.each(function () {
 					var $input = $(this);
 					$input.prop('required', false).removeAttr('required');
 					var $row = $input.closest('.form-row, .fc-substep__field, .fc-field');
@@ -329,7 +269,7 @@
 			$(document.body).on('updated_checkout init_checkout checkout_error fc_step_loaded fc_substep_loaded', syncEmails);
 
 			// Real-time synchronization when user types or changes shipping email
-			$(document).on('input change blur', 'input[name="shipping_email"]', function() {
+			$(document).on('input change blur', 'input[name="shipping_email"]', function () {
 				var val = $.trim($(this).val());
 				var $billingEmail = $('input[name="billing_email"]');
 				if ($billingEmail.length) {
@@ -347,7 +287,7 @@
 			});
 
 			// If billing email is changed directly, sync back to shipping email
-			$(document).on('input change blur', 'input[name="billing_email"]:not(#spada_synced_billing_email)', function() {
+			$(document).on('input change blur', 'input[name="billing_email"]:not(#spada_synced_billing_email)', function () {
 				var val = $.trim($(this).val());
 				var $shippingEmail = $('input[name="shipping_email"]');
 				if ($shippingEmail.length && val && !$shippingEmail.val()) {
@@ -357,7 +297,7 @@
 		}
 	};
 
-	$(document).ready(function() {
+	$(document).ready(function () {
 		SpadaOrderSummary.init();
 	});
 

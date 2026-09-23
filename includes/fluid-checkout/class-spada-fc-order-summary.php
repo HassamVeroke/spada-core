@@ -22,9 +22,11 @@ class Spada_FC_Order_Summary {
 		add_filter( 'woocommerce_locate_template', array( __CLASS__, 'locate_template' ), 200, 3 );
 		add_filter( 'wc_get_template', array( __CLASS__, 'maybe_filter_wc_template' ), 200, 5 );
 
-		// Header customizations: "ORDER SUMMARY" title & "X items" count
+		// Header customizations: "ORDER SUMMARY" title & "X items" count (distinct products)
 		add_filter( 'fc_order_review_title', array( __CLASS__, 'filter_order_review_title' ), 20 );
 		add_filter( 'pre_option_fc_pro_checkout_edit_cart_replace_edit_cart_link', array( __CLASS__, 'force_cart_items_count_link' ), 20 );
+		add_filter( 'fc_pro_cart_display_items_count_html', array( __CLASS__, 'filter_cart_items_count_html' ), 20 );
+		add_filter( 'woocommerce_update_order_review_fragments', array( __CLASS__, 'add_cart_items_count_fragment' ), 50 );
 		add_action( 'fc_checkout_after_order_review_title_after', array( __CLASS__, 'output_cart_items_count_fallback' ), 15 );
 
 		// Enqueue Order Summary styles and scripts
@@ -104,6 +106,64 @@ class Spada_FC_Order_Summary {
 	}
 
 	/**
+	 * Get the number of distinct products added to the cart.
+	 *
+	 * @return int Number of cart items.
+	 */
+	public static function get_cart_products_count() {
+		return ( function_exists( 'WC' ) && WC()->cart ) ? count( WC()->cart->get_cart() ) : 0;
+	}
+
+	/**
+	 * Get the formatted cart items count HTML.
+	 *
+	 * @return string HTML span with count.
+	 */
+	public static function get_cart_items_count_html() {
+		$count     = self::get_cart_products_count();
+		$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+
+		if ( $is_arabic ) {
+			if ( 0 === $count ) {
+				$text = 'لا توجد منتجات';
+			} elseif ( 1 === $count ) {
+				$text = 'منتج واحد';
+			} elseif ( 2 === $count ) {
+				$text = 'منتجان';
+			} elseif ( $count >= 3 && $count <= 10 ) {
+				$text = sprintf( '%d منتجات', $count );
+			} else {
+				$text = sprintf( '%d منتج', $count );
+			}
+		} else {
+			$text = sprintf( _n( '%d item', '%d items', $count, 'spada-core' ), $count );
+		}
+
+		return sprintf( '<span class="fc-cart-items-count">%s</span>', esc_html( $text ) );
+	}
+
+	/**
+	 * Filter Fluid Checkout PRO cart items count HTML to display distinct product count.
+	 *
+	 * @param string $html Existing HTML.
+	 * @return string Modified HTML.
+	 */
+	public static function filter_cart_items_count_html( $html ) {
+		return self::get_cart_items_count_html();
+	}
+
+	/**
+	 * Ensure checkout review order fragments include distinct product count for .fc-cart-items-count.
+	 *
+	 * @param array $fragments WooCommerce checkout fragments.
+	 * @return array Modified fragments.
+	 */
+	public static function add_cart_items_count_fragment( $fragments ) {
+		$fragments['.fc-cart-items-count'] = self::get_cart_items_count_html();
+		return $fragments;
+	}
+
+	/**
 	 * Output fallback cart items count if Fluid Checkout PRO hasn't rendered it.
 	 */
 	public static function output_cart_items_count_fallback() {
@@ -115,11 +175,7 @@ class Spada_FC_Order_Summary {
 			return;
 		}
 		$rendered = true;
-		$count = ( function_exists( 'WC' ) && WC()->cart ) ? WC()->cart->get_cart_contents_count() : 0;
-		printf(
-			'<span class="fc-cart-items-count">%s</span>',
-			esc_html( sprintf( _n( '%d item', '%d items', $count, 'spada-core' ), $count ) )
-		);
+		echo self::get_cart_items_count_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**

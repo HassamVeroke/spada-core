@@ -22,25 +22,13 @@ defined('ABSPATH') || exit;
 		<?php
 		do_action('woocommerce_review_order_before_cart_contents');
 
+		$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+
 		foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) :
 			$_product   = apply_filters('woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key);
 			$product_id = apply_filters('woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key);
 
 			if ($_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters('woocommerce_checkout_cart_item_visible', true, $cart_item, $cart_item_key)) :
-				// Determine pack/quantity meta
-				$pack_text = '';
-				if (! empty($cart_item['variation'])) {
-					$pack_text = implode(' ', array_values($cart_item['variation']));
-				}
-				if (empty($pack_text) && method_exists($_product, 'get_attribute')) {
-					$pack_text = $_product->get_attribute('pack-size');
-				}
-				if (empty($pack_text) && $_product->is_type('variation')) {
-					$var_attrs = $_product->get_variation_attributes();
-					if (! empty($var_attrs)) {
-						$pack_text = implode(' ', array_values($var_attrs));
-					}
-				}
 		?>
 				<tr class="<?php echo esc_attr(apply_filters('woocommerce_cart_item_class', 'cart_item cart-item spada-cart-item', $cart_item, $cart_item_key)); ?>" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>" data-product_id="<?php echo esc_attr($product_id); ?>">
 					<td colspan="2" class="spada-cart-item-cell" role="none">
@@ -66,14 +54,11 @@ defined('ABSPATH') || exit;
 									</span>
 								</div>
 
-								<!-- Middle Line: Pack Size / Variation Meta -->
+								<!-- Middle Line: Quantity & Meta -->
 								<div class="spada-item-meta">
-									<?php if (! empty($pack_text)) : ?>
-										<span class="spada-pack-label"><?php echo esc_html(sprintf(__('Qty: %s', 'spada-core'), $pack_text)); ?></span>
-									<?php else : ?>
-										<?php echo wc_get_formatted_cart_item_data($cart_item); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
-										?>
-									<?php endif; ?>
+									<span class="spada-item-qty spada-pack-label" data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>">
+										<?php echo esc_html( $is_arabic ? sprintf( 'الكمية: %s', $cart_item['quantity'] ) : sprintf( __( 'Qty: %s', 'spada-core' ), $cart_item['quantity'] ) ); ?>
+									</span>
 								</div>
 
 								<!-- Bottom Line: Unit Price & Stepper + Remove Button -->
