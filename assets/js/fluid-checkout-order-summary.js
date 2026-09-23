@@ -37,6 +37,8 @@
 			// Remove is-loading when WooCommerce finishes checkout fragment refresh
 			$(document.body).on('updated_checkout checkout_error', function () {
 				$('.spada-order-summary-table').removeClass('is-loading');
+				// Ensure no Undo/Dismiss elements or messages linger
+				$('.restore-item, .restore-item-dismiss, .cart_item.removed.undo, [id$="_restore_button"]').remove();
 			});
 
 			// Toggle Coupon Form
@@ -155,7 +157,16 @@
 		handleRemoveItem: function ($btn) {
 			var cartKey = $btn.data('cart_item_key');
 			var $table = $('.spada-order-summary-table');
+			var $row = $btn.closest('.spada-cart-item');
+
+			// Immediately animate out the row for clean, instant deletion
+			$row.css('opacity', '0.4').slideUp(200, function () {
+				$(this).remove();
+			});
 			$table.addClass('is-loading');
+
+			// Clear notice wrappers
+			$('.woocommerce-notices-wrapper, .woocommerce-NoticeGroup-checkout').empty();
 
 			$.ajax({
 				url: SpadaFCOrderSummary.ajaxUrl,
@@ -166,6 +177,8 @@
 					cart_item_key: cartKey
 				},
 				success: function (response) {
+					// Clear any notices returned
+					$('.woocommerce-notices-wrapper, .woocommerce-NoticeGroup-checkout').empty();
 					// Refresh WooCommerce checkout fragments
 					$(document.body).trigger('update_checkout');
 				},

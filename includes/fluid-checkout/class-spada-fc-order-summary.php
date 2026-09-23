@@ -32,6 +32,13 @@ class Spada_FC_Order_Summary {
 		// Place .woocommerce-remove-coupon at start of the Price
 		add_filter( 'woocommerce_cart_totals_coupon_html', array( __CLASS__, 'filter_coupon_html_order' ), 20, 3 );
 
+		// Suppress cart item removed notices with Undo/Dismiss options
+		add_filter( 'woocommerce_cart_item_removed_message', '__return_empty_string', 999 );
+		add_filter( 'fc_pro_cart_removed_item_message', '__return_empty_string', 999 );
+		add_filter( 'fc_pro_cart_removed_item_undo_button_label', '__return_empty_string', 999 );
+		add_filter( 'fc_pro_cart_restore_item_message_dismiss_button', '__return_empty_string', 999 );
+		add_filter( 'pre_option_fc_pro_cart_restore_item_message_dismiss_button_enabled', '__return_zero', 999 );
+
 		// Enqueue Order Summary styles and scripts
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ), 30 );
 
@@ -304,6 +311,9 @@ class Spada_FC_Order_Summary {
 
 		WC()->cart->remove_cart_item( $cart_item_key );
 		WC()->cart->calculate_totals();
+
+		// Clear any cart item removed notices so no Undo/Dismiss messages are rendered
+		wc_clear_notices();
 
 		wp_send_json_success();
 	}

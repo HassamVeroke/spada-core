@@ -87,7 +87,7 @@ defined('ABSPATH') || exit;
 
 										<!-- Red Remove Button -->
 										<a href="<?php echo esc_url(wc_get_cart_remove_url($cart_item_key)); ?>"
-											class="spada-remove-btn remove"
+											class="spada-remove-btn"
 											data-cart_item_key="<?php echo esc_attr($cart_item_key); ?>"
 											data-product_id="<?php echo esc_attr($product_id); ?>"
 											data-product_sku="<?php echo esc_attr($_product->get_sku()); ?>"

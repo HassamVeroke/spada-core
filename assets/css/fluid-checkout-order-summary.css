@@ -746,3 +746,15 @@ html[dir="rtl"] .spada-discount-row .woocommerce-remove-coupon {
 	float: none !important;
 	clear: both !important;
 }
+
+/* Suppress any Undo or Dismiss buttons from cart/checkout */
+.restore-item,
+.restore-item-dismiss,
+.cart_item.removed.undo,
+.fc-wrapper .cart_item .restore-item,
+.fc-wrapper .cart_item .restore-item-dismiss,
+.woocommerce-message a.restore-item,
+.woocommerce-message a.restore-item-dismiss,
+[id$="_restore_button"] {
+	display: none !important;
+}
