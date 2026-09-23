@@ -64,6 +64,11 @@ class Spada_Buy_Now {
 			true
 		);
 
+		$is_arabic = ( get_locale() === 'ar' || strpos( get_locale(), 'ar' ) === 0 || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		if ( function_exists( 'trp_get_current_language' ) && 'ar' === trp_get_current_language() ) {
+			$is_arabic = true;
+		}
+
 		wp_localize_script(
 			'spada-buy-now',
 			'SpadaBuyNow',
@@ -94,16 +99,16 @@ class Spada_Buy_Now {
 				),
 				'buttonClass'=> 'spada-buy-now',
 				'strings'    => array(
-					'loading'          => __( 'Loading...', 'spada-core' ),
-					'loadingVariations' => __( 'Loading options...', 'spada-core' ),
-					'buyNow'           => __( 'Buy Now', 'spada-core' ),
-					'selectOptions'    => __( 'Select Options', 'spada-core' ),
-					'buyNowFor'        => __( 'Buy Now for %s', 'spada-core' ),
-					'outOfStock'       => __( 'Out of Stock', 'spada-core' ),
-					'unavailable'      => __( 'Unavailable', 'spada-core' ),
-					'selectVariation'  => __( 'Please select all available options.', 'spada-core' ),
-					'notAvailable'     => __( 'This variation is not available.', 'spada-core' ),
-					'error'            => __( 'Something went wrong. Please try again.', 'spada-core' ),
+					'loading'          => $is_arabic ? 'جاري التحميل...' : __( 'Loading...', 'spada-core' ),
+					'loadingVariations' => $is_arabic ? 'جاري تحميل الخيارات...' : __( 'Loading options...', 'spada-core' ),
+					'buyNow'           => $is_arabic ? 'اشتري الآن' : __( 'Buy Now', 'spada-core' ),
+					'selectOptions'    => $is_arabic ? 'اختر الخيارات' : __( 'Select Options', 'spada-core' ),
+					'buyNowFor'        => $is_arabic ? 'اشتري الآن مقابل %s' : __( 'Buy Now for %s', 'spada-core' ),
+					'outOfStock'       => $is_arabic ? 'نفدت الكمية' : __( 'Out of Stock', 'spada-core' ),
+					'unavailable'      => $is_arabic ? 'غير متوفر' : __( 'Unavailable', 'spada-core' ),
+					'selectVariation'  => $is_arabic ? 'يرجى تحديد جميع الخيارات المتاحة.' : __( 'Please select all available options.', 'spada-core' ),
+					'notAvailable'     => $is_arabic ? 'هذا الخيار غير متوفر.' : __( 'This variation is not available.', 'spada-core' ),
+					'error'            => $is_arabic ? 'حدث خطأ ما. يرجى المحاولة مرة أخرى.' : __( 'Something went wrong. Please try again.', 'spada-core' ),
 				),
 			)
 		);
