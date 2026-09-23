@@ -224,10 +224,8 @@ if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
 
 					if ($shipping_total > 0) {
 						echo wc_price($shipping_total + WC()->cart->get_shipping_tax()); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					} elseif (! empty($chosen_method)) {
-						echo esc_html__('Free', 'spada-core');
 					} else {
-						echo '&mdash;';
+						echo wc_price(0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					}
 				} else {
 					echo '&mdash;';
