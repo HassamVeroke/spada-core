@@ -30,7 +30,7 @@ class Spada_Buy_Now {
 		add_action( 'wp_ajax_nopriv_spada_buy_now_variation_form', array( $this, 'ajax_variation_form' ) );
 		add_action( 'wp_ajax_spada_buy_now_add', array( $this, 'ajax_add_to_cart' ) );
 		add_action( 'wp_ajax_nopriv_spada_buy_now_add', array( $this, 'ajax_add_to_cart' ) );
-		add_filter( 'woocommerce_variable_price_html', array( $this, 'filter_out_of_stock_variable_price_html' ), 10, 2 );
+		add_filter( 'woocommerce_variable_price_html', array( $this, 'filter_variable_price_html' ), 10, 2 );
 	}
 
 	private function is_archive_context() {
@@ -155,20 +155,24 @@ class Spada_Buy_Now {
 	}
 
 	/**
-	 * Out of stock variable product should not show price range, instead show lowest variation price only.
+	 * Variable products on archive/shop cards should not show price range, instead show lowest variation price only.
 	 *
 	 * @param string     $price   Price HTML.
 	 * @param WC_Product $product Product object.
 	 * @return string Modified price HTML.
 	 */
-	public function filter_out_of_stock_variable_price_html( $price, $product ) {
-		if ( $this->is_archive_context() && $product && $product->is_type( 'variable' ) && ! $product->is_in_stock() ) {
+	public function filter_variable_price_html( $price, $product ) {
+		if ( $this->is_archive_context() && $product && $product->is_type( 'variable' ) ) {
 			$min_price = $product->get_variation_price( 'min', true );
 			if ( $min_price ) {
 				return wc_price( $min_price );
 			}
 		}
 		return $price;
+	}
+
+	public function filter_out_of_stock_variable_price_html( $price, $product ) {
+		return $this->filter_variable_price_html( $price, $product );
 	}
 
 	public function ajax_variation_form() {

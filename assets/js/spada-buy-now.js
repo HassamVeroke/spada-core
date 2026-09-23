@@ -128,10 +128,16 @@ jQuery(function ($) {
 	}
 
 	/**
-	 * Set Variable product button to "Select Options".
+	 * Set Variable product button to initial state (shows single lowest variation price or Select Options).
 	 */
 	function setVariableSelectOptionsText($button) {
-		setButtonText($button, SpadaBuyNow.strings.selectOptions || 'Select Options');
+		var $text = getButtonTextElement($button);
+		var singlePriceHtml = $text.data('spada-single-price-html');
+		if (singlePriceHtml) {
+			setButtonHtml($button, singlePriceHtml);
+		} else {
+			setButtonText($button, SpadaBuyNow.strings.selectOptions || 'Select Options');
+		}
 		$button.attr('data-spada-variable-state', 'select');
 	}
 
@@ -383,6 +389,23 @@ jQuery(function ($) {
 				$text.data('spada-original-buy-text', $text.text().trim());
 			}
 
+			// For all variable products (both in-stock and out-of-stock):
+			// Ensure only first/lowest variation price is shown (no price range)
+			if (isVariable) {
+				var $firstPrice = $text.find('.woocommerce-Price-amount').first();
+				if ($firstPrice.length) {
+					if ($text.find('.woocommerce-Price-amount').length > 1 || $text.text().indexOf('–') !== -1 || $text.text().indexOf('-') !== -1 || $text.text().indexOf('through') !== -1) {
+						var prefix = $text.clone().children().remove().end().text().trim();
+						prefix = prefix.replace(/[-:–\s]+$/, '');
+						if (!prefix) {
+							prefix = SpadaBuyNow.strings.buyNowFor ? SpadaBuyNow.strings.buyNowFor.replace('%s', '').trim() : 'Buy Now for';
+						}
+						$text.empty().append(document.createTextNode(prefix + ' ')).append($firstPrice.clone());
+					}
+				}
+				$text.data('spada-single-price-html', $text.html());
+			}
+
 			// Out of stock products: Keep Elementor Buy Now button, but disabled
 			if (isOutOfStock) {
 				$wrapper.addClass('spada-buy-now-disabled is-out-of-stock');
@@ -390,25 +413,10 @@ jQuery(function ($) {
 					.addClass('spada-buy-now-disabled')
 					.prop('disabled', true)
 					.attr('aria-disabled', 'true');
-
-				// Out of stock variable products: do not show price range, show only first/lowest variation price
-				if (isVariable) {
-					var $firstPrice = $text.find('.woocommerce-Price-amount').first();
-					if ($firstPrice.length) {
-						if ($text.find('.woocommerce-Price-amount').length > 1 || $text.text().indexOf('–') !== -1 || $text.text().indexOf('-') !== -1 || $text.text().indexOf('through') !== -1) {
-							var prefix = $text.clone().children().remove().end().text().trim();
-							prefix = prefix.replace(/[-:–\s]+$/, '');
-							if (!prefix) {
-								prefix = SpadaBuyNow.strings.buyNowFor ? SpadaBuyNow.strings.buyNowFor.replace('%s', '').trim() : 'Buy Now for';
-							}
-							$text.empty().append(document.createTextNode(prefix + ' ')).append($firstPrice.clone());
-						}
-					}
-				}
 				return;
 			}
 
-			// In-stock Variable products: Use custom "Select Options" button
+			// In-stock Variable products: Enable button, initial state is 'select' so click opens dropdown
 			if (isVariable) {
 				setVariableSelectOptionsText($button);
 				$button
