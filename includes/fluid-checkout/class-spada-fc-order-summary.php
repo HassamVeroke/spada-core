@@ -24,7 +24,6 @@ class Spada_FC_Order_Summary {
 
 		// Header customizations: "ORDER SUMMARY" title & "X items" count (distinct products)
 		add_filter( 'fc_order_review_title', array( __CLASS__, 'filter_order_review_title' ), 20 );
-		add_filter( 'pre_option_fc_pro_checkout_edit_cart_replace_edit_cart_link', array( __CLASS__, 'force_cart_items_count_link' ), 20 );
 		add_filter( 'fc_pro_cart_display_items_count_html', array( __CLASS__, 'filter_cart_items_count_html' ), 20 );
 		add_filter( 'woocommerce_update_order_review_fragments', array( __CLASS__, 'add_cart_items_count_fragment' ), 50 );
 		add_action( 'fc_checkout_after_order_review_title_after', array( __CLASS__, 'output_cart_items_count_fallback' ), 15 );
@@ -66,6 +65,10 @@ class Spada_FC_Order_Summary {
 	 */
 	public static function locate_template( $template, $template_name, $template_path ) {
 		if ( 'checkout/review-order.php' === $template_name ) {
+			// Do not override if on the cart page
+			if ( function_exists( 'is_cart' ) && is_cart() ) {
+				return $template;
+			}
 			$custom_template = SPADA_CORE_PATH . 'templates/fluid-checkout/checkout/review-order.php';
 			if ( file_exists( $custom_template ) ) {
 				return $custom_template;
@@ -87,6 +90,10 @@ class Spada_FC_Order_Summary {
 	 */
 	public static function maybe_filter_wc_template( $located, $template_name, $args, $template_path, $default_path ) {
 		if ( 'checkout/review-order.php' === $template_name ) {
+			// Do not override if on the cart page
+			if ( function_exists( 'is_cart' ) && is_cart() ) {
+				return $located;
+			}
 			$custom_template = SPADA_CORE_PATH . 'templates/fluid-checkout/checkout/review-order.php';
 			if ( file_exists( $custom_template ) ) {
 				return $custom_template;
@@ -197,6 +204,10 @@ class Spada_FC_Order_Summary {
 	 * @return string Modified coupon HTML.
 	 */
 	public static function filter_coupon_html_order( $coupon_html, $coupon, $discount_amount_html ) {
+		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+			return $coupon_html;
+		}
+
 		if ( is_string( $coupon ) ) {
 			$coupon = new WC_Coupon( $coupon );
 		}

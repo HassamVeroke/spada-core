@@ -420,12 +420,17 @@ class Spada_FC_Checkout_Fields {
 	 * Disable the Contact step in Fluid Checkout so checkout starts directly with Shipping.
 	 */
 	public static function disable_contact_step() {
+		// Only run on checkout page (never on cart, shop, product, or account pages)
+		if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || is_order_received_page() ) {
+			return;
+		}
+
 		if ( ! class_exists( 'FluidCheckout_Steps' ) ) {
 			return;
 		}
 
 		$steps = FluidCheckout_Steps::instance();
-		$steps->unregister_checkout_substep( 'contact', 'contact' );
+		$steps->unregister_checkout_substep( 'contact' );
 		$steps->unregister_checkout_step( 'contact' );
 
 		// Remove login link section before customer details if hooked

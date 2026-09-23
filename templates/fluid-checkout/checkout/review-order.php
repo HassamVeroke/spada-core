@@ -9,6 +9,10 @@
  */
 
 defined('ABSPATH') || exit;
+
+if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+	return;
+}
 ?>
 
 <table class="shop_table woocommerce-checkout-review-order-table spada-order-summary-table <?php echo esc_attr(apply_filters('fc_pro_checkout_review_order_table_classes', '')); ?>">
@@ -215,8 +219,7 @@ defined('ABSPATH') || exit;
 			<td>
 				<?php
 				if (WC()->cart->needs_shipping() && WC()->cart->show_shipping()) {
-					$packages = WC()->shipping()->get_packages();
-					$chosen_method = isset(WC()->session->chosen_shipping_methods[0]) ? WC()->session->chosen_shipping_methods[0] : '';
+					$chosen_method  = ( WC()->session && isset(WC()->session->chosen_shipping_methods[0]) ) ? WC()->session->chosen_shipping_methods[0] : '';
 					$shipping_total = WC()->cart->get_shipping_total();
 
 					if ($shipping_total > 0) {
