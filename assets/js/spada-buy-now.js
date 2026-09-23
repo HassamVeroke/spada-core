@@ -156,7 +156,13 @@ jQuery(function ($) {
 
 		var template = SpadaBuyNow.strings.buyNowFor || 'Buy Now for %s';
 		var labelParts = template.split('%s');
-		var label = escapeHtml(labelParts.shift()) + formattedPrice + escapeHtml(labelParts.join('%s'));
+		var arrowSvg = '<span class="spada-change-option-arrow" role="button" tabindex="0" title="' + (SpadaBuyNow.strings.selectOptions || 'Change option') + '" aria-label="' + (SpadaBuyNow.strings.selectOptions || 'Change option') + '">' +
+			'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+			'<path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+			'</svg>' +
+			'</span>';
+
+		label += ' ' + arrowSvg;
 
 		setButtonHtml($button, label);
 		$button.attr('data-spada-variable-state', 'ready');
@@ -457,6 +463,17 @@ jQuery(function ($) {
 			return;
 		}
 
+		// If clicked specifically on the change option arrow badge, open variation dropdown
+		if ($(event.target).closest('.spada-change-option-arrow').length) {
+			event.preventDefault();
+			event.stopPropagation();
+			var pId = findProductId($wrapper);
+			if (pId) {
+				openVariationDropdown(pId, $wrapper, $button);
+			}
+			return false;
+		}
+
 		// If button is disabled or product is out of stock, do nothing
 		if ($button.hasClass('spada-buy-now-disabled') || $button.prop('disabled') || $wrapper.hasClass('is-out-of-stock') || $button.hasClass('spada-buy-now-loading')) {
 			event.preventDefault();
@@ -498,6 +515,17 @@ jQuery(function ($) {
 		// State is 'select': open variation dropdown
 		openVariationDropdown(productId, $wrapper, $button);
 		return false;
+	});
+
+	/**
+	 * Keyboard accessibility for change option arrow.
+	 */
+	$(document).on('keydown', '.spada-change-option-arrow', function (event) {
+		if (event.key === 'Enter' || event.key === ' ' || event.which === 13 || event.which === 32) {
+			event.preventDefault();
+			event.stopPropagation();
+			$(this).trigger('click');
+		}
 	});
 
 	/**

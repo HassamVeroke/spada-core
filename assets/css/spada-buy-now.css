@@ -196,6 +196,66 @@ html[lang="ar"] .spada-buy-now-variation .variations select {
 	pointer-events: none !important;
 }
 
+/* Change option arrow button badge inside Buy Now button */
+.spada-change-option-arrow {
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	vertical-align: middle !important;
+	width: 30px !important;
+	height: 30px !important;
+	min-width: 30px !important;
+	min-height: 30px !important;
+	margin-left: 10px !important;
+	padding: 0 !important;
+	border-radius: 6px !important;
+	background: rgba(128, 128, 128, 0.18) !important;
+	background: color-mix(in srgb, currentColor 16%, transparent) !important;
+	color: currentColor !important;
+	cursor: pointer !important;
+	box-sizing: border-box !important;
+	transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+	border: 1.5px solid rgba(128, 128, 128, 0.25) !important;
+	border: 1.5px solid color-mix(in srgb, currentColor 28%, transparent) !important;
+	outline: none !important;
+	line-height: 1 !important;
+}
+
+.spada-change-option-arrow:hover {
+	background: rgba(128, 128, 128, 0.3) !important;
+	background: color-mix(in srgb, currentColor 28%, transparent) !important;
+	border-color: color-mix(in srgb, currentColor 45%, transparent) !important;
+	transform: scale(1.08) !important;
+}
+
+.spada-change-option-arrow:active {
+	transform: scale(0.95) !important;
+	background: color-mix(in srgb, currentColor 35%, transparent) !important;
+}
+
+.spada-change-option-arrow:focus-visible {
+	box-shadow: 0 0 0 2px currentColor !important;
+}
+
+.spada-change-option-arrow svg {
+	display: block !important;
+	width: 14px !important;
+	height: 14px !important;
+	pointer-events: none !important;
+	transition: transform 0.2s ease !important;
+}
+
+.spada-change-option-arrow:hover svg {
+	transform: translateY(1px) !important;
+}
+
+body.rtl .spada-change-option-arrow,
+html[dir="rtl"] .spada-change-option-arrow,
+html[lang="ar"] .spada-change-option-arrow {
+	margin-left: 0 !important;
+	margin-right: 10px !important;
+}
+
 .spada-buy-now .elementor-button-text img,
 .spada-buy-now img {
 	display: inline-block !important;
