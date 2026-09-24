@@ -408,17 +408,19 @@ html[dir="rtl"] .spada-phone-code {
 	direction: ltr !important;
 }
 
-.spada-phone-input-wrap .spada-input-control,
-body.rtl .spada-phone-input-wrap .spada-input-control,
-html[dir="rtl"] .spada-phone-input-wrap .spada-input-control {
+.spada-phone-input-wrap .spada-input-control {
 	border: 1px solid #b2b2b2 !important;
-	border-left: 0 !important;
 	background: transparent;
 	border-radius: 0 10px 10px 0 !important;
 	outline: 0 !important;
 	box-shadow: none !important;
 	direction: ltr !important;
 	text-align: left !important;
+}
+
+body.rtl .spada-phone-input-wrap .spada-input-control,
+html[dir="rtl"] .spada-phone-input-wrap .spada-input-control {
+	font-family: var(--spada-font-body) !important;
 }
 
 .spada-phone-input-wrap.has-error .spada-phone-code,
