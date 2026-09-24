@@ -198,7 +198,7 @@ body.rtl .spada-back-btn:hover {
 	border-image: linear-gradient(90deg, #000000 0%, #FFFFFF 100%) 1;
 }
 
-.spada-choice-divider::after {
+.spada-choice-divider::before {
 	border-image: linear-gradient(270deg, #000000 0%, #FFFFFF 100%) 1;
 }
 
@@ -632,10 +632,24 @@ html[dir="rtl"] .spada-otp-digit {
 		font-size: 24px;
 	}
 
+	.spada-phone-input-wrap .spada-input-control,
 	.spada-method-subtitle,
 	.spada-input-subheading,
 	.spada-verify-subheading {
+		font-size: 14px !important;
+	}
+
+	.spada-phone-code,
+	body.rtl .spada-phone-code,
+	html[dir="rtl"] .spada-phone-code {
+		padding: 10px;
 		font-size: 14px;
+		line-height: 30px;
+	}
+
+	.spada-field-label {
+		font-size: 12px;
+		line-height: 16px;
 	}
 
 	.spada-method-btn {
