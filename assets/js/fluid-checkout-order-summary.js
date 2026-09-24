@@ -12,7 +12,6 @@
 
 		init: function () {
 			this.bindEvents();
-			this.initHeroTitleSync();
 			this.initEmailSync();
 			this.initUserProfileAutofill();
 		},
