@@ -234,7 +234,7 @@ body.rtl .spada-back-btn:hover {
 	align-items: center;
 	justify-content: flex-start;
 	gap: 15px;
-	padding: 12px 40px;
+	padding: 6px 15px 6px 80px;
 	border: 1px solid var(--spada-border);
 	border-radius: var(--spada-radius-md);
 	background: #ffffff;
@@ -244,8 +244,12 @@ body.rtl .spada-back-btn:hover {
 	font-weight: 700;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	min-height: 52px;
+	min-height: 58px;
 	box-sizing: border-box;
+}
+
+body.rtl .spada-method-btn {
+	padding: 6px 80px 6px 15px;
 }
 
 .spada-method-btn:hover {
@@ -254,7 +258,7 @@ body.rtl .spada-back-btn:hover {
 }
 
 .spada-method-btn.is-active {
-	border: 1.5px solid var(--spada-teal);
+	border: 1px solid var(--spada-teal);
 	color: var(--spada-teal);
 }
 
@@ -268,9 +272,8 @@ body.rtl .spada-back-btn:hover {
 	vertical-align: middle;
 }
 
-.spada-method-btn:hover .spada-method-icon,
-.spada-method-btn.is-active .spada-method-icon svg {
-	/* stroke: var(--spada-teal); */
+.spada-method-btn:hover .spada-method-icon svg {
+	fill: var(--spada-teal);
 }
 
 /* 6. Identifier Input & OTP Headings (Matches Login-2.png & Login-5.png) */
