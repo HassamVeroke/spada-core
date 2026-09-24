@@ -175,6 +175,7 @@
 			}
 			this.clearNotices();
 			this.disarmUnfocusableInputs();
+			$(document).trigger('spada_auth_view_change', [viewName, this.state.action]);
 		},
 
 		checkInitialAction: function() {

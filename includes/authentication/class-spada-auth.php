@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPADA Authentication Orchestrator
  *
@@ -7,33 +8,36 @@
  * @package Spada
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
-class Spada_Auth {
+class Spada_Auth
+{
 
 	/**
 	 * Init hooks.
 	 */
-	public static function init() {
+	public static function init()
+	{
 		Spada_Auth_Ajax::init();
 		Spada_Mobile_Login::init();
 
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
-		add_shortcode( 'spada_auth_portal', array( __CLASS__, 'render_auth_portal_shortcode' ) );
+		add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue_assets'));
+		add_shortcode('spada_auth_portal', array(__CLASS__, 'render_auth_portal_shortcode'));
 
 		// Hook into My Account login page
-		add_action( 'woocommerce_before_customer_login_form', array( __CLASS__, 'render_account_portal' ), 5 );
+		add_action('woocommerce_before_customer_login_form', array(__CLASS__, 'render_account_portal'), 5);
 	}
 
 	/**
 	 * Enqueue styles and scripts conditionally.
 	 */
-	public static function enqueue_assets() {
-		$is_account = function_exists( 'is_account_page' ) && is_account_page();
+	public static function enqueue_assets()
+	{
+		$is_account = function_exists('is_account_page') && is_account_page();
 
-		if ( ! $is_account ) {
+		if (! $is_account) {
 			return;
 		}
 
@@ -47,60 +51,70 @@ class Spada_Auth {
 		wp_enqueue_style(
 			'spada-authentication',
 			SPADA_CORE_URL . 'assets/css/authentication.css',
-			array( 'spada-variables', 'spada-google-font-oswald' ),
+			array('spada-variables', 'spada-google-font-oswald'),
 			SPADA_CORE_VERSION
 		);
 
 		wp_enqueue_script(
 			'spada-authentication',
 			SPADA_CORE_URL . 'assets/js/authentication.js',
-			array( 'jquery' ),
+			array('jquery'),
 			SPADA_CORE_VERSION,
 			true
 		);
+
+		$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
 
 		wp_localize_script(
 			'spada-authentication',
 			'SpadaAuthData',
 			array(
-				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
-				'nonce'        => wp_create_nonce( 'spada_auth_nonce' ),
+				'ajaxUrl'      => admin_url('admin-ajax.php'),
+				'nonce'        => wp_create_nonce('spada_auth_nonce'),
 				'isCheckout'   => 'no',
-				'checkoutUrl'  => function_exists( 'wc_get_checkout_url' ) ? wc_get_checkout_url() : '',
-				'accountUrl'   => function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'myaccount' ) : '',
-				'isRtl'        => is_rtl(),
+				'checkoutUrl'  => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '',
+				'accountUrl'   => function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : '',
+				'isRtl'        => $is_arabic,
+				'authHero'     => array(
+					'defaultHead' => $is_arabic ? 'حسابي' : 'Account',
+					'defaultDesc' => $is_arabic ? 'يرجى تقديم التفاصيل اللازمة للوصول إلى حسابك.' : 'Please provide necessary details to access to your account.',
+					'loginHead'   => $is_arabic ? 'تسجيل الدخول' : 'Login',
+					'loginDesc'   => $is_arabic ? 'يرجى تقديم التفاصيل اللازمة لتسجيل الدخول إلى حسابك.' : 'Please provide necessary details to login to your account.',
+					'signupHead'  => $is_arabic ? 'إنشاء حساب' : 'Sign up',
+					'signupDesc'  => $is_arabic ? 'يرجى تقديم التفاصيل اللازمة لإنشاء حسابك.' : 'Please provide necessary details to sign up to your account.',
+				),
 				'i18n'         => array(
-					'signInEmail'      => __( 'Sign in with Email', 'spada-core' ),
-					'signInWhatsapp'   => __( 'Sign in with Whatsapp', 'spada-core' ),
-					'signInSms'        => __( 'Sign in with SMS', 'spada-core' ),
-					'signupEmail'      => __( 'Signup using Email', 'spada-core' ),
-					'signupWhatsapp'   => __( 'Signup using Whatsapp', 'spada-core' ),
-					'signupSms'        => __( 'Signup using SMS', 'spada-core' ),
-					'enterEmail'       => __( 'Enter your email address', 'spada-core' ),
-					'subEmail'         => __( "We'll send a six digit code to your email adress.", 'spada-core' ),
-					'enterWhatsapp'    => __( 'Enter your whatsapp number', 'spada-core' ),
-					'subWhatsapp'      => __( "We'll send a six digit code to your whatsapp", 'spada-core' ),
-					'enterMobile'      => __( 'Enter your mobile number', 'spada-core' ),
-					'subMobile'        => __( "We'll send a six digit code to your mobile number", 'spada-core' ),
-					'checkEmail'       => __( 'Check your email address', 'spada-core' ),
-					'checkWhatsapp'    => __( 'Check your whatsapp account', 'spada-core' ),
-					'checkMobile'      => __( 'Check your messages', 'spada-core' ),
-					'promptEmail'      => __( "We've sent a six digit code to your email adress", 'spada-core' ),
-					'promptWhatsapp'   => __( "We've sent a six digit code to your whatsapp account on", 'spada-core' ),
-					'promptMobile'     => __( "We've sent a six digit code to your mobile number", 'spada-core' ),
-					'changeEmail'      => __( 'Change Email', 'spada-core' ),
-					'changeNumber'     => __( 'Change Number', 'spada-core' ),
-					'didntReceive'     => __( "Didn't receive the code?", 'spada-core' ),
-					'didntEmail'       => __( "Didn't receive the email?", 'spada-core' ),
-					'didntWhatsapp'    => __( "Didn't receive the message on whatsapp?", 'spada-core' ),
-					'didntMobile'      => __( "Didn't receive the message on number?", 'spada-core' ),
-					'invalidOtp'       => __( 'Please fill in all 6 digits of the verification code.', 'spada-core' ),
-					'invalidEmail'     => __( 'Please enter a valid email address.', 'spada-core' ),
-					'invalidPhone'     => __( 'Please enter a valid phone number.', 'spada-core' ),
-					'resendIn'         => __( 'resend in', 'spada-core' ),
-					'sending'          => __( 'Sending...', 'spada-core' ),
-					'verifying'        => __( 'Verifying...', 'spada-core' ),
-					'continue'         => __( 'Continue', 'spada-core' ),
+					'signInEmail'      => __('Continue with Email', 'spada-core'),
+					'signInWhatsapp'   => __('Continue with Whatsapp', 'spada-core'),
+					'signInSms'        => __('Continue with SMS', 'spada-core'),
+					'signupEmail'      => __('Signup using Email', 'spada-core'),
+					'signupWhatsapp'   => __('Signup using Whatsapp', 'spada-core'),
+					'signupSms'        => __('Signup using SMS', 'spada-core'),
+					'enterEmail'       => __('Enter your email address', 'spada-core'),
+					'subEmail'         => __("We'll send a six digit code to your email adress.", 'spada-core'),
+					'enterWhatsapp'    => __('Enter your whatsapp number', 'spada-core'),
+					'subWhatsapp'      => __("We'll send a six digit code to your whatsapp", 'spada-core'),
+					'enterMobile'      => __('Enter your mobile number', 'spada-core'),
+					'subMobile'        => __("We'll send a six digit code to your mobile number", 'spada-core'),
+					'checkEmail'       => __('Check your email address', 'spada-core'),
+					'checkWhatsapp'    => __('Check your whatsapp account', 'spada-core'),
+					'checkMobile'      => __('Check your messages', 'spada-core'),
+					'promptEmail'      => __("We've sent a six digit code to your email adress", 'spada-core'),
+					'promptWhatsapp'   => __("We've sent a six digit code to your whatsapp account on", 'spada-core'),
+					'promptMobile'     => __("We've sent a six digit code to your mobile number", 'spada-core'),
+					'changeEmail'      => __('Change Email', 'spada-core'),
+					'changeNumber'     => __('Change Number', 'spada-core'),
+					'didntReceive'     => __("Didn't receive the code?", 'spada-core'),
+					'didntEmail'       => __("Didn't receive the email?", 'spada-core'),
+					'didntWhatsapp'    => __("Didn't receive the message on whatsapp?", 'spada-core'),
+					'didntMobile'      => __("Didn't receive the message on number?", 'spada-core'),
+					'invalidOtp'       => __('Please fill in all 6 digits of the verification code.', 'spada-core'),
+					'invalidEmail'     => __('Please enter a valid email address.', 'spada-core'),
+					'invalidPhone'     => __('Please enter a valid phone number.', 'spada-core'),
+					'resendIn'         => __('resend in', 'spada-core'),
+					'sending'          => __('Sending...', 'spada-core'),
+					'verifying'        => __('Verifying...', 'spada-core'),
+					'continue'         => __('Continue', 'spada-core'),
 				),
 			)
 		);
@@ -109,22 +123,23 @@ class Spada_Auth {
 	/**
 	 * Render the account portal.
 	 */
-	public static function render_account_portal() {
-		if ( is_user_logged_in() ) {
+	public static function render_account_portal()
+	{
+		if (is_user_logged_in()) {
 			return;
 		}
 
 		static $rendered = false;
-		if ( $rendered ) {
+		if ($rendered) {
 			return;
 		}
 		$rendered = true;
 
 		// Unhook mobile login from hidden native forms
-		if ( class_exists( 'Xoo_Ml_Phone_Frontend' ) ) {
+		if (class_exists('Xoo_Ml_Phone_Frontend')) {
 			$frontend = Xoo_Ml_Phone_Frontend::get_instance();
-			remove_action( 'woocommerce_register_form_start', array( $frontend, 'wc_register_phone_input' ) );
-			remove_action( 'woocommerce_login_form_end', array( $frontend, 'wc_login_with_otp_form' ) );
+			remove_action('woocommerce_register_form_start', array($frontend, 'wc_register_phone_input'));
+			remove_action('woocommerce_login_form_end', array($frontend, 'wc_login_with_otp_form'));
 		}
 
 		include SPADA_CORE_PATH . 'templates/authentication/account-portal.php';
@@ -133,10 +148,10 @@ class Spada_Auth {
 		echo '<div class="spada-native-login-hidden" style="display:none !important;">';
 		add_action(
 			'woocommerce_after_customer_login_form',
-			function() {
+			function () {
 				echo '</div>';
-				?>
-				<script>
+?>
+			<script>
 				(function() {
 					var wrap = document.querySelector('.spada-native-login-hidden');
 					if (wrap) {
@@ -152,8 +167,8 @@ class Spada_Auth {
 						}
 					}
 				})();
-				</script>
-				<?php
+			</script>
+<?php
 			},
 			99
 		);
@@ -162,7 +177,8 @@ class Spada_Auth {
 	/**
 	 * Shortcode handler.
 	 */
-	public static function render_auth_portal_shortcode() {
+	public static function render_auth_portal_shortcode()
+	{
 		ob_start();
 		self::render_account_portal();
 		return ob_get_clean();

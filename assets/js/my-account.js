@@ -29,18 +29,25 @@
 				$('body').hasClass('rtl') ||
 				window.location.pathname.indexOf('/ar/') !== -1;
 
-			var loginHead = authData.loginHead || (isArabic ? 'تسجيل الدخول' : 'Login');
-			var loginDesc = authData.loginDesc || (isArabic ? 'يرجى تقديم التفاصيل اللازمة لتسجيل الدخول إلى حسابك.' : 'Please provide necessary details to login to your account.');
-			var signupHead = authData.signupHead || (isArabic ? 'إنشاء حساب' : 'Sign up');
-			var signupDesc = authData.signupDesc || (isArabic ? 'يرجى تقديم التفاصيل اللازمة لإنشاء حسابك.' : 'Please provide necessary details to sign up to your account.');
+			var defaultHead = authData.defaultHead || (isArabic ? 'حسابي' : 'Account');
+			var defaultDesc = authData.defaultDesc || (isArabic ? 'يرجى تقديم التفاصيل اللازمة للوصول إلى حسابك.' : 'Please provide necessary details to access to your account.');
+			var loginHead   = authData.loginHead || (isArabic ? 'تسجيل الدخول' : 'Login');
+			var loginDesc   = authData.loginDesc || (isArabic ? 'يرجى تقديم التفاصيل اللازمة لتسجيل الدخول إلى حسابك.' : 'Please provide necessary details to login to your account.');
+			var signupHead  = authData.signupHead || (isArabic ? 'إنشاء حساب' : 'Sign up');
+			var signupDesc  = authData.signupDesc || (isArabic ? 'يرجى تقديم التفاصيل اللازمة لإنشاء حسابك.' : 'Please provide necessary details to sign up to your account.');
 
-			var setHeroTexts = function(heading, desc) {
+			var initialCaptured = false;
+			var captureInitialTexts = function() {
+				if (initialCaptured) return;
 				var $head = $('.acc_hero_head h1');
 				if (!$head.length) {
 					$head = $('.acc_hero_head .elementor-heading-title, .acc_hero_head');
 				}
-				if ($head.length && $head.text() !== heading) {
-					$head.text(heading);
+				if ($head.length) {
+					var rawHead = $.trim($head.text());
+					if (rawHead && rawHead.toLowerCase() !== 'login' && rawHead !== 'تسجيل الدخول' && rawHead.toLowerCase() !== 'sign up' && rawHead !== 'إنشاء حساب') {
+						defaultHead = rawHead;
+					}
 				}
 
 				var $descContainer = $('.acc_hero_desc .elementor-widget-container');
@@ -49,64 +56,127 @@
 				}
 				if ($descContainer.length) {
 					var $p = $descContainer.find('p');
-					if ($p.length) {
-						if ($p.text() !== desc) {
-							$p.text(desc);
+					var rawDesc = $.trim($p.length ? $p.text() : $descContainer.text());
+					if (rawDesc && rawDesc !== loginDesc && rawDesc !== signupDesc) {
+						defaultDesc = rawDesc;
+					}
+				}
+				initialCaptured = true;
+			};
+			captureInitialTexts();
+
+			var setHeroTexts = function(heading, desc) {
+				if (heading) {
+					var $head = $('.acc_hero_head h1');
+					if (!$head.length) {
+						$head = $('.acc_hero_head .elementor-heading-title, .acc_hero_head');
+					}
+					if ($head.length && $.trim($head.text()) !== heading) {
+						$head.text(heading);
+					}
+				}
+
+				if (desc) {
+					var $descContainer = $('.acc_hero_desc .elementor-widget-container');
+					if (!$descContainer.length) {
+						$descContainer = $('.acc_hero_desc p, .acc_hero_desc');
+					}
+					if ($descContainer.length) {
+						var $p = $descContainer.find('p');
+						if ($p.length) {
+							if ($.trim($p.text()) !== desc) {
+								$p.text(desc);
+							}
+						} else if ($.trim($descContainer.text()) !== desc) {
+							$descContainer.text(desc);
 						}
-					} else if ($descContainer.text() !== desc) {
-						$descContainer.text(desc);
 					}
 				}
 			};
 
-			var updateHeroState = function() {
-				var isRegister = $('.register-form:visible').length > 0 ||
-					$('.xoo-el-section-register:visible').length > 0 ||
-					(new URLSearchParams(window.location.search)).get('action') === 'register' ||
-					(new URLSearchParams(window.location.search)).get('key') === 'register' ||
-					window.location.hash === '#register' ||
-					window.location.hash === '#signup';
+			var syncHeroState = function() {
+				captureInitialTexts();
 
-				if (isRegister) {
+				var searchParams = new URLSearchParams(window.location.search);
+				var actionParam = searchParams.get('action');
+				var keyParam = searchParams.get('key');
+				var hash = window.location.hash;
+
+				var isExplicitRegister = actionParam === 'register' ||
+					actionParam === 'signup' ||
+					keyParam === 'register' ||
+					hash === '#register' ||
+					hash === '#signup' ||
+					searchParams.has('signup');
+
+				var isExplicitLogin = actionParam === 'login' || hash === '#login';
+
+				var $authPortal = $('#spada-auth-portal');
+				if ($authPortal.length) {
+					var currentView = $authPortal.find('.spada-auth-view.is-active').attr('data-view') || 'choice';
+
+					if (currentView === 'choice' && !isExplicitRegister && !isExplicitLogin) {
+						setHeroTexts(defaultHead, defaultDesc);
+						return;
+					}
+
+					if (isExplicitRegister || (window.SpadaAuth && window.SpadaAuth.state && window.SpadaAuth.state.action === 'signup')) {
+						setHeroTexts(signupHead, signupDesc);
+						return;
+					}
+
+					if (isExplicitLogin || (window.SpadaAuth && window.SpadaAuth.state && window.SpadaAuth.state.action === 'login' && currentView !== 'choice')) {
+						setHeroTexts(loginHead, loginDesc);
+						return;
+					}
+
+					if (currentView === 'choice') {
+						setHeroTexts(defaultHead, defaultDesc);
+						return;
+					}
+				}
+
+				// Standard fallback (non-portal)
+				if (isExplicitRegister || $('.register-form:visible').length > 0 || $('.xoo-el-section-register:visible').length > 0) {
 					setHeroTexts(signupHead, signupDesc);
-				} else {
+				} else if (isExplicitLogin) {
 					setHeroTexts(loginHead, loginDesc);
+				} else {
+					setHeroTexts(defaultHead, defaultDesc);
 				}
 			};
 
-			// Initial execution
-			updateHeroState();
-			setTimeout(updateHeroState, 50);
-			setTimeout(updateHeroState, 300);
-			setTimeout(updateHeroState, 1000);
-			$(window).on('load', updateHeroState);
+			// Initial evaluation
+			syncHeroState();
+			setTimeout(syncHeroState, 50);
+			setTimeout(syncHeroState, 300);
+			$(window).on('load', syncHeroState);
 
-			// Listen for toggle button clicks
-			$(document).on('click', '#showRegister, .show-register, .xoo-el-reg-tgr, a[href*="register"]', function() {
-				setHeroTexts(signupHead, signupDesc);
-				setTimeout(updateHeroState, 50);
-			});
-
-			$(document).on('click', '#showLogin, .show-login, .xoo-el-login-tgr, a[href*="login"]', function() {
-				setHeroTexts(loginHead, loginDesc);
-				setTimeout(updateHeroState, 50);
-			});
-
-			// MutationObserver to watch form visibility changes dynamically
-			if (window.MutationObserver) {
-				var targetForms = document.querySelector('#customer_login') || document.querySelector('.woocommerce-account') || document.body;
-				if (targetForms) {
-					var observer = new MutationObserver(function() {
-						updateHeroState();
-					});
-					observer.observe(targetForms, {
-						attributes: true,
-						childList: true,
-						subtree: true,
-						attributeFilter: ['style', 'class']
-					});
+			// Listen to custom Spada auth view changes
+			$(document).on('spada_auth_view_change', function(e, viewName, action) {
+				if (viewName === 'choice') {
+					setHeroTexts(defaultHead, defaultDesc);
+				} else if (action === 'signup') {
+					setHeroTexts(signupHead, signupDesc);
+				} else if (action === 'login') {
+					setHeroTexts(loginHead, loginDesc);
 				}
-			}
+			});
+
+			// User proceeds with Login
+			$(document).on('click', '#spada-choice-login, [data-action="login"], #showLogin, .show-login, .xoo-el-login-tgr, a[href*="action=login"]', function() {
+				setHeroTexts(loginHead, loginDesc);
+			});
+
+			// User proceeds with SignUp
+			$(document).on('click', '#spada-choice-signup, [data-action="signup"], #showRegister, .show-register, .xoo-el-reg-tgr, a[href*="action=register"], a[href*="action=signup"]', function() {
+				setHeroTexts(signupHead, signupDesc);
+			});
+
+			// User navigates back to Choice landing
+			$(document).on('click', '#spada-methods-back-btn', function() {
+				setHeroTexts(defaultHead, defaultDesc);
+			});
 		},
 
 		disarmUnfocusableInputs: function() {

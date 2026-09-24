@@ -73,7 +73,7 @@
 
 /* Top Back Button */
 .spada-view-nav {
-	margin-bottom: 8px;
+	margin-bottom: -34px;
 }
 
 .spada-back-btn {
@@ -204,18 +204,18 @@ body.rtl .spada-back-btn:hover {
 
 .spada-method-title {
 	font-family: var(--spada-font-display);
-	font-size: 28px;
-	font-weight: 700;
+	font-size: 34px;
+	font-weight: 400;
 	letter-spacing: 0.5px;
 	color: var(--spada-dark);
-	margin: 0 0 6px 0;
+	margin: 0 0 12px 0;
 	line-height: 1.2;
 }
 
 .spada-method-subtitle {
 	font-family: var(--spada-font-body);
-	font-size: 14px;
-	color: var(--spada-muted);
+	font-size: 20px;
+	color: var(--spada-dark);
 	margin: 0;
 	line-height: 1.5;
 }
@@ -232,16 +232,16 @@ body.rtl .spada-back-btn:hover {
 	width: 100%;
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	gap: 12px;
-	padding: 14px 20px;
+	justify-content: flex-start;
+	gap: 30px;
+	padding: 20px 140px;
 	border: 1px solid var(--spada-border);
 	border-radius: var(--spada-radius-md);
 	background: #ffffff;
 	color: var(--spada-dark);
-	font-family: var(--spada-font-button);
-	font-size: 16px;
-	font-weight: 400;
+	font-family: var(--spada-font-body);
+	font-size: 20px;
+	font-weight: 700;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	min-height: 52px;
@@ -258,6 +258,7 @@ body.rtl .spada-back-btn:hover {
 	color: var(--spada-teal);
 }
 
+.spada-method-btn:hover .spada-method-icon,
 .spada-method-btn.is-active .spada-method-icon svg {
 	stroke: var(--spada-teal);
 }

@@ -82,10 +82,12 @@ class Spada_My_Account {
 				'nonce'   => wp_create_nonce( 'spada_update_account_action' ),
 				'isRtl'   => $is_arabic,
 				'authHero' => array(
-					'loginHead'  => $is_arabic ? 'تسجيل الدخول' : 'Login',
-					'loginDesc'  => $is_arabic ? 'يرجى تقديم التفاصيل اللازمة لتسجيل الدخول إلى حسابك.' : 'Please provide necessary details to login to your account.',
-					'signupHead' => $is_arabic ? 'إنشاء حساب' : 'Sign up',
-					'signupDesc' => $is_arabic ? 'يرجى تقديم التفاصيل اللازمة لإنشاء حسابك.' : 'Please provide necessary details to sign up to your account.',
+					'defaultHead' => $is_arabic ? 'حسابي' : 'Account',
+					'defaultDesc' => $is_arabic ? 'يرجى تقديم التفاصيل اللازمة للوصول إلى حسابك.' : 'Please provide necessary details to access to your account.',
+					'loginHead'   => $is_arabic ? 'تسجيل الدخول' : 'Login',
+					'loginDesc'   => $is_arabic ? 'يرجى تقديم التفاصيل اللازمة لتسجيل الدخول إلى حسابك.' : 'Please provide necessary details to login to your account.',
+					'signupHead'  => $is_arabic ? 'إنشاء حساب' : 'Sign up',
+					'signupDesc'  => $is_arabic ? 'يرجى تقديم التفاصيل اللازمة لإنشاء حسابك.' : 'Please provide necessary details to sign up to your account.',
 				),
 				'i18n'    => array(
 					'saving'        => $is_arabic ? 'جاري الحفظ...' : __( 'Saving...', 'spada-core' ),

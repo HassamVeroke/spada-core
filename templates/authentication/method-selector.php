@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPADA Authentication Method Selector Template
  *
@@ -7,14 +8,14 @@
  * @package Spada
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 ?>
 <div class="spada-auth-view" id="spada-view-methods" data-view="methods">
 	<!-- Top Navigation -->
 	<div class="spada-view-nav">
-		<a href="#" role="button" class="spada-back-btn" id="spada-methods-back-btn" aria-label="<?php esc_attr_e( 'Back to choice', 'spada-core' ); ?>">
+		<a href="#" role="button" class="spada-back-btn" id="spada-methods-back-btn" aria-label="<?php esc_attr_e('Back to choice', 'spada-core'); ?>">
 			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 				<line x1="19" y1="12" x2="5" y2="12"></line>
 				<polyline points="12 19 5 12 12 5"></polyline>
@@ -23,49 +24,45 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 
 	<div class="spada-method-header">
-		<h2 class="spada-method-title"><?php esc_html_e( 'Choose account', 'spada-core' ); ?></h2>
-		<p class="spada-method-subtitle"><?php esc_html_e( 'Please select any of the below to continue.', 'spada-core' ); ?></p>
+		<h2 class="spada-method-title"><?php esc_html_e('Choose account', 'spada-core'); ?></h2>
+		<p class="spada-method-subtitle"><?php esc_html_e('Please select any of the below to continue.', 'spada-core'); ?></p>
 	</div>
 
 	<div class="spada-method-list">
 		<!-- Option 1: Email (Selected by default) -->
 		<a href="#" role="button" class="spada-method-btn is-active" id="spada-method-email" data-method="email"
-		   data-login-text="<?php esc_attr_e( 'Sign in with Email', 'spada-core' ); ?>"
-		   data-signup-text="<?php esc_attr_e( 'Signup using Email', 'spada-core' ); ?>">
+			data-login-text="<?php esc_attr_e('Continue with Email', 'spada-core'); ?>"
+			data-signup-text="<?php esc_attr_e('SignUp with Email', 'spada-core'); ?>">
 			<div class="spada-method-icon">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-					<polyline points="22,6 12,13 2,6"></polyline>
+				<svg width="62" height="41" viewBox="0 0 62 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M41.9341 20.2904L57.5818 6.69562V33.7299L41.9341 20.2904ZM21.7709 22.5926L27.2658 27.3625C28.1282 28.0951 29.2526 28.5378 30.4813 28.5378H30.5246H30.5577C31.7889 28.5378 32.9133 28.0926 33.7859 27.3549L33.7783 27.36L39.2732 22.5901L55.9766 36.9353H5.07514L21.7709 22.5926ZM5.05224 3.47246H56.0071L31.532 24.7295C31.258 24.9494 30.9166 25.068 30.5653 25.0653H30.5297H30.4966C30.1442 25.0678 29.8017 24.9483 29.5274 24.727L29.5299 24.7295L5.05224 3.47246ZM3.47246 6.69308L19.1176 20.2878L3.47246 33.7198V6.69308ZM58.4213 0.483347C57.8108 0.178075 57.0934 0 56.3327 0H4.72916C3.99215 0.00291743 3.26557 0.174338 2.60498 0.501154L2.63297 0.488434C1.84401 0.878882 1.17961 1.48168 0.714474 2.22904C0.249337 2.9764 0.00190632 3.8387 0 4.71899L0 35.6837C0.00134677 36.9368 0.499761 38.1383 1.38588 39.0244C2.272 39.9105 3.47345 40.409 4.72662 40.4103H56.3251C57.5783 40.409 58.7797 39.9105 59.6659 39.0244C60.552 38.1383 61.0504 36.9368 61.0517 35.6837V4.71899C61.0517 2.86955 59.9858 1.26688 58.434 0.496066L58.406 0.483347H58.4213Z" fill="#00A9BB" />
 				</svg>
 			</div>
-			<span class="spada-method-text"><?php esc_html_e( 'Sign in with Email', 'spada-core' ); ?></span>
+			<span class="spada-method-text"><?php esc_html_e('Continue with Email', 'spada-core'); ?></span>
 		</a>
 
 		<!-- Option 2: WhatsApp -->
 		<a href="#" role="button" class="spada-method-btn" id="spada-method-whatsapp" data-method="whatsapp"
-		   data-login-text="<?php esc_attr_e( 'Sign in with Whatsapp', 'spada-core' ); ?>"
-		   data-signup-text="<?php esc_attr_e( 'Signup using Whatsapp', 'spada-core' ); ?>">
+			data-login-text="<?php esc_attr_e('Continue with Whatsapp', 'spada-core'); ?>"
+			data-signup-text="<?php esc_attr_e('SignUp with Whatsapp', 'spada-core'); ?>">
 			<div class="spada-method-icon">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+				<svg width="51" height="51" viewBox="0 0 51 51" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M35.1611 1.91511C32.093 0.642988 28.8028 -0.00780869 25.4814 7.05719e-05C11.555 0.00018692 0.217148 11.3368 0.212891 25.2696C0.206085 29.7036 1.36922 34.0607 3.58496 37.9014L0 50.9971L13.3955 47.4825C17.1017 49.4998 21.2638 50.5578 25.4834 50.5596C39.4099 50.5596 50.7487 39.2232 50.7529 25.2882C50.7633 21.9676 50.1149 18.6779 48.8457 15.6094C47.5765 12.5411 45.7094 9.75409 43.3564 7.4112L42.9121 6.97566C40.6657 4.82454 38.0375 3.1078 35.1611 1.91511ZM35.0469 2.19245C38.0783 3.44946 40.8303 5.29541 43.1436 7.62312C45.4686 9.93811 47.3143 12.6928 48.5684 15.7247C49.8224 18.7564 50.4633 22.0074 50.4531 25.2882C50.4489 39.0576 39.2344 50.2598 25.4736 50.2598C21.3042 50.2581 17.2012 49.213 13.5391 47.2198L13.4346 47.1622L0.425781 50.5753L3.87402 37.9805L3.90723 37.8604L3.84473 37.752C1.79204 34.194 0.653061 30.1871 0.524414 26.0899L0.512695 25.2696C0.516891 11.5024 11.7217 0.299992 25.4824 0.299875C28.7642 0.292097 32.0154 0.93545 35.0469 2.19245ZM33.6475 5.58113C31.062 4.50862 28.2893 3.96045 25.4902 3.96882C13.7382 3.96931 4.18147 13.5249 4.17676 25.2706C4.17081 29.281 5.3002 33.2116 7.43359 36.6075L7.8623 37.2901L5.6377 45.4171L13.9697 43.2296L14.6279 43.6212C17.9112 45.5659 21.6655 46.5916 25.4814 46.5909C37.0403 46.5909 46.4812 37.3287 46.7773 25.835L46.7842 25.2862C46.7933 22.4871 46.2466 19.7136 45.1768 17.127C44.1736 14.702 42.7293 12.4857 40.918 10.5909L40.5508 10.2169C38.5796 8.22963 36.2328 6.65368 33.6475 5.58113ZM15.2508 6.93566C18.2818 5.23747 21.7747 4.26863 25.4902 4.26863C27.2151 4.26339 28.9299 4.47264 30.5958 4.8885C31.5952 5.13799 32.5771 5.46186 33.5329 5.85836M15.2508 6.93566C13.5556 7.8854 12.0048 9.06326 10.6404 10.4273C6.83591 14.2304 4.47926 19.481 4.47714 25.2714C4.47467 26.9371 4.67091 28.5887 5.056 30.1929C5.24216 30.9687 5.4725 31.7334 5.74597 32.4832C6.24931 33.8632 6.89874 35.1928 7.6875 36.4483L8.04669 37.0194L8.18719 37.243L6.44971 43.5877L6.06445 44.9942L10.3488 43.8702L14.0156 42.9083L14.7598 43.3502L14.7803 43.3624C14.7802 43.3624 14.7803 43.3624 14.7803 43.3624C15.0836 43.542 15.3914 43.7141 15.7024 43.8777C18.7105 45.4606 22.0641 46.2917 25.4736 46.2911C25.7717 46.2911 26.0684 46.2848 26.3636 46.2725C37.5294 45.8043 46.4802 36.5686 46.4844 25.2862C46.4873 24.4021 46.4339 23.5206 46.3254 22.647C46.2645 22.1571 46.1863 21.6697 46.0909 21.1857C45.8255 19.8383 45.4273 18.5172 44.8999 17.242C44.2862 15.7582 43.5047 14.354 42.5732 13.0554C42.304 12.6799 42.0222 12.3133 41.7283 11.9562C41.2914 11.4254 40.8279 10.9155 40.3389 10.4288C39.6367 9.72078 38.8862 9.06578 38.0937 8.46802C36.6929 7.41151 35.1608 6.53372 33.5329 5.85836M17.9109 13.6228C17.9037 13.6228 17.8965 13.6228 17.8893 13.6228L17.9109 13.6228ZM20.9902 20.8574C20.998 20.8418 21.0058 20.826 21.0137 20.8101C21.0338 20.7694 21.0541 20.7275 21.0752 20.6842C21.0462 20.7437 21.0176 20.8026 20.9902 20.8574ZM37.9561 31.4515C37.9581 31.4565 37.965 31.4737 37.9727 31.5079C37.9684 31.4891 37.9645 31.4755 37.9614 31.4661C37.9589 31.4585 37.957 31.4537 37.9561 31.4515Z" fill="white" />
 				</svg>
 			</div>
-			<span class="spada-method-text"><?php esc_html_e( 'Sign in with Whatsapp', 'spada-core' ); ?></span>
+			<span class="spada-method-text"><?php esc_html_e('Continue with Whatsapp', 'spada-core'); ?></span>
 		</a>
 
 		<!-- Option 3: SMS -->
 		<a href="#" role="button" class="spada-method-btn" id="spada-method-sms" data-method="sms"
-		   data-login-text="<?php esc_attr_e( 'Sign in with SMS', 'spada-core' ); ?>"
-		   data-signup-text="<?php esc_attr_e( 'Signup using SMS', 'spada-core' ); ?>">
+			data-login-text="<?php esc_attr_e('Continue with SMS', 'spada-core'); ?>"
+			data-signup-text="<?php esc_attr_e('SignUp with SMS', 'spada-core'); ?>">
 			<div class="spada-method-icon">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-					<line x1="8" y1="10" x2="8.01" y2="10"></line>
-					<line x1="12" y1="10" x2="12.01" y2="10"></line>
-					<line x1="16" y1="10" x2="16.01" y2="10"></line>
+				<svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M4.7291 0C4.63928 0 4.54999 0.00229454 4.46126 0.00682831L4.7291 0ZM46.5619 41.8328C46.6491 41.8328 46.7358 41.8306 46.822 41.8264L46.5619 41.8328ZM4.22949 40.8701L7.99512 37.1035H47.0615V4.72949H4.22949V40.8701ZM33.9893 23.0312H38.2188V18.8018H33.9893V23.0312ZM27.7598 23.0312H23.5312V18.8018H27.7598V23.0312ZM13.0732 23.0312H17.3018V18.8018H13.0732V23.0312ZM51.291 5.22949V36.6035C51.291 39.2034 49.1614 41.333 46.5615 41.333H9.75098L0 51.084V5.22949C0 2.62963 2.12962 0.5 4.72949 0.5H46.5615C49.1614 0.5 51.291 2.62963 51.291 5.22949Z" fill="black" />
 				</svg>
 			</div>
-			<span class="spada-method-text"><?php esc_html_e( 'Sign in with SMS', 'spada-core' ); ?></span>
+			<span class="spada-method-text"><?php esc_html_e('Continue with SMS', 'spada-core'); ?></span>
 		</a>
 	</div>
 </div>
