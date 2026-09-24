@@ -100,7 +100,7 @@ if (! defined('ABSPATH')) {
 				<?php esc_html_e('Click to resend', 'spada-core'); ?>
 			</a>
 			<span class="spada-countdown-text is-hidden" id="spada-countdown-wrap">
-				(<span class="spada-countdown-label"><?php esc_html_e('resend in', 'spada-core'); ?></span> <span class="spada-countdown-val notranslate" data-no-translation translate="no"><span id="spada-countdown-sec" class="notranslate" data-no-translation translate="no">60</span>s</span>)
+				(<span class="spada-countdown-label"><?php esc_html_e('resend in', 'spada-core'); ?></span> <span class="spada-countdown-val notranslate" data-no-translation translate="no"><span id="spada-countdown-sec" class="notranslate" data-no-translation translate="no">120</span>s</span>)
 			</span>
 		</div>
 

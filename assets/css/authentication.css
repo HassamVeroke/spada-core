@@ -213,6 +213,11 @@ body.rtl .spada-choice-divider::after {
 
 .spada-choice-grid .spada-choice-divider {
 	flex: 0 0 40%;
+	direction: rtl;
+}
+
+body.rtl .spada-choice-grid .spada-choice-divider {
+	direction: ltr;
 }
 
 /* 5. Method Selector Screen (Matches My Account Login-1.png) */

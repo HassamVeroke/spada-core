@@ -66,6 +66,23 @@ class Spada_OTP_Email
 
 		set_transient($rl_key, $requests + 1, 10 * MINUTE_IN_SECONDS);
 
+		// Ensure user cannot resend a new OTP before the earlier one expires (120 seconds)
+		$transient_key    = self::TRANSIENT_PREFIX . md5($email);
+		$existing_payload = get_transient($transient_key);
+		$now              = time();
+
+		if (is_array($existing_payload) && ! empty($existing_payload['expires_at']) && $now < (int) $existing_payload['expires_at']) {
+			$remaining = (int) $existing_payload['expires_at'] - $now;
+			$is_arabic = (get_locale() === 'ar' || (function_exists('is_rtl') && is_rtl()));
+			return array(
+				'success'   => false,
+				'message'   => $is_arabic
+					? sprintf('يرجى الانتظار %d ثانية قبل طلب رمز جديد.', $remaining)
+					: sprintf(__('Please wait %d seconds before requesting a new code.', 'spada-core'), $remaining),
+				'remaining' => $remaining,
+			);
+		}
+
 		// Generate cryptographically secure 6-digit integer
 		try {
 			$otp = (string) random_int(100000, 999999);
@@ -74,9 +91,7 @@ class Spada_OTP_Email
 		}
 
 		// Store hashed OTP in transient
-		$transient_key = self::TRANSIENT_PREFIX . md5($email);
-		$now           = time();
-		$otp_payload   = array(
+		$otp_payload = array(
 			'hash'       => wp_hash($otp, 'nonce'),
 			'attempts'   => 0,
 			'created_at' => $now,

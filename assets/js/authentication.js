@@ -16,7 +16,7 @@
 			identifier: '',        // email or phone
 			maskedTarget: '',      // formatted display for verify screen
 			countdownTimer: null,
-			countdownSec: 60
+			countdownSec: 120
 		},
 
 		init: function () {
@@ -751,7 +751,20 @@
 			var self = this;
 			var authData = window.SpadaAuthData || {};
 			clearInterval(this.state.countdownTimer);
-			this.state.countdownSec = 60;
+
+			// Calculate remaining seconds based on exact 120s OTP expiry time
+			var remaining = 120;
+			if (this.state.otpExpiresAt) {
+				var diff = Math.ceil((this.state.otpExpiresAt - Date.now()) / 1000);
+				remaining = diff > 0 ? Math.min(120, diff) : 0;
+			}
+			this.state.countdownSec = remaining;
+
+			if (this.state.countdownSec <= 0) {
+				this.$countdownWrap.addClass('is-hidden');
+				this.$resendBtn.removeClass('disabled').removeAttr('aria-disabled').prop('disabled', false).css('opacity', '1');
+				return;
+			}
 
 			this.$resendBtn.addClass('disabled').attr('aria-disabled', 'true').prop('disabled', true).css('opacity', '0.5');
 			this.$countdownWrap.removeClass('is-hidden');
@@ -761,11 +774,11 @@
 			if (!this.$countdownSec.length) {
 				var $label = this.$countdownWrap.find('.spada-countdown-label');
 				var labelText = ($label.length && $.trim($label.text())) ? $.trim($label.text()) : ((authData.i18n && authData.i18n.resendIn) || (authData.isRtl ? 'إعادة الإرسال بعد' : 'resend in'));
-				this.$countdownWrap.html('(<span class="spada-countdown-label">' + labelText + '</span> <span class="spada-countdown-val notranslate" data-no-translation translate="no"><span id="spada-countdown-sec" class="notranslate" data-no-translation translate="no">60</span>s</span>)');
+				this.$countdownWrap.html('(<span class="spada-countdown-label">' + labelText + '</span> <span class="spada-countdown-val notranslate" data-no-translation translate="no"><span id="spada-countdown-sec" class="notranslate" data-no-translation translate="no">' + remaining + '</span>s</span>)');
 				this.$countdownSec = $('#spada-countdown-sec');
 			}
 
-			this.$countdownSec.text('60');
+			this.$countdownSec.text(remaining);
 
 			this.state.countdownTimer = setInterval(function () {
 				self.state.countdownSec--;

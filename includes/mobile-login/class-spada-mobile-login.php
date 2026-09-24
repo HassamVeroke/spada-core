@@ -227,15 +227,30 @@ class Spada_Mobile_Login
 			);
 		}
 
+		// Ensure user cannot resend a new OTP before the earlier one expires (120 seconds)
+		$transient_key    = 'spada_phone_otp_' . md5($phone_code . $phone_no);
+		$existing_payload = get_transient($transient_key);
+		$now              = time();
+
+		if (is_array($existing_payload) && ! empty($existing_payload['expires_at']) && $now < (int) $existing_payload['expires_at']) {
+			$remaining = (int) $existing_payload['expires_at'] - $now;
+			wp_send_json_error(
+				array(
+					'message'   => $is_arabic
+						? sprintf('يرجى الانتظار %d ثانية قبل طلب رمز جديد.', $remaining)
+						: sprintf(__('Please wait %d seconds before requesting a new code.', 'spada-core'), $remaining),
+					'remaining' => $remaining,
+				),
+				400
+			);
+		}
+
 		// Generate native secure 6-digit OTP stored in transient
-		$transient_key = 'spada_phone_otp_' . md5($phone_code . $phone_no);
 		try {
 			$otp = (string) random_int(100000, 999999);
 		} catch (Exception $e) {
 			$otp = (string) wp_rand(100000, 999999);
 		}
-
-		$now = time();
 		set_transient(
 			$transient_key,
 			array(
