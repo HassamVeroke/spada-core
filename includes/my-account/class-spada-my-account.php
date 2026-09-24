@@ -30,6 +30,63 @@ class Spada_My_Account {
 		// AJAX and POST handler for saving profile changes
 		add_action( 'wp_ajax_spada_update_account_details', array( __CLASS__, 'ajax_update_account_details' ) );
 		add_action( 'template_redirect', array( __CLASS__, 'handle_post_update_account_details' ) );
+
+		// Sync customer shipping address when an order is placed
+		add_action( 'woocommerce_checkout_order_processed', array( __CLASS__, 'sync_address_from_order' ), 20, 3 );
+		add_action( 'woocommerce_checkout_update_user_meta', array( __CLASS__, 'sync_address_from_checkout_meta' ), 20, 2 );
+	}
+
+	/**
+	 * Sync customer shipping address when order is processed.
+	 *
+	 * @param int $order_id Order ID.
+	 * @param array $posted_data Posted checkout data.
+	 * @param WC_Order $order Order instance.
+	 */
+	public static function sync_address_from_order( $order_id, $posted_data = array(), $order = null ) {
+		if ( ! $order instanceof WC_Order ) {
+			$order = wc_get_order( $order_id );
+		}
+		if ( ! $order ) {
+			return;
+		}
+
+		$customer_id = $order->get_customer_id();
+		if ( ! $customer_id ) {
+			return;
+		}
+
+		$shipping_addr = $order->get_shipping_address_1();
+		if ( empty( $shipping_addr ) ) {
+			$shipping_addr = $order->get_billing_address_1();
+		}
+
+		if ( ! empty( $shipping_addr ) ) {
+			update_user_meta( $customer_id, 'shipping_address_1', $shipping_addr );
+			update_user_meta( $customer_id, 'billing_address_1', $shipping_addr );
+		}
+	}
+
+	/**
+	 * Sync customer shipping address during checkout user meta update.
+	 *
+	 * @param int $customer_id Customer ID.
+	 * @param array $data Posted checkout data.
+	 */
+	public static function sync_address_from_checkout_meta( $customer_id, $data ) {
+		if ( ! $customer_id || empty( $data ) ) {
+			return;
+		}
+
+		$shipping_addr = ! empty( $data['shipping_address_1'] ) ? sanitize_text_field( $data['shipping_address_1'] ) : '';
+		if ( empty( $shipping_addr ) && ! empty( $data['billing_address_1'] ) ) {
+			$shipping_addr = sanitize_text_field( $data['billing_address_1'] );
+		}
+
+		if ( ! empty( $shipping_addr ) ) {
+			update_user_meta( $customer_id, 'shipping_address_1', $shipping_addr );
+			update_user_meta( $customer_id, 'billing_address_1', $shipping_addr );
+		}
 	}
 
 	/**

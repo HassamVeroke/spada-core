@@ -230,25 +230,7 @@
 		bindEvents: function() {
 			var self = this;
 
-			// 1. Password Visibility Toggle
-			$(document).on('click', '#spada-pwd-toggle', function(e) {
-				e.preventDefault();
-				var $input = $('#spada_account_password');
-				var $btn = $(this);
-				var isPassword = $input.attr('type') === 'password';
-
-				if (isPassword) {
-					$input.attr('type', 'text');
-					$btn.find('.spada-eye-slash').addClass('is-hidden');
-					$btn.find('.spada-eye').removeClass('is-hidden');
-				} else {
-					$input.attr('type', 'password');
-					$btn.find('.spada-eye-slash').removeClass('is-hidden');
-					$btn.find('.spada-eye').addClass('is-hidden');
-				}
-			});
-
-			// 2. Profile Form Submission via AJAX
+			// 1. Profile Form Submission via AJAX
 			$(document).on('submit', '#spada-profile-form', function(e) {
 				e.preventDefault();
 				self.disarmUnfocusableInputs();
@@ -289,7 +271,6 @@
 			var email = $.trim($('#spada_account_email').val());
 			var phone = $.trim($('#spada_billing_phone').val());
 			var address = $.trim($('#spada_billing_address').val());
-			var password = $('#spada_account_password').val();
 
 			if (!displayName) {
 				self.showNotice('error', i18n.genericError || 'Please enter your name.');
@@ -316,8 +297,7 @@
 					spada_account_display_name: displayName,
 					spada_account_email: email,
 					spada_billing_phone: phone,
-					spada_billing_address: address,
-					spada_account_password: password
+					spada_billing_address: address
 				},
 				success: function(response) {
 					$btn.removeClass('is-loading');
@@ -326,7 +306,6 @@
 
 					if (response.success) {
 						self.showNotice('success', response.data.message || i18n.updateSuccess || 'Account details updated successfully.');
-						$('#spada_account_password').val('');
 					} else {
 						self.showNotice('error', response.data.message || i18n.genericError || 'Something went wrong.');
 					}

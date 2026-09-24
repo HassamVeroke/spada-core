@@ -496,9 +496,14 @@ class Spada_Mobile_Login {
 			WC()->session->set_customer_session_cookie( true );
 		}
 
-		$redirect = wc_get_account_endpoint_url( 'dashboard' );
 		if ( ! empty( $_POST['redirect_to'] ) ) {
 			$redirect = esc_url_raw( wp_unslash( $_POST['redirect_to'] ) );
+		} elseif ( function_exists( 'is_checkout' ) && isset( $_POST['is_checkout'] ) && 'yes' === $_POST['is_checkout'] ) {
+			$redirect = wc_get_checkout_url();
+		} elseif ( 'signup' === $auth_action ) {
+			$redirect = wc_get_page_permalink( 'myaccount' );
+		} else {
+			$redirect = home_url( '/' );
 		}
 
 		wp_send_json_success(

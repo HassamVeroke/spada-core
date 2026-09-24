@@ -227,7 +227,7 @@ class Spada_OTP_Email {
 			'success'  => true,
 			'message'  => __( 'Login successful!', 'spada-core' ),
 			'user_id'  => $user->ID,
-			'redirect' => wc_get_account_endpoint_url( 'dashboard' ),
+			'redirect' => ( 'signup' === $auth_action ) ? wc_get_page_permalink( 'myaccount' ) : home_url( '/' ),
 		);
 	}
 

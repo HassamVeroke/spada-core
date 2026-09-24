@@ -646,7 +646,8 @@
 							$(document.body).trigger('update_checkout');
 							window.location.reload();
 						} else {
-							window.location.href = res.data && res.data.redirect ? res.data.redirect : (authData.accountUrl || window.location.href);
+							var defaultRedirect = (authAction === 'signup') ? (authData.accountUrl || window.location.href) : (authData.homeUrl || '/');
+							window.location.href = res.data && res.data.redirect ? res.data.redirect : defaultRedirect;
 						}
 					}, 500);
 				} else {

@@ -26,9 +26,30 @@ if ( empty( $phone ) ) {
 	$phone = get_user_meta( $user_id, 'shipping_phone', true );
 }
 $email        = ! empty( $current_user->user_email ) ? $current_user->user_email : get_user_meta( $user_id, 'billing_email', true );
-$address      = get_user_meta( $user_id, 'billing_address_1', true );
+$address      = get_user_meta( $user_id, 'shipping_address_1', true );
 if ( empty( $address ) ) {
-	$address = get_user_meta( $user_id, 'shipping_address_1', true );
+	$address = get_user_meta( $user_id, 'billing_address_1', true );
+}
+if ( empty( $address ) && function_exists( 'wc_get_orders' ) ) {
+	$recent_orders = wc_get_orders(
+		array(
+			'customer' => $user_id,
+			'limit'    => 1,
+			'orderby'  => 'date',
+			'order'    => 'DESC',
+		)
+	);
+	if ( ! empty( $recent_orders ) ) {
+		$last_order = $recent_orders[0];
+		$address    = $last_order->get_shipping_address_1();
+		if ( empty( $address ) ) {
+			$address = $last_order->get_billing_address_1();
+		}
+		if ( ! empty( $address ) ) {
+			update_user_meta( $user_id, 'shipping_address_1', $address );
+			update_user_meta( $user_id, 'billing_address_1', $address );
+		}
+	}
 }
 
 // Endpoints
@@ -83,34 +104,7 @@ $is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl(
 					</div>
 				</div>
 
-				<!-- Row 2: New Password (left with eye icon) & Email (right) -->
-				<div class="spada-profile-col">
-					<div class="spada-floating-field spada-has-toggle">
-						<label for="spada_account_password">
-							<?php echo $is_arabic ? esc_html__( 'كلمة المرور الجديدة', 'spada-core' ) : esc_html__( 'New Password', 'spada-core' ); ?>
-						</label>
-						<input
-							type="password"
-							id="spada_account_password"
-							name="spada_account_password"
-							placeholder="<?php echo $is_arabic ? esc_attr__( 'أدخل كلمة المرور الجديدة', 'spada-core' ) : esc_attr__( 'Enter new password', 'spada-core' ); ?>"
-							autocomplete="new-password"
-						/>
-						<button type="button" class="spada-pwd-toggle" id="spada-pwd-toggle" aria-label="<?php esc_attr_e( 'Toggle password visibility', 'spada-core' ); ?>">
-							<!-- Eye Slash (hidden password) -->
-							<svg class="spada-eye-slash" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-								<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-								<line x1="1" y1="1" x2="23" y2="23"></line>
-							</svg>
-							<!-- Eye (visible password) -->
-							<svg class="spada-eye is-hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-								<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-								<circle cx="12" cy="12" r="3"></circle>
-							</svg>
-						</button>
-					</div>
-				</div>
-
+				<!-- Row 2: Email (left, in place of removed password) & Address (right, in place of email) -->
 				<div class="spada-profile-col">
 					<div class="spada-floating-field">
 						<label for="spada_account_email">
@@ -127,8 +121,7 @@ $is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl(
 					</div>
 				</div>
 
-				<!-- Row 3: Address (Full width) -->
-				<div class="spada-profile-col is-full">
+				<div class="spada-profile-col">
 					<div class="spada-floating-field">
 						<label for="spada_billing_address">
 							<?php echo $is_arabic ? esc_html__( 'العنوان', 'spada-core' ) : esc_html__( 'Address', 'spada-core' ); ?>

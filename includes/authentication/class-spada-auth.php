@@ -74,6 +74,7 @@ class Spada_Auth
 				'isCheckout'   => 'no',
 				'checkoutUrl'  => function_exists('wc_get_checkout_url') ? wc_get_checkout_url() : '',
 				'accountUrl'   => function_exists('wc_get_page_permalink') ? wc_get_page_permalink('myaccount') : '',
+				'homeUrl'      => home_url('/'),
 				'isRtl'        => $is_arabic,
 				'authHero'     => array(
 					'defaultHead' => $is_arabic ? 'حسابي' : 'Account',
