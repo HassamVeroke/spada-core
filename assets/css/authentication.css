@@ -514,18 +514,18 @@ html[dir="rtl"] .spada-otp-grid {
 .spada-otp-digit,
 body.rtl .spada-otp-digit,
 html[dir="rtl"] .spada-otp-digit {
-	width: 48px;
+	width: 52px;
 	height: 52px;
 	border: 1.5px solid var(--spada-teal);
-	border-radius: var(--spada-radius-md);
+	border-radius: var(--spada-radius-md) !important;
 	background: #ffffff;
-	font-family: var(--spada-font-body);
-	font-size: 22px;
-	font-weight: 700;
-	color: var(--spada-teal);
+	font-family: var(--spada-font-display) !important;
+	font-size: 22px !important;
+	font-weight: 700 !important;
+	color: var(--spada-teal) !important;
 	text-align: center !important;
 	direction: ltr !important;
-	padding: 0;
+	padding: 0 !important;
 	box-sizing: border-box;
 	transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
@@ -545,20 +545,18 @@ html[dir="rtl"] .spada-otp-digit {
 	margin: 18px 0 14px 0;
 }
 
-.spada-resend-link {
+#spada-resend-btn {
 	background: none;
 	border: none;
 	padding: 0;
-	font-family: inherit;
-	font-size: inherit;
-	font-weight: 700;
-	color: var(--spada-teal);
+	color: var(--spada-teal) !important;
 	cursor: pointer;
-	text-decoration: underline;
+	text-decoration: underline !important;
 }
 
-.spada-resend-link:hover {
-	color: var(--spada-teal-hover);
+#spada-resend-btn:hover {
+	color: var(--spada-teal-hover) !important;
+	text-decoration: none !important;
 }
 
 /* Alert Notices */
