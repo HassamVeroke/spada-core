@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 ?>
-<div class="spada-auth-view" id="spada-view-input" data-view="input">
+<div class="spada-auth-view <?php echo ( isset( $initial_view ) && 'input' === $initial_view ) ? 'is-active' : ''; ?>" id="spada-view-input" data-view="input">
 	<!-- Top Navigation -->
 	<div class="spada-view-nav">
 		<a href="#" role="button" class="spada-back-btn" id="spada-input-back-btn" aria-label="<?php esc_attr_e('Back to methods', 'spada-core'); ?>">

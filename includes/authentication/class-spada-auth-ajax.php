@@ -33,11 +33,37 @@ class Spada_Auth_Ajax {
 	public static function ajax_request_email_otp() {
 		check_ajax_referer( 'spada_auth_nonce', 'nonce' );
 
-		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+		$email       = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+		$auth_action = isset( $_POST['auth_action'] ) && 'signup' === sanitize_key( $_POST['auth_action'] ) ? 'signup' : 'login';
 
 		if ( empty( $email ) || ! is_email( $email ) ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Please provide a valid email address.', 'spada-core' ) ),
+				400
+			);
+		}
+
+		$is_arabic   = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$user_exists = (bool) email_exists( $email );
+
+		if ( 'login' === $auth_action && ! $user_exists ) {
+			wp_send_json_error(
+				array(
+					'message' => $is_arabic
+						? 'لم يتم العثور على حساب بهذا البريد الإلكتروني. يرجى إنشاء حساب أولاً.'
+						: __( 'No account found with this email address. Please sign up first.', 'spada-core' ),
+				),
+				400
+			);
+		}
+
+		if ( 'signup' === $auth_action && $user_exists ) {
+			wp_send_json_error(
+				array(
+					'message' => $is_arabic
+						? 'يوجد حساب بالفعل بهذا البريد الإلكتروني. يرجى تسجيل الدخول بدلاً من ذلك.'
+						: __( 'An account with this email address already exists. Please sign in instead.', 'spada-core' ),
+				),
 				400
 			);
 		}
@@ -62,8 +88,9 @@ class Spada_Auth_Ajax {
 	public static function ajax_verify_email_otp() {
 		check_ajax_referer( 'spada_auth_nonce', 'nonce' );
 
-		$email    = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
-		$otp_code = isset( $_POST['otp_code'] ) ? sanitize_text_field( wp_unslash( $_POST['otp_code'] ) ) : '';
+		$email       = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+		$otp_code    = isset( $_POST['otp_code'] ) ? sanitize_text_field( wp_unslash( $_POST['otp_code'] ) ) : '';
+		$auth_action = isset( $_POST['auth_action'] ) && 'signup' === sanitize_key( $_POST['auth_action'] ) ? 'signup' : 'login';
 
 		if ( empty( $email ) || empty( $otp_code ) ) {
 			wp_send_json_error(
@@ -72,7 +99,7 @@ class Spada_Auth_Ajax {
 			);
 		}
 
-		$result = Spada_OTP_Email::verify_otp( $email, $otp_code );
+		$result = Spada_OTP_Email::verify_otp( $email, $otp_code, $auth_action );
 
 		if ( ! $result['success'] ) {
 			wp_send_json_error(
@@ -106,11 +133,37 @@ class Spada_Auth_Ajax {
 	public static function ajax_resend_email_otp() {
 		check_ajax_referer( 'spada_auth_nonce', 'nonce' );
 
-		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+		$email       = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+		$auth_action = isset( $_POST['auth_action'] ) && 'signup' === sanitize_key( $_POST['auth_action'] ) ? 'signup' : 'login';
 
 		if ( empty( $email ) || ! is_email( $email ) ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Please provide a valid email address.', 'spada-core' ) ),
+				400
+			);
+		}
+
+		$is_arabic   = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$user_exists = (bool) email_exists( $email );
+
+		if ( 'login' === $auth_action && ! $user_exists ) {
+			wp_send_json_error(
+				array(
+					'message' => $is_arabic
+						? 'لم يتم العثور على حساب بهذا البريد الإلكتروني. يرجى إنشاء حساب أولاً.'
+						: __( 'No account found with this email address. Please sign up first.', 'spada-core' ),
+				),
+				400
+			);
+		}
+
+		if ( 'signup' === $auth_action && $user_exists ) {
+			wp_send_json_error(
+				array(
+					'message' => $is_arabic
+						? 'يوجد حساب بالفعل بهذا البريد الإلكتروني. يرجى تسجيل الدخول بدلاً من ذلك.'
+						: __( 'An account with this email address already exists. Please sign in instead.', 'spada-core' ),
+				),
 				400
 			);
 		}

@@ -14,6 +14,7 @@
 			action: 'login',       // login or signup
 			method: 'email',       // email, whatsapp, sms
 			identifier: '',        // email or phone
+			maskedTarget: '',      // formatted display for verify screen
 			countdownTimer: null,
 			countdownSec: 60
 		},
@@ -23,7 +24,7 @@
 			this.disarmUnfocusableInputs();
 			this.bindEvents();
 			this.initOtpGrid();
-			this.checkInitialAction();
+			this.restoreOrInitState();
 		},
 
 		disarmUnfocusableInputs: function() {
@@ -129,9 +130,16 @@
 				self.showView('input');
 			});
 
-			// 4. Phone input validation & digit restriction
+			// 4. Phone & Email input validation and stage caching
+			this.$emailInput.on('input propertychange', function() {
+				self.state.identifier = $(this).val().trim();
+				self.saveStage();
+			});
+
 			this.$phoneInput.on('input propertychange', function() {
 				self.validatePhoneField(false);
+				self.state.identifier = $(this).val().trim();
+				self.saveStage();
 			});
 
 			this.$phoneInput.on('blur', function() {
@@ -186,21 +194,182 @@
 			}
 			this.clearNotices();
 			this.disarmUnfocusableInputs();
+			this.saveStage();
 			$(document).trigger('spada_auth_view_change', [viewName, this.state.action]);
 		},
 
-		checkInitialAction: function() {
+		getSavedStage: function() {
+			var raw = null;
+			try {
+				raw = sessionStorage.getItem('spada_auth_stage');
+			} catch (e) {}
+			if (!raw) {
+				try {
+					raw = localStorage.getItem('spada_auth_stage');
+				} catch (e) {}
+			}
+			if (!raw) {
+				try {
+					var match = document.cookie.match(/(?:^|;\s*)spada_auth_stage=([^;]+)/);
+					if (match) {
+						raw = decodeURIComponent(match[1]);
+					}
+				} catch (e) {}
+			}
+			if (raw) {
+				try {
+					return JSON.parse(raw);
+				} catch (e) {}
+			}
+			return null;
+		},
+
+		saveStage: function() {
 			try {
 				var searchParams = new URLSearchParams(window.location.search);
-				var action = searchParams.get('action');
-				if (action === 'signup' || action === 'register' || window.location.hash === '#signup' || searchParams.has('signup')) {
-					this.state.action = 'signup';
-					this.$choiceCards.removeClass('is-selected');
-					$('#spada-choice-signup').addClass('is-selected');
-					this.$mainTitle.text('SIGNUP');
+				if (this.state.currentView === 'choice') {
+					this.clearStage();
+					if (searchParams.has('action') || searchParams.has('step') || searchParams.has('auth_method')) {
+						searchParams.delete('action');
+						searchParams.delete('step');
+						searchParams.delete('auth_method');
+						var cleanSearch = searchParams.toString();
+						var cleanUrl = window.location.pathname + (cleanSearch ? '?' + cleanSearch : '') + window.location.hash;
+						try {
+							window.history.replaceState(null, '', cleanUrl);
+						} catch (e) {}
+					}
+				} else {
+					var payload = {
+						view: this.state.currentView,
+						action: this.state.action || 'login',
+						method: this.state.method || 'email',
+						identifier: this.state.identifier || '',
+						maskedTarget: this.state.maskedTarget || ''
+					};
+					var serialized = JSON.stringify(payload);
+					try { sessionStorage.setItem('spada_auth_stage', serialized); } catch (e) {}
+					try { localStorage.setItem('spada_auth_stage', serialized); } catch (e) {}
+					try {
+						document.cookie = 'spada_auth_stage=' + encodeURIComponent(serialized) + '; path=/; max-age=86400; SameSite=Lax';
+					} catch (e) {}
+
+					searchParams.set('action', this.state.action || 'login');
+					if (this.state.currentView !== 'methods') {
+						searchParams.set('step', this.state.currentView);
+					} else {
+						searchParams.delete('step');
+					}
+					if (this.state.method && this.state.currentView !== 'methods') {
+						searchParams.set('auth_method', this.state.method);
+					} else {
+						searchParams.delete('auth_method');
+					}
+					var newSearch = searchParams.toString();
+					var newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+					try {
+						window.history.replaceState(null, '', newUrl);
+					} catch (e) {}
 				}
 			} catch (e) {}
+		},
+
+		clearStage: function() {
+			try { sessionStorage.removeItem('spada_auth_stage'); } catch (e) {}
+			try { localStorage.removeItem('spada_auth_stage'); } catch (e) {}
+			try {
+				document.cookie = 'spada_auth_stage=; path=/; max-age=0; SameSite=Lax';
+			} catch (e) {}
+		},
+
+		restoreOrInitState: function() {
+			if ($('body').hasClass('logged-in')) {
+				this.clearStage();
+				return;
+			}
+
+			var saved = this.getSavedStage();
+
+			var searchParams = new URLSearchParams(window.location.search);
+			var actionParam  = searchParams.get('action');
+			var stepParam    = searchParams.get('step');
+			var methodParam  = searchParams.get('auth_method');
+			var hash         = window.location.hash;
+
+			var portalInitialView   = this.$wrap.attr('data-initial-view');
+			var portalInitialAction = this.$wrap.attr('data-initial-action');
+			var portalInitialMethod = this.$wrap.attr('data-initial-method');
+
+			var hasExplicitSignup = actionParam === 'signup' || actionParam === 'register' || hash === '#signup' || searchParams.has('signup');
+			var hasExplicitLogin  = actionParam === 'login' || hash === '#login';
+
+			if (hasExplicitSignup) {
+				this.state.action = 'signup';
+			} else if (hasExplicitLogin) {
+				this.state.action = 'login';
+			} else if (saved && saved.action) {
+				this.state.action = saved.action;
+			} else if (portalInitialAction) {
+				this.state.action = portalInitialAction;
+			}
+
+			// Sync choice cards selection
+			this.$choiceCards.removeClass('is-selected');
+			if (this.state.action === 'signup') {
+				$('#spada-choice-signup').addClass('is-selected');
+				this.$mainTitle.text('SIGNUP');
+			} else {
+				$('#spada-choice-login').addClass('is-selected');
+				this.$mainTitle.text('LOGIN');
+			}
 			this.updateMethodButtons(this.state.action);
+
+			var targetView = 'choice';
+			if (stepParam && ['methods', 'input', 'verify'].indexOf(stepParam) !== -1) {
+				targetView = stepParam;
+			} else if (saved && saved.view) {
+				targetView = saved.view;
+			} else if (portalInitialView && portalInitialView !== 'choice') {
+				targetView = portalInitialView;
+			} else if (hasExplicitSignup || hasExplicitLogin) {
+				targetView = 'methods';
+			}
+
+			if (targetView === 'methods') {
+				this.showView('methods');
+			} else if (targetView === 'input') {
+				var method = methodParam || (saved && saved.method) || portalInitialMethod || this.state.method || 'email';
+				this.state.method = method;
+
+				this.$methodBtns.removeClass('is-active');
+				$('#spada-method-' + method).addClass('is-active');
+
+				this.setupInputView(method);
+
+				if (saved && saved.identifier) {
+					this.state.identifier = saved.identifier;
+					if (method === 'email') {
+						this.$emailInput.val(saved.identifier);
+					} else {
+						this.$phoneInput.val(saved.identifier);
+					}
+				}
+
+				this.showView('input');
+			} else if (targetView === 'verify') {
+				var method = methodParam || (saved && saved.method) || portalInitialMethod || this.state.method || 'email';
+				this.state.method = method;
+				this.state.identifier = (saved && saved.identifier) || '';
+				this.state.maskedTarget = (saved && saved.maskedTarget) || this.state.identifier;
+
+				this.$methodBtns.removeClass('is-active');
+				$('#spada-method-' + method).addClass('is-active');
+
+				this.setupVerifyView(this.state.maskedTarget || this.state.identifier);
+				this.showView('verify');
+			} else {
+				this.showView('choice');
+			}
 		},
 
 		updateMethodButtons: function(action) {
@@ -273,6 +442,9 @@
 		setupVerifyView: function(targetDisplay) {
 			var i18n = (window.SpadaAuthData && window.SpadaAuthData.i18n) || {};
 			var method = this.state.method;
+
+			$('#spada-input-icon-wrap svg, #spada-verify-icon-wrap svg').addClass('is-hidden');
+			$('#spada-input-icon-wrap .spada-icon-' + method + ', #spada-verify-icon-wrap .spada-icon-' + method).removeClass('is-hidden');
 
 			this.$verifyTarget.text(targetDisplay);
 
@@ -366,8 +538,12 @@
 		requestOtp: function() {
 			var self = this;
 			var method = this.state.method;
+			var authAction = this.state.action || 'login';
 			var authData = window.SpadaAuthData || {};
-			var data = { nonce: authData.nonce };
+			var data = {
+				nonce: authData.nonce,
+				auth_action: authAction
+			};
 
 			this.clearNotices();
 			this.setLoading(this.$inputSubmitBtn, true);
@@ -386,6 +562,7 @@
 				$.post(authData.ajaxUrl, data, function(res) {
 					self.setLoading(self.$inputSubmitBtn, false);
 					if (res.success) {
+						self.state.maskedTarget = email;
 						self.setupVerifyView(email);
 						self.showView('verify');
 					} else {
@@ -414,6 +591,7 @@
 					self.setLoading(self.$inputSubmitBtn, false);
 					if (res.success) {
 						var masked = res.data && res.data.masked ? res.data.masked : ('+966 ' + phone);
+						self.state.maskedTarget = masked;
 						self.setupVerifyView(masked);
 						self.showView('verify');
 					} else {
@@ -430,6 +608,7 @@
 		verifyOtp: function() {
 			var self = this;
 			var method = this.state.method;
+			var authAction = this.state.action || 'login';
 			var authData = window.SpadaAuthData || {};
 			var otp = this.$otpFull.val().trim();
 
@@ -444,7 +623,8 @@
 			var data = {
 				nonce: authData.nonce,
 				otp_code: otp,
-				is_checkout: authData.isCheckout
+				is_checkout: authData.isCheckout,
+				auth_action: authAction
 			};
 
 			if (method === 'email') {
@@ -458,6 +638,7 @@
 			$.post(authData.ajaxUrl, data, function(res) {
 				self.setLoading(self.$verifySubmitBtn, false);
 				if (res.success) {
+					self.clearStage();
 					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : 'Login successful!', 'success');
 					setTimeout(function() {
 						if (authData.isCheckout === 'yes') {
@@ -481,8 +662,12 @@
 		resendOtp: function() {
 			var self = this;
 			var method = this.state.method;
+			var authAction = this.state.action || 'login';
 			var authData = window.SpadaAuthData || {};
-			var data = { nonce: authData.nonce };
+			var data = {
+				nonce: authData.nonce,
+				auth_action: authAction
+			};
 
 			if (method === 'email') {
 				data.action = 'spada_resend_email_otp';

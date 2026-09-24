@@ -111,21 +111,41 @@
 
 				var isExplicitLogin = actionParam === 'login' || hash === '#login';
 
+				var savedStage = null;
+				try {
+					var raw = sessionStorage.getItem('spada_auth_stage');
+					if (!raw) {
+						raw = localStorage.getItem('spada_auth_stage');
+					}
+					if (!raw) {
+						var match = document.cookie.match(/(?:^|;\s*)spada_auth_stage=([^;]+)/);
+						if (match) {
+							raw = decodeURIComponent(match[1]);
+						}
+					}
+					if (raw) {
+						savedStage = JSON.parse(raw);
+					}
+				} catch (e) {}
+
+				var hasSavedSignup = savedStage && savedStage.action === 'signup' && savedStage.view !== 'choice';
+				var hasSavedLogin  = savedStage && savedStage.action === 'login'  && savedStage.view !== 'choice';
+
 				var $authPortal = $('#spada-auth-portal');
 				if ($authPortal.length) {
-					var currentView = $authPortal.find('.spada-auth-view.is-active').attr('data-view') || 'choice';
+					var currentView = (savedStage && savedStage.view) ? savedStage.view : ($authPortal.find('.spada-auth-view.is-active').attr('data-view') || 'choice');
 
-					if (currentView === 'choice' && !isExplicitRegister && !isExplicitLogin) {
+					if (currentView === 'choice' && !isExplicitRegister && !isExplicitLogin && !hasSavedSignup && !hasSavedLogin) {
 						setHeroTexts(defaultHead, defaultDesc);
 						return;
 					}
 
-					if (isExplicitRegister || (window.SpadaAuth && window.SpadaAuth.state && window.SpadaAuth.state.action === 'signup')) {
+					if (isExplicitRegister || hasSavedSignup || (window.SpadaAuth && window.SpadaAuth.state && window.SpadaAuth.state.action === 'signup')) {
 						setHeroTexts(signupHead, signupDesc);
 						return;
 					}
 
-					if (isExplicitLogin || (window.SpadaAuth && window.SpadaAuth.state && window.SpadaAuth.state.action === 'login' && currentView !== 'choice')) {
+					if (isExplicitLogin || hasSavedLogin || (window.SpadaAuth && window.SpadaAuth.state && window.SpadaAuth.state.action === 'login' && currentView !== 'choice')) {
 						setHeroTexts(loginHead, loginDesc);
 						return;
 					}
@@ -137,9 +157,9 @@
 				}
 
 				// Standard fallback (non-portal)
-				if (isExplicitRegister || $('.register-form:visible').length > 0 || $('.xoo-el-section-register:visible').length > 0) {
+				if (isExplicitRegister || hasSavedSignup || $('.register-form:visible').length > 0 || $('.xoo-el-section-register:visible').length > 0) {
 					setHeroTexts(signupHead, signupDesc);
-				} else if (isExplicitLogin) {
+				} else if (isExplicitLogin || hasSavedLogin) {
 					setHeroTexts(loginHead, loginDesc);
 				} else {
 					setHeroTexts(defaultHead, defaultDesc);
@@ -175,6 +195,9 @@
 
 			// User navigates back to Choice landing
 			$(document).on('click', '#spada-methods-back-btn', function() {
+				try { sessionStorage.removeItem('spada_auth_stage'); } catch (e) {}
+				try { localStorage.removeItem('spada_auth_stage'); } catch (e) {}
+				try { document.cookie = 'spada_auth_stage=; path=/; max-age=0; SameSite=Lax'; } catch (e) {}
 				setHeroTexts(defaultHead, defaultDesc);
 			});
 		},

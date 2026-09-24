@@ -1,4 +1,5 @@
 <?php
+
 /**
  * SPADA 6-Digit OTP Verification Template
  *
@@ -7,14 +8,14 @@
  * @package Spada
  */
 
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 ?>
-<div class="spada-auth-view" id="spada-view-verify" data-view="verify">
+<div class="spada-auth-view <?php echo ( isset( $initial_view ) && 'verify' === $initial_view ) ? 'is-active' : ''; ?>" id="spada-view-verify" data-view="verify">
 	<!-- Top Navigation -->
 	<div class="spada-view-nav">
-		<a href="#" role="button" class="spada-back-btn" id="spada-verify-back-btn" aria-label="<?php esc_attr_e( 'Back to identifier input', 'spada-core' ); ?>">
+		<a href="#" role="button" class="spada-back-btn" id="spada-verify-back-btn" aria-label="<?php esc_attr_e('Back to identifier input', 'spada-core'); ?>">
 			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 				<line x1="19" y1="12" x2="5" y2="12"></line>
 				<polyline points="12 19 5 12 12 5"></polyline>
@@ -25,27 +26,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<!-- Centered Circle Icon -->
 	<div class="spada-circle-icon-wrap" id="spada-verify-icon-wrap">
 		<!-- Email Icon -->
-		<svg class="spada-icon-email" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00adb5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-			<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-			<polyline points="22,6 12,13 2,6"></polyline>
+		<svg class="spada-icon-email" width="28" height="28" viewBox="0 0 52 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M35.4291 17.1428L48.6494 5.65696V28.4976L35.4291 17.1428ZM18.3937 19.0879L23.0362 23.1179C23.7648 23.7369 24.7148 24.1109 25.7529 24.1109H25.7895H25.8174C26.8577 24.1109 27.8077 23.7347 28.5449 23.1114L28.5384 23.1157L33.1809 19.0858L47.2932 31.2057H4.28786L18.3937 19.0879ZM4.26851 2.9338H47.319L26.6406 20.8934C26.4091 21.0791 26.1206 21.1793 25.8239 21.1771H25.7938H25.7658C25.468 21.1792 25.1787 21.0782 24.9469 20.8912L24.9491 20.8934L4.26851 2.9338ZM2.9338 5.65481L16.152 17.1407L2.9338 28.489V5.65481ZM49.3587 0.408367C48.8429 0.150451 48.2368 0 47.5941 0H3.99555C3.37287 0.00246486 2.759 0.147294 2.20088 0.423412L2.22453 0.412666C1.55796 0.742545 0.996623 1.25183 0.603641 1.88326C0.210659 2.51469 0.0016106 3.24322 0 3.98695L0 30.1482C0.00113785 31.207 0.422235 32.2221 1.1709 32.9707C1.91956 33.7194 2.93463 34.1405 3.9934 34.1416H47.5877C48.6464 34.1405 49.6615 33.7194 50.4102 32.9707C51.1588 32.2221 51.5799 31.207 51.5811 30.1482V3.98695C51.5811 2.42441 50.6805 1.07035 49.3694 0.419114L49.3458 0.408367H49.3587Z" fill="#00A9BB" />
 		</svg>
 		<!-- WhatsApp Icon -->
-		<svg class="spada-icon-whatsapp is-hidden" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00adb5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-			<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+		<svg class="spada-icon-whatsapp is-hidden" width="28" height="28" viewBox="0 0 51 51" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M37.0049 30.5602C36.6947 30.4051 35.7912 29.9606 34.8826 29.5218L37.0049 30.5602ZM34.8826 29.5218C34.8802 29.5207 34.8851 29.523 34.8826 29.5218V29.5218ZM21.075 20.6845C21.0737 20.6871 21.0762 20.6819 21.075 20.6845C21.047 20.742 21.0165 20.8046 20.9899 20.8576L21.075 20.6845ZM17.8368 13.6229C17.8197 13.6228 17.8029 13.6226 17.7863 13.6222C17.8198 13.6231 17.8534 13.6229 17.8886 13.6228L17.9075 13.6228C17.9064 13.6228 17.9087 13.6228 17.9075 13.6228C17.9093 13.6228 17.9207 13.6228 17.9225 13.6228C17.9216 13.6228 17.9234 13.6228 17.9225 13.6228C17.9457 13.6228 17.972 13.6229 17.9959 13.6234M17.8886 13.6228C17.8705 13.6229 17.8545 13.6229 17.8368 13.6229L17.8886 13.6228ZM14.7807 43.3627C18.0177 45.2801 21.7194 46.2914 25.4817 46.2908C37.058 46.2908 46.4798 36.8669 46.4841 25.2862C46.4932 22.5264 45.9547 19.7923 44.8999 17.242C43.845 14.6917 42.2948 12.376 40.3389 10.429C38.3955 8.46953 36.082 6.91587 33.5329 5.85836C30.9838 4.80085 28.2499 4.26059 25.4902 4.26897C13.9032 4.26897 4.48138 13.6907 4.47714 25.2714C4.47128 29.2253 5.5844 33.1002 7.68785 36.4483L8.18719 37.243L6.06444 44.9946L14.0158 42.9079L14.7807 43.3627ZM35.1613 1.9154C38.2295 3.18761 41.0149 5.05575 43.3562 7.41168C45.7093 9.75466 47.5766 12.541 48.8459 15.6095C50.1152 18.678 50.7634 21.9677 50.753 25.2884C50.7487 39.2234 39.4103 50.5597 25.4838 50.5597H25.4732C21.2535 50.5579 17.1015 49.5001 13.3953 47.4828L0 50.9974L3.58469 37.9017C1.36885 34.0609 0.205627 29.7034 0.212494 25.2692C0.216736 11.3363 11.5551 7.05719e-05 25.4817 7.05719e-05C28.8031 -0.00780869 32.0932 0.643196 35.1613 1.9154ZM15.0742 14.5919C15.5855 14.0317 16.184 13.8995 16.5361 13.8995C16.9545 13.8995 17.3685 13.9034 17.7305 13.92C17.7893 13.9232 17.8499 13.9231 17.8994 13.9229C17.9315 13.9228 17.9612 13.923 17.9897 13.9237C18.0078 13.9241 18.0255 13.9248 18.043 13.9258C18.1302 13.931 18.2062 13.9452 18.2812 13.9805C18.4274 14.0495 18.6468 14.2361 18.8896 14.8194C19.071 15.2546 19.3396 15.9087 19.6205 16.5927C19.7471 16.901 19.8762 17.2154 20.001 17.5186C20.3981 18.4839 20.7597 19.3581 20.8447 19.5294C20.9853 19.8088 21.0473 20.0684 20.8975 20.3653C20.8631 20.4343 20.8321 20.498 20.803 20.5577C20.6478 20.8761 20.5485 21.0798 20.3076 21.3594C20.187 21.4995 20.0688 21.6435 19.954 21.7832C19.7478 22.0344 19.5525 22.2721 19.376 22.4473C19.2256 22.5967 19.0119 22.8089 18.9111 23.0811C18.7987 23.385 18.8323 23.722 19.0518 24.0987C19.425 24.7416 20.7127 26.8413 22.624 28.5469C24.6748 30.3754 26.4765 31.1577 27.3611 31.5418C27.5333 31.6166 27.6708 31.6763 27.7686 31.7257C28.1034 31.8925 28.4173 31.988 28.7207 31.9512C29.0364 31.9128 29.2827 31.7392 29.4961 31.4952C29.8603 31.0784 31.0838 29.6419 31.5176 28.9913C31.6971 28.7225 31.8385 28.6594 31.9551 28.6456C32.1039 28.6281 32.2888 28.678 32.5859 28.7872C32.8576 28.8871 33.7608 29.3124 34.6963 29.7637C35.6198 30.2094 36.5501 30.6692 36.8682 30.8282C37.0019 30.8951 37.1208 30.9524 37.228 31.0042C37.3884 31.0815 37.5235 31.1467 37.6426 31.212C37.8404 31.3204 37.9215 31.3935 37.9561 31.4512C37.957 31.4535 37.9589 31.4585 37.9614 31.4661C37.9645 31.4755 37.9684 31.4891 37.9727 31.5079C37.9828 31.553 37.9918 31.6152 37.998 31.6944C38.0105 31.853 38.0101 32.0652 37.9883 32.3194C37.9447 32.8274 37.8181 33.4868 37.5635 34.1993C37.3347 34.8393 36.6441 35.4994 35.8096 36.0343C34.9823 36.5644 34.0893 36.9239 33.54 37.0059C32.4773 37.1658 31.1493 37.229 29.6963 36.7657C28.8993 36.5142 27.9082 36.1874 26.6709 35.6778L26.125 35.4483C20.2969 32.932 16.349 27.2793 15.5772 26.1742C15.5221 26.0953 15.4832 26.0396 15.4609 26.0098C15.2986 25.7931 14.6685 24.9517 14.0811 23.794C13.486 22.6214 12.9434 21.1431 12.9434 19.6573C12.9434 16.8614 14.307 15.4095 14.9542 14.7204C14.9977 14.6742 15.0379 14.6314 15.0742 14.5919Z" fill="#00A9BB" />
 		</svg>
 		<!-- SMS Icon -->
-		<svg class="spada-icon-sms is-hidden" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00adb5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-			<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-			<line x1="8" y1="10" x2="8.01" y2="10"></line>
-			<line x1="12" y1="10" x2="12.01" y2="10"></line>
-			<line x1="16" y1="10" x2="16.01" y2="10"></line>
+		<svg class="spada-icon-sms is-hidden" width="28" height="28" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path fill-rule="evenodd" clip-rule="evenodd" d="M4.18594 0C4.10644 0 4.0274 0.002031 3.94887 0.00604405L4.18594 0ZM41.2141 37.0282C41.2913 37.0282 41.3681 37.0262 41.4443 37.0225L41.2141 37.0282ZM3.74372 36.176L7.07685 32.842H41.6563V4.18629H3.74372V36.176ZM30.0855 20.386H33.8292V16.6423H30.0855V20.386ZM24.5715 20.386H20.8286V16.6423H24.5715V20.386ZM11.5717 20.386H15.3146V16.6423H11.5717V20.386ZM45.4001 4.62887V32.3995C45.4001 34.7007 43.515 36.5858 41.2138 36.5858H8.63104L0 45.2168V4.62887C0 2.32761 1.88503 0.442573 4.18629 0.442573H41.2138C43.515 0.442573 45.4001 2.32761 45.4001 4.62887Z" fill="#08A9BA" />
 		</svg>
 	</div>
 
 	<!-- Titles (Dynamic via JS) -->
-	<h2 class="spada-verify-heading" id="spada-verify-heading"><?php esc_html_e( 'Check your email address', 'spada-core' ); ?></h2>
+	<h2 class="spada-verify-heading" id="spada-verify-heading"><?php esc_html_e('Check your email address', 'spada-core'); ?></h2>
 	<p class="spada-verify-subheading" id="spada-verify-subheading">
-		<span id="spada-verify-prompt"><?php esc_html_e( "We've sent a six digit code to your email address", 'spada-core' ); ?></span>
+		<span id="spada-verify-prompt"><?php esc_html_e("We've sent a six digit code to your email address", 'spada-core'); ?></span>
 		<br />
 		<strong id="spada-verify-target">someone@example.com</strong>
 	</p>
@@ -56,13 +53,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="spada-form-notice is-hidden" id="spada-verify-notice" role="alert"></div>
 
 		<!-- 6 OTP Input Boxes Matrix -->
-		<div class="spada-otp-grid" id="spada-otp-grid" aria-label="<?php esc_attr_e( 'Enter 6-digit verification code', 'spada-core' ); ?>">
-			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" data-index="0" aria-label="<?php esc_attr_e( 'Digit 1', 'spada-core' ); ?>" required />
-			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="1" aria-label="<?php esc_attr_e( 'Digit 2', 'spada-core' ); ?>" required />
-			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="2" aria-label="<?php esc_attr_e( 'Digit 3', 'spada-core' ); ?>" required />
-			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="3" aria-label="<?php esc_attr_e( 'Digit 4', 'spada-core' ); ?>" required />
-			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="4" aria-label="<?php esc_attr_e( 'Digit 5', 'spada-core' ); ?>" required />
-			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="5" aria-label="<?php esc_attr_e( 'Digit 6', 'spada-core' ); ?>" required />
+		<div class="spada-otp-grid" id="spada-otp-grid" aria-label="<?php esc_attr_e('Enter 6-digit verification code', 'spada-core'); ?>">
+			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" data-index="0" aria-label="<?php esc_attr_e('Digit 1', 'spada-core'); ?>" required />
+			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="1" aria-label="<?php esc_attr_e('Digit 2', 'spada-core'); ?>" required />
+			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="2" aria-label="<?php esc_attr_e('Digit 3', 'spada-core'); ?>" required />
+			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="3" aria-label="<?php esc_attr_e('Digit 4', 'spada-core'); ?>" required />
+			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="4" aria-label="<?php esc_attr_e('Digit 5', 'spada-core'); ?>" required />
+			<input type="text" class="spada-otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="5" aria-label="<?php esc_attr_e('Digit 6', 'spada-core'); ?>" required />
 		</div>
 
 		<!-- Hidden full OTP collector -->
@@ -70,24 +67,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 		<!-- Primary Continue Button -->
 		<a href="#" role="button" class="spada-btn-primary" id="spada-verify-submit-btn">
-			<span class="spada-btn-text"><?php esc_html_e( 'Continue', 'spada-core' ); ?></span>
+			<span class="spada-btn-text"><?php esc_html_e('Continue', 'spada-core'); ?></span>
 			<span class="spada-btn-spinner is-hidden" aria-hidden="true"></span>
 		</a>
 
 		<!-- Resend Section -->
 		<div class="spada-resend-wrap">
-			<span id="spada-resend-prompt"><?php esc_html_e( "Didn't receive the email?", 'spada-core' ); ?></span>
+			<span id="spada-resend-prompt"><?php esc_html_e("Didn't receive the email?", 'spada-core'); ?></span>
 			<a href="#" role="button" class="spada-resend-link" id="spada-resend-btn">
-				<?php esc_html_e( 'Click to resend', 'spada-core' ); ?>
+				<?php esc_html_e('Click to resend', 'spada-core'); ?>
 			</a>
 			<span class="spada-countdown-text is-hidden" id="spada-countdown-wrap">
-				(<?php esc_html_e( 'resend in', 'spada-core' ); ?> <span id="spada-countdown-sec">60</span>s)
+				(<?php esc_html_e('resend in', 'spada-core'); ?> <span id="spada-countdown-sec">60</span>s)
 			</span>
 		</div>
 
 		<!-- Change Email / Number Secondary Button -->
 		<a href="#" role="button" class="spada-btn-outline" id="spada-change-target-btn">
-			<span id="spada-change-target-text"><?php esc_html_e( 'Change Email', 'spada-core' ); ?></span>
+			<span id="spada-change-target-text"><?php esc_html_e('Change Email', 'spada-core'); ?></span>
 		</a>
 	</form>
 </div>

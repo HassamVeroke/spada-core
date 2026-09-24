@@ -119,7 +119,7 @@ class Spada_OTP_Email {
 	 * @param string $entered_otp User entered 6-digit code.
 	 * @return array Verification result with user data or error.
 	 */
-	public static function verify_otp( $email, $entered_otp ) {
+	public static function verify_otp( $email, $entered_otp, $auth_action = 'login' ) {
 		$email       = sanitize_email( $email );
 		$entered_otp = preg_replace( '/\D/', '', (string) $entered_otp );
 
@@ -177,7 +177,17 @@ class Spada_OTP_Email {
 		$user = get_user_by( 'email', $email );
 
 		if ( ! $user ) {
-			// Auto-register WooCommerce customer
+			if ( 'login' === $auth_action ) {
+				$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+				return array(
+					'success' => false,
+					'message' => $is_arabic
+						? 'لم يتم العثور على حساب بهذا البريد الإلكتروني. يرجى إنشاء حساب أولاً.'
+						: __( 'No account found with this email address. Please sign up first.', 'spada-core' ),
+				);
+			}
+
+			// Auto-register WooCommerce customer (only for signup)
 			$username = sanitize_user( current( explode( '@', $email ) ), true );
 			// Ensure unique username
 			if ( username_exists( $username ) ) {

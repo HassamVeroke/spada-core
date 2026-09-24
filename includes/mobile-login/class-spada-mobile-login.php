@@ -223,13 +223,82 @@ class Spada_Mobile_Login {
 	}
 
 	/**
+	 * Find a user by phone number across all standard WooCommerce meta keys and formats.
+	 *
+	 * @param string $phone_no Phone number (e.g. 5XXXXXXXX).
+	 * @param string $phone_code Country code (e.g. +966).
+	 * @return WP_User|null
+	 */
+	public static function get_user_by_phone( $phone_no, $phone_code = '+966' ) {
+		// 1. Mobile Login WooCommerce native lookup
+		if ( function_exists( 'xoo_ml_get_user_by_phone' ) ) {
+			$u = xoo_ml_get_user_by_phone( $phone_no, $phone_code );
+			if ( $u instanceof WP_User ) {
+				return $u;
+			}
+			$u = xoo_ml_get_user_by_phone( $phone_no, '' );
+			if ( $u instanceof WP_User ) {
+				return $u;
+			}
+		}
+
+		// 2. Multi-format candidates for billing_phone & shipping_phone
+		$clean_code = ltrim( $phone_code, '+' );
+		$candidates = array_unique(
+			array_filter(
+				array(
+					$phone_no,
+					'0' . $phone_no,
+					$phone_code . $phone_no,
+					'+' . $clean_code . $phone_no,
+					$clean_code . $phone_no,
+				)
+			)
+		);
+
+		$meta_queries = array( 'relation' => 'OR' );
+		foreach ( $candidates as $cand ) {
+			$meta_queries[] = array(
+				'key'     => 'billing_phone',
+				'value'   => $cand,
+				'compare' => '=',
+			);
+			$meta_queries[] = array(
+				'key'     => 'shipping_phone',
+				'value'   => $cand,
+				'compare' => '=',
+			);
+			$meta_queries[] = array(
+				'key'     => 'xoo_ml_phone_no',
+				'value'   => $cand,
+				'compare' => '=',
+			);
+		}
+
+		$user_query = new WP_User_Query(
+			array(
+				'meta_query' => $meta_queries,
+				'number'     => 1,
+			)
+		);
+
+		$results = $user_query->get_results();
+		if ( ! empty( $results ) && $results[0] instanceof WP_User ) {
+			return $results[0];
+		}
+
+		return null;
+	}
+
+	/**
 	 * Request Phone OTP (SMS or WhatsApp).
 	 */
 	public static function ajax_request_phone_otp() {
 		check_ajax_referer( 'spada_auth_nonce', 'nonce' );
 
-		$phone_raw = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
-		$channel   = isset( $_POST['channel'] ) && 'whatsapp' === $_POST['channel'] ? 'whatsapp' : 'sms';
+		$phone_raw   = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
+		$channel     = isset( $_POST['channel'] ) && 'whatsapp' === $_POST['channel'] ? 'whatsapp' : 'sms';
+		$auth_action = isset( $_POST['auth_action'] ) && 'signup' === sanitize_key( $_POST['auth_action'] ) ? 'signup' : 'login';
 
 		if ( empty( $phone_raw ) ) {
 			wp_send_json_error(
@@ -250,6 +319,31 @@ class Spada_Mobile_Login {
 
 			wp_send_json_error(
 				array( 'message' => $msg ),
+				400
+			);
+		}
+
+		$is_arabic     = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$existing_user = self::get_user_by_phone( $phone_no, $phone_code );
+
+		if ( 'login' === $auth_action && ! $existing_user ) {
+			wp_send_json_error(
+				array(
+					'message' => $is_arabic
+						? 'لم يتم العثور على حساب برقم الجوال هذا. يرجى إنشاء حساب أولاً.'
+						: __( 'No account found with this mobile number. Please sign up first.', 'spada-core' ),
+				),
+				400
+			);
+		}
+
+		if ( 'signup' === $auth_action && $existing_user ) {
+			wp_send_json_error(
+				array(
+					'message' => $is_arabic
+						? 'يوجد حساب بالفعل برقم الجوال هذا. يرجى تسجيل الدخول بدلاً من ذلك.'
+						: __( 'An account with this mobile number already exists. Please sign in instead.', 'spada-core' ),
+				),
 				400
 			);
 		}
@@ -302,8 +396,9 @@ class Spada_Mobile_Login {
 	public static function ajax_verify_phone_otp() {
 		check_ajax_referer( 'spada_auth_nonce', 'nonce' );
 
-		$phone_raw = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
-		$otp_code  = isset( $_POST['otp_code'] ) ? sanitize_text_field( wp_unslash( $_POST['otp_code'] ) ) : '';
+		$phone_raw   = isset( $_POST['phone'] ) ? sanitize_text_field( wp_unslash( $_POST['phone'] ) ) : '';
+		$otp_code    = isset( $_POST['otp_code'] ) ? sanitize_text_field( wp_unslash( $_POST['otp_code'] ) ) : '';
+		$auth_action = isset( $_POST['auth_action'] ) && 'signup' === sanitize_key( $_POST['auth_action'] ) ? 'signup' : 'login';
 
 		$normalized = self::normalize_phone( $phone_raw );
 		$phone_code = $normalized['code'];
@@ -352,27 +447,22 @@ class Spada_Mobile_Login {
 		}
 
 		// Authoritative Customer Login / Registration by phone
-		$user = null;
-		if ( function_exists( 'xoo_ml_get_user_by_phone' ) ) {
-			$user = xoo_ml_get_user_by_phone( $phone_no, $phone_code );
-		}
+		$user = self::get_user_by_phone( $phone_no, $phone_code );
 
 		if ( ! $user ) {
-			// Query user by meta or phone
-			$users = get_users(
-				array(
-					'meta_key'   => 'billing_phone',
-					'meta_value' => $phone_code . $phone_no,
-					'number'     => 1,
-				)
-			);
-			if ( ! empty( $users ) ) {
-				$user = $users[0];
+			if ( 'login' === $auth_action ) {
+				$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+				wp_send_json_error(
+					array(
+						'message' => $is_arabic
+							? 'لم يتم العثور على حساب برقم الجوال هذا. يرجى إنشاء حساب أولاً.'
+							: __( 'No account found with this mobile number. Please sign up first.', 'spada-core' ),
+					),
+					400
+				);
 			}
-		}
 
-		if ( ! $user ) {
-			// Create user with phone
+			// Create user with phone (only for signup flow)
 			$username = 'user_' . substr( $phone_no, -6 );
 			if ( username_exists( $username ) ) {
 				$username = $username . '_' . wp_rand( 10, 99 );
