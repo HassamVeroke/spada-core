@@ -559,6 +559,12 @@ html[dir="rtl"] .spada-otp-digit {
 	text-decoration: none !important;
 }
 
+.spada-countdown-val {
+	display: inline-block;
+	direction: ltr !important;
+	unicode-bidi: isolate;
+}
+
 /* Alert Notices */
 .spada-form-notice {
 	padding: 10px 14px;

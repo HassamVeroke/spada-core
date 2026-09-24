@@ -745,15 +745,29 @@
 
 		startCountdown: function() {
 			var self = this;
+			var authData = window.SpadaAuthData || {};
 			clearInterval(this.state.countdownTimer);
 			this.state.countdownSec = 60;
 
 			this.$resendBtn.addClass('disabled').attr('aria-disabled', 'true').prop('disabled', true).css('opacity', '0.5');
 			this.$countdownWrap.removeClass('is-hidden');
+
+			// Re-query and ensure countdown element exists (in case TranslatePress or DOM mutations altered it)
+			this.$countdownSec = $('#spada-countdown-sec');
+			if (!this.$countdownSec.length) {
+				var $label = this.$countdownWrap.find('.spada-countdown-label');
+				var labelText = ($label.length && $.trim($label.text())) ? $.trim($label.text()) : ((authData.i18n && authData.i18n.resendIn) || (authData.isRtl ? 'إعادة الإرسال بعد' : 'resend in'));
+				this.$countdownWrap.html('(<span class="spada-countdown-label">' + labelText + '</span> <span class="spada-countdown-val notranslate" data-no-translation translate="no"><span id="spada-countdown-sec" class="notranslate" data-no-translation translate="no">60</span>s</span>)');
+				this.$countdownSec = $('#spada-countdown-sec');
+			}
+
 			this.$countdownSec.text('60');
 
 			this.state.countdownTimer = setInterval(function() {
 				self.state.countdownSec--;
+				if (!self.$countdownSec.length || !$('#spada-countdown-sec').length) {
+					self.$countdownSec = $('#spada-countdown-sec');
+				}
 				self.$countdownSec.text(self.state.countdownSec);
 
 				if (self.state.countdownSec <= 0) {
