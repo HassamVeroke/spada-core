@@ -23,7 +23,7 @@
 
 .spada-auth-wrapper a[role="button"],
 .spada-auth-wrapper button {
-	background-color: var(--spada-teal) !important;
+	background-color: transparent !important;
 	font-family: "Inter", sans-serif !important;
 	font-weight: 600 !important;
 	font-size: 16px !important;
@@ -39,6 +39,7 @@
 }
 
 .spada-btn-primary {
+	background-color: var(--spada-teal) !important;
 	color: var(--spada-bg-white) !important;
 }
 
@@ -208,6 +209,10 @@ body.rtl .spada-back-btn:hover {
 
 .spada-choice-divider span {
 	padding: 0 10px;
+}
+
+.spada-choice-grid .spada-choice-divider {
+	flex: 0 0 40%;
 }
 
 /* 5. Method Selector Screen (Matches My Account Login-1.png) */
