@@ -12,8 +12,101 @@
 		init: function() {
 			this.disarmUnfocusableInputs();
 			this.hideHeroSection();
+			this.initHeroAuthFlowSync();
 			this.bindEvents();
 			this.checkQueryParams();
+		},
+
+		initHeroAuthFlowSync: function() {
+			if ($('body').hasClass('logged-in')) {
+				return;
+			}
+
+			var authData = (window.SpadaAccountData && window.SpadaAccountData.authHero) || {};
+			var isArabic = (window.SpadaAccountData && window.SpadaAccountData.isRtl) ||
+				$('html').attr('lang') === 'ar' ||
+				$('html').attr('dir') === 'rtl' ||
+				$('body').hasClass('rtl') ||
+				window.location.pathname.indexOf('/ar/') !== -1;
+
+			var loginHead = authData.loginHead || (isArabic ? 'تسجيل الدخول' : 'Login');
+			var loginDesc = authData.loginDesc || (isArabic ? 'يرجى تقديم التفاصيل اللازمة لتسجيل الدخول إلى حسابك.' : 'Please provide necessary details to login to your account.');
+			var signupHead = authData.signupHead || (isArabic ? 'إنشاء حساب' : 'Sign up');
+			var signupDesc = authData.signupDesc || (isArabic ? 'يرجى تقديم التفاصيل اللازمة لإنشاء حسابك.' : 'Please provide necessary details to sign up to your account.');
+
+			var setHeroTexts = function(heading, desc) {
+				var $head = $('.acc_hero_head h1');
+				if (!$head.length) {
+					$head = $('.acc_hero_head .elementor-heading-title, .acc_hero_head');
+				}
+				if ($head.length && $head.text() !== heading) {
+					$head.text(heading);
+				}
+
+				var $descContainer = $('.acc_hero_desc .elementor-widget-container');
+				if (!$descContainer.length) {
+					$descContainer = $('.acc_hero_desc p, .acc_hero_desc');
+				}
+				if ($descContainer.length) {
+					var $p = $descContainer.find('p');
+					if ($p.length) {
+						if ($p.text() !== desc) {
+							$p.text(desc);
+						}
+					} else if ($descContainer.text() !== desc) {
+						$descContainer.text(desc);
+					}
+				}
+			};
+
+			var updateHeroState = function() {
+				var isRegister = $('.register-form:visible').length > 0 ||
+					$('.xoo-el-section-register:visible').length > 0 ||
+					(new URLSearchParams(window.location.search)).get('action') === 'register' ||
+					(new URLSearchParams(window.location.search)).get('key') === 'register' ||
+					window.location.hash === '#register' ||
+					window.location.hash === '#signup';
+
+				if (isRegister) {
+					setHeroTexts(signupHead, signupDesc);
+				} else {
+					setHeroTexts(loginHead, loginDesc);
+				}
+			};
+
+			// Initial execution
+			updateHeroState();
+			setTimeout(updateHeroState, 50);
+			setTimeout(updateHeroState, 300);
+			setTimeout(updateHeroState, 1000);
+			$(window).on('load', updateHeroState);
+
+			// Listen for toggle button clicks
+			$(document).on('click', '#showRegister, .show-register, .xoo-el-reg-tgr, a[href*="register"]', function() {
+				setHeroTexts(signupHead, signupDesc);
+				setTimeout(updateHeroState, 50);
+			});
+
+			$(document).on('click', '#showLogin, .show-login, .xoo-el-login-tgr, a[href*="login"]', function() {
+				setHeroTexts(loginHead, loginDesc);
+				setTimeout(updateHeroState, 50);
+			});
+
+			// MutationObserver to watch form visibility changes dynamically
+			if (window.MutationObserver) {
+				var targetForms = document.querySelector('#customer_login') || document.querySelector('.woocommerce-account') || document.body;
+				if (targetForms) {
+					var observer = new MutationObserver(function() {
+						updateHeroState();
+					});
+					observer.observe(targetForms, {
+						attributes: true,
+						childList: true,
+						subtree: true,
+						attributeFilter: ['style', 'class']
+					});
+				}
+			}
 		},
 
 		disarmUnfocusableInputs: function() {
