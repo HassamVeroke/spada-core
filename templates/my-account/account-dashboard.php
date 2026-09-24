@@ -52,6 +52,16 @@ if ( empty( $address ) && function_exists( 'wc_get_orders' ) ) {
 	}
 }
 
+// Clean and heal combined/corrupted address in user meta
+if ( ! empty( $address ) && class_exists( 'Spada_My_Account' ) && method_exists( 'Spada_My_Account', 'clean_address_string' ) ) {
+	$cleaned_address = Spada_My_Account::clean_address_string( $address );
+	if ( ! empty( $cleaned_address ) && $cleaned_address !== $address ) {
+		$address = $cleaned_address;
+		update_user_meta( $user_id, 'shipping_address_1', $cleaned_address );
+		update_user_meta( $user_id, 'billing_address_1', $cleaned_address );
+	}
+}
+
 // Endpoints
 $orders_url        = function_exists( 'wc_get_endpoint_url' ) ? wc_get_endpoint_url( 'orders', '', wc_get_page_permalink( 'myaccount' ) ) : '#';
 $subscriptions_url = function_exists( 'wc_get_endpoint_url' ) ? wc_get_endpoint_url( 'subscriptions', '', wc_get_page_permalink( 'myaccount' ) ) : '#';

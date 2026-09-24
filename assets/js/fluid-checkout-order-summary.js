@@ -387,10 +387,11 @@
 					});
 				}
 				if (profile.address) {
+					var cleanAddr = SpadaOrderSummary.cleanAddress(profile.address);
 					var $addr = $('input[name="shipping_address_1"], input[name="billing_address_1"]');
 					$addr.each(function () {
 						if (!$(this).val()) {
-							$(this).val(profile.address);
+							$(this).val(cleanAddr);
 						}
 					});
 				}
@@ -399,6 +400,120 @@
 			populateIfEmpty();
 			$(window).on('load', populateIfEmpty);
 			$(document.body).on('updated_checkout init_checkout fc_step_loaded fc_substep_loaded', populateIfEmpty);
+
+			// Real-time cleanup to prevent combined/duplicated addresses from Google Places or Map Location Picker
+			$(document).on('change blur focusout updated_checkout', 'input[name="shipping_address_1"], input[name="billing_address_1"], #shipping_address_1, #billing_address_1', function () {
+				var $el = $(this);
+				var val = $el.val();
+				if (val && val.length > 20) {
+					var cleaned = SpadaOrderSummary.cleanAddress(val);
+					if (cleaned && cleaned !== val) {
+						$el.val(cleaned);
+					}
+				}
+			});
+		},
+
+		cleanAddress: function (address) {
+			if (!address || typeof address !== 'string') {
+				return '';
+			}
+
+			address = address.replace(/\s+/g, ' ').trim();
+
+			if (address.length < 20) {
+				return address;
+			}
+
+			// 1. Direct exact duplicate check
+			var half = Math.floor(address.length / 2);
+			var left = address.substring(0, half).trim();
+			var right = address.substring(half).trim();
+			if (left === right) {
+				return left;
+			}
+
+			// 2. Pattern A: 5-digit postal code followed by street/number
+			var postalMatch = address.match(/^(.+?\b\d{5}\b)\s+((?:\d{1,5}\b\s+)?[A-Za-z\u0600-\u06FF].+)$/);
+			if (postalMatch) {
+				var seg1 = postalMatch[1].trim();
+				var seg2 = postalMatch[2].trim();
+
+				var words1 = seg1.toLowerCase().split(/[\s,]+/).filter(function (w) { return w.length >= 3; });
+				var words2 = seg2.toLowerCase().split(/[\s,]+/).filter(function (w) { return w.length >= 3; });
+
+				var shared = words1.filter(function (w) { return words2.indexOf(w) !== -1; });
+				if (shared.length >= 2) {
+					var hasCountry2 = /(?:Saudi Arabia|المملكة العربية السعودية|السعودية|KSA)$/i.test(seg2);
+					var hasCountry1 = /(?:Saudi Arabia|المملكة العربية السعودية|السعودية|KSA)$/i.test(seg1);
+					var commas1 = (seg1.match(/,/g) || []).length;
+					var commas2 = (seg2.match(/,/g) || []).length;
+
+					var best = (hasCountry2 || commas2 > commas1) ? seg2 : ((hasCountry1 || commas1 > commas2) ? seg1 : (seg2.length >= seg1.length ? seg2 : seg1));
+
+					var m1 = seg1.match(/^(\d{3,5})\s+([A-Za-z\u0600-\u06FF].+)$/);
+					var m2 = best.match(/^(\d{3,5})\s+([A-Za-z\u0600-\u06FF].+)$/);
+					if (m1 && m2) {
+						var bldg1 = m1[1];
+						var bldg2 = m2[1];
+						if (bldg1 !== bldg2 && new RegExp(',\\s*' + bldg2 + '\\s*,').test(best)) {
+							best = best.replace(new RegExp('^' + bldg2 + '\\b'), bldg1);
+						}
+					}
+
+					return best;
+				}
+			}
+
+			// 3. Pattern B: Repeated street phrase of 2+ words
+			var words = address.split(/\s+/);
+			var numWords = words.length;
+			if (numWords >= 6) {
+				for (var windowLen = 4; windowLen >= 2; windowLen--) {
+					for (var i = 0; i <= numWords - (windowLen * 2); i++) {
+						var phrase = words.slice(i, i + windowLen).join(' ');
+						var cleanPhrase = phrase.replace(/[^\w\s\u0600-\u06FF]/g, '');
+						if (cleanPhrase.length < 6) continue;
+
+						var cleanAddr = address.replace(/[^\w\s\u0600-\u06FF]/g, ' ');
+						var firstPos = cleanAddr.toLowerCase().indexOf(cleanPhrase.toLowerCase());
+						if (firstPos !== -1) {
+							var secondPos = cleanAddr.toLowerCase().indexOf(cleanPhrase.toLowerCase(), firstPos + cleanPhrase.length);
+							if (secondPos !== -1) {
+								var prefix = address.substring(0, secondPos);
+								var numM = prefix.match(/\s+(\d{1,5})\s+$/);
+								var splitIdx = numM ? numM.index + numM[0].indexOf(numM[1]) : secondPos;
+
+								var p1 = address.substring(0, splitIdx).trim();
+								var p2 = address.substring(splitIdx).trim();
+
+								if (p1 && p2) {
+									var c1 = (p1.match(/,/g) || []).length;
+									var c2 = (p2.match(/,/g) || []).length;
+									var hasC2 = /(?:Saudi Arabia|المملكة العربية السعودية|السعودية|KSA)$/i.test(p2);
+									var hasC1 = /(?:Saudi Arabia|المملكة العربية السعودية|السعودية|KSA)$/i.test(p1);
+
+									var chosen = (hasC2 || c2 > c1) ? p2 : ((hasC1 || c1 > c2) ? p1 : (p2.length >= p1.length ? p2 : p1));
+
+									var m1_p = p1.match(/^(\d{3,5})\s+([A-Za-z\u0600-\u06FF].+)$/);
+									var m2_c = chosen.match(/^(\d{3,5})\s+([A-Za-z\u0600-\u06FF].+)$/);
+									if (m1_p && m2_c) {
+										var b1 = m1_p[1];
+										var b2 = m2_c[1];
+										if (b1 !== b2 && new RegExp(',\\s*' + b2 + '\\s*,').test(chosen)) {
+											chosen = chosen.replace(new RegExp('^' + b2 + '\\b'), b1);
+										}
+									}
+
+									return chosen;
+								}
+							}
+						}
+					}
+				}
+			}
+
+			return address;
 		}
 	};
 

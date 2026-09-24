@@ -283,6 +283,9 @@ class Spada_FC_Checkout_Fields {
 		if ( empty( $address ) ) {
 			$address = get_user_meta( $user_id, 'billing_address_1', true );
 		}
+		if ( ! empty( $address ) && class_exists( 'Spada_My_Account' ) && method_exists( 'Spada_My_Account', 'clean_address_string' ) ) {
+			$address = Spada_My_Account::clean_address_string( $address );
+		}
 
 		return array(
 			'first_name' => $first_name,

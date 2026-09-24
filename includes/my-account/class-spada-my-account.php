@@ -30,6 +30,7 @@ class Spada_My_Account {
 		// AJAX and POST handler for saving profile changes
 		add_action( 'wp_ajax_spada_update_account_details', array( __CLASS__, 'ajax_update_account_details' ) );
 		add_action( 'template_redirect', array( __CLASS__, 'handle_post_update_account_details' ) );
+		add_action( 'template_redirect', array( __CLASS__, 'handle_save_account_details' ), 5 );
 
 		// Sync customer shipping address when an order is placed
 		add_action( 'woocommerce_checkout_order_processed', array( __CLASS__, 'sync_address_from_order' ), 20, 3 );
@@ -61,6 +62,8 @@ class Spada_My_Account {
 			$shipping_addr = $order->get_billing_address_1();
 		}
 
+		$shipping_addr = self::clean_address_string( $shipping_addr );
+
 		if ( ! empty( $shipping_addr ) ) {
 			update_user_meta( $customer_id, 'shipping_address_1', $shipping_addr );
 			update_user_meta( $customer_id, 'billing_address_1', $shipping_addr );
@@ -82,6 +85,8 @@ class Spada_My_Account {
 		if ( empty( $shipping_addr ) && ! empty( $data['billing_address_1'] ) ) {
 			$shipping_addr = sanitize_text_field( $data['billing_address_1'] );
 		}
+
+		$shipping_addr = self::clean_address_string( $shipping_addr );
 
 		if ( ! empty( $shipping_addr ) ) {
 			update_user_meta( $customer_id, 'shipping_address_1', $shipping_addr );
@@ -185,6 +190,7 @@ class Spada_My_Account {
 		$phone        = isset( $_POST['spada_billing_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['spada_billing_phone'] ) ) : '';
 		$email        = isset( $_POST['spada_account_email'] ) ? sanitize_email( wp_unslash( $_POST['spada_account_email'] ) ) : '';
 		$address      = isset( $_POST['spada_billing_address'] ) ? sanitize_text_field( wp_unslash( $_POST['spada_billing_address'] ) ) : '';
+		$address      = self::clean_address_string( $address );
 		$password     = isset( $_POST['spada_account_password'] ) ? sanitize_text_field( wp_unslash( $_POST['spada_account_password'] ) ) : '';
 
 		if ( empty( $display_name ) ) {
@@ -258,6 +264,7 @@ class Spada_My_Account {
 		$phone        = isset( $_POST['spada_billing_phone'] ) ? sanitize_text_field( wp_unslash( $_POST['spada_billing_phone'] ) ) : '';
 		$email        = isset( $_POST['spada_account_email'] ) ? sanitize_email( wp_unslash( $_POST['spada_account_email'] ) ) : '';
 		$address      = isset( $_POST['spada_billing_address'] ) ? sanitize_text_field( wp_unslash( $_POST['spada_billing_address'] ) ) : '';
+		$address      = self::clean_address_string( $address );
 		$password     = isset( $_POST['spada_account_password'] ) ? sanitize_text_field( wp_unslash( $_POST['spada_account_password'] ) ) : '';
 
 		if ( ! empty( $display_name ) && ! empty( $email ) && is_email( $email ) ) {
@@ -289,5 +296,178 @@ class Spada_My_Account {
 
 		wp_safe_redirect( add_query_arg( 'spada_updated', '1', wc_get_page_permalink( 'myaccount' ) ) );
 		exit;
+	}
+
+	/**
+	 * Intercept standard WooCommerce save_account_details submission to clean and sync address & phone.
+	 */
+	public static function handle_save_account_details() {
+		if ( ! is_user_logged_in() || ! isset( $_POST['save_account_details'] ) ) {
+			return;
+		}
+		if ( ! isset( $_POST['save-account-details-nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['save-account-details-nonce'] ) ), 'save_account_details' ) ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return;
+		}
+
+		if ( ! empty( $_POST['billing_address_1'] ) ) {
+			$clean_addr = self::clean_address_string( sanitize_text_field( wp_unslash( $_POST['billing_address_1'] ) ) );
+			$_POST['billing_address_1'] = $clean_addr;
+			update_user_meta( $user_id, 'billing_address_1', $clean_addr );
+			update_user_meta( $user_id, 'shipping_address_1', $clean_addr );
+		}
+
+		if ( ! empty( $_POST['billing_phone'] ) ) {
+			$phone = sanitize_text_field( wp_unslash( $_POST['billing_phone'] ) );
+			update_user_meta( $user_id, 'billing_phone', $phone );
+			update_user_meta( $user_id, 'shipping_phone', $phone );
+		}
+	}
+
+	/**
+	 * Clean and deduplicate combined address strings (e.g. from Google Places + Geocoder).
+	 *
+	 * Detects when a place name and formatted address were concatenated together
+	 * (e.g. "8996 Al Awsat Valley St Al Olaya Riyadh 12214 2510 Al Awsat Valley St, 2510, Al Olaya, Riyadh 12214, Saudi Arabia")
+	 * and returns the single, properly formatted address.
+	 *
+	 * @param string $address Raw address string.
+	 * @return string Cleaned single address string.
+	 */
+	public static function clean_address_string( $address ) {
+		if ( empty( $address ) || ! is_string( $address ) ) {
+			return '';
+		}
+
+		$address = trim( preg_replace( '/\s+/', ' ', $address ) );
+
+		$strlen = function( $s ) {
+			return function_exists( 'mb_strlen' ) ? mb_strlen( $s, 'UTF-8' ) : strlen( $s );
+		};
+		$substr = function( $s, $start, $len = null ) {
+			return function_exists( 'mb_substr' ) ? mb_substr( $s, $start, $len, 'UTF-8' ) : ( null !== $len ? substr( $s, $start, $len ) : substr( $s, $start ) );
+		};
+		$strtolower = function( $s ) {
+			return function_exists( 'mb_strtolower' ) ? mb_strtolower( $s, 'UTF-8' ) : strtolower( $s );
+		};
+		$stripos = function( $haystack, $needle, $offset = 0 ) {
+			return function_exists( 'mb_stripos' ) ? mb_stripos( $haystack, $needle, $offset, 'UTF-8' ) : stripos( $haystack, $needle, $offset );
+		};
+
+		if ( $strlen( $address ) < 20 ) {
+			return $address;
+		}
+
+		// 1. Direct exact duplicate check: "Address Address" -> "Address"
+		$len   = $strlen( $address );
+		$half  = (int) floor( $len / 2 );
+		$left  = trim( $substr( $address, 0, $half ) );
+		$right = trim( $substr( $address, $half ) );
+		if ( $left === $right ) {
+			return $left;
+		}
+
+		// 2. Pattern A: Check if a 5-digit postal code is followed by a building number / street
+		if ( preg_match( '/^(.+?\b\d{5}\b)\s+((?:\d{1,5}\b\s+)?[A-Za-z\p{Arabic}].+)$/u', $address, $matches ) ) {
+			$seg1 = trim( $matches[1] );
+			$seg2 = trim( $matches[2] );
+
+			$words1 = preg_split( '/[\s,]+/', $strtolower( $seg1 ) );
+			$words2 = preg_split( '/[\s,]+/', $strtolower( $seg2 ) );
+			$words1 = array_filter( $words1, function( $w ) use ( $strlen ) { return $strlen( $w ) >= 3; } );
+			$words2 = array_filter( $words2, function( $w ) use ( $strlen ) { return $strlen( $w ) >= 3; } );
+
+			$shared = array_intersect( $words1, $words2 );
+			if ( count( $shared ) >= 2 ) {
+				$has_country2 = preg_match( '/(?:Saudi Arabia|المملكة العربية السعودية|السعودية|KSA)$/i', $seg2 );
+				$has_country1 = preg_match( '/(?:Saudi Arabia|المملكة العربية السعودية|السعودية|KSA)$/i', $seg1 );
+				$commas1      = substr_count( $seg1, ',' );
+				$commas2      = substr_count( $seg2, ',' );
+
+				if ( $has_country2 || $commas2 > $commas1 ) {
+					$best = $seg2;
+				} elseif ( $has_country1 || $commas1 > $commas2 ) {
+					$best = $seg1;
+				} else {
+					$best = ( $strlen( $seg2 ) >= $strlen( $seg1 ) ) ? $seg2 : $seg1;
+				}
+
+				// If seg1 had primary building number (e.g. 8996) and seg2 started with secondary number (e.g. 2510)
+				if ( preg_match( '/^(\d{3,5})\s+([A-Za-z\p{Arabic}].+)$/u', $seg1, $m1 ) &&
+				     preg_match( '/^(\d{3,5})\s+([A-Za-z\p{Arabic}].+)$/u', $best, $m2 ) ) {
+					$bldg1 = $m1[1];
+					$bldg2 = $m2[1];
+					if ( $bldg1 !== $bldg2 && preg_match( '/,\s*' . preg_quote( $bldg2, '/' ) . '\s*,/', $best ) ) {
+						$best = preg_replace( '/^' . preg_quote( $bldg2, '/' ) . '\b/', $bldg1, $best, 1 );
+					}
+				}
+
+				return $best;
+			}
+		}
+
+		// 3. Pattern B: Look for repeated street / word sequence of 2+ words
+		$words     = preg_split( '/\s+/', $address );
+		$num_words = count( $words );
+		if ( $num_words >= 6 ) {
+			for ( $window = 4; $window >= 2; $window-- ) {
+				for ( $i = 0; $i <= $num_words - ( $window * 2 ); $i++ ) {
+					$phrase       = implode( ' ', array_slice( $words, $i, $window ) );
+					$clean_phrase = preg_replace( '/[^\w\s\p{Arabic}]/u', '', $phrase );
+					if ( $strlen( $clean_phrase ) < 6 ) {
+						continue;
+					}
+
+					$clean_addr = preg_replace( '/[^\w\s\p{Arabic}]/u', ' ', $address );
+					$first_pos  = $stripos( $clean_addr, $clean_phrase );
+					if ( false !== $first_pos ) {
+						$second_pos = $stripos( $clean_addr, $clean_phrase, $first_pos + $strlen( $clean_phrase ) );
+						if ( false !== $second_pos ) {
+							$prefix = $substr( $address, 0, $second_pos );
+							if ( preg_match( '/\s+(\d{1,5})\s+$/u', $prefix, $num_m, PREG_OFFSET_CAPTURE ) ) {
+								$split_idx = $num_m[0][1];
+							} else {
+								$split_idx = $second_pos;
+							}
+
+							$p1 = trim( $substr( $address, 0, $split_idx ) );
+							$p2 = trim( $substr( $address, $split_idx ) );
+
+							if ( ! empty( $p1 ) && ! empty( $p2 ) ) {
+								$c1      = substr_count( $p1, ',' );
+								$c2      = substr_count( $p2, ',' );
+								$has_c2  = preg_match( '/(?:Saudi Arabia|المملكة العربية السعودية|السعودية|KSA)$/i', $p2 );
+								$has_c1  = preg_match( '/(?:Saudi Arabia|المملكة العربية السعودية|السعودية|KSA)$/i', $p1 );
+
+								if ( $has_c2 || $c2 > $c1 ) {
+									$chosen = $p2;
+								} elseif ( $has_c1 || $c1 > $c2 ) {
+									$chosen = $p1;
+								} else {
+									$chosen = ( $strlen( $p2 ) >= $strlen( $p1 ) ) ? $p2 : $p1;
+								}
+
+								if ( preg_match( '/^(\d{3,5})\s+([A-Za-z\p{Arabic}].+)$/u', $p1, $m1 ) &&
+								     preg_match( '/^(\d{3,5})\s+([A-Za-z\p{Arabic}].+)$/u', $chosen, $m2 ) ) {
+									$bldg1 = $m1[1];
+									$bldg2 = $m2[1];
+									if ( $bldg1 !== $bldg2 && preg_match( '/,\s*' . preg_quote( $bldg2, '/' ) . '\s*,/', $chosen ) ) {
+										$chosen = preg_replace( '/^' . preg_quote( $bldg2, '/' ) . '\b/', $bldg1, $chosen, 1 );
+									}
+								}
+
+								return $chosen;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $address;
 	}
 }
