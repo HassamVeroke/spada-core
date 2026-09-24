@@ -136,6 +136,8 @@ class Spada_Auth
 					'sending'              => $is_arabic ? 'جاري الإرسال...' : __('Sending...', 'spada-core'),
 					'verifying'            => $is_arabic ? 'جاري التحقق...' : __('Verifying...', 'spada-core'),
 					'continue'             => $is_arabic ? 'متابعة' : __('Continue', 'spada-core'),
+					'loginSuccess'         => $is_arabic ? 'تم تسجيل الدخول بنجاح!' : __('Login successful!', 'spada-core'),
+					'signupSuccess'        => $is_arabic ? 'تم إنشاء الحساب بنجاح!' : __('SignUp Successful', 'spada-core'),
 				),
 			)
 		);

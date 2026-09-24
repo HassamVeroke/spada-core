@@ -372,9 +372,14 @@ class Spada_Mobile_Login {
 			$redirect = home_url( '/' );
 		}
 
+		$is_arabic       = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$success_message = ( 'signup' === $auth_action )
+			? ( $is_arabic ? 'تم إنشاء الحساب بنجاح!' : __( 'SignUp Successful', 'spada-core' ) )
+			: ( $is_arabic ? 'تم تسجيل الدخول بنجاح!' : __( 'Login successful!', 'spada-core' ) );
+
 		wp_send_json_success(
 			array(
-				'message'  => __( 'Login successful!', 'spada-core' ),
+				'message'  => $success_message,
 				'redirect' => $redirect,
 			)
 		);

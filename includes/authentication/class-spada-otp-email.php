@@ -234,9 +234,14 @@ class Spada_OTP_Email {
 			WC()->session->set_customer_session_cookie( true );
 		}
 
+		$is_arabic       = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$success_message = ( 'signup' === $auth_action )
+			? ( $is_arabic ? 'تم إنشاء الحساب بنجاح!' : __( 'SignUp Successful', 'spada-core' ) )
+			: ( $is_arabic ? 'تم تسجيل الدخول بنجاح!' : __( 'Login successful!', 'spada-core' ) );
+
 		return array(
 			'success'  => true,
-			'message'  => __( 'Login successful!', 'spada-core' ),
+			'message'  => $success_message,
 			'user_id'  => $user->ID,
 			'redirect' => ( 'signup' === $auth_action ) ? wc_get_page_permalink( 'myaccount' ) : home_url( '/' ),
 		);

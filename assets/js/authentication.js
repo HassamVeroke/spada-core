@@ -686,8 +686,12 @@
 				self.setLoading(self.$verifySubmitBtn, false);
 				if (res.success) {
 					self.clearStage();
-					var successMsg = authData.isRtl ? 'تم تسجيل الدخول بنجاح!' : 'Login successful!';
-					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : successMsg, 'success');
+					var isSignup = (authAction === 'signup');
+					var defaultSuccessMsg = isSignup
+						? ((authData.i18n && authData.i18n.signupSuccess) || (authData.isRtl ? 'تم إنشاء الحساب بنجاح!' : 'SignUp Successful'))
+						: ((authData.i18n && authData.i18n.loginSuccess) || (authData.isRtl ? 'تم تسجيل الدخول بنجاح!' : 'Login successful!'));
+					var successMsg = (res.data && res.data.message) ? res.data.message : defaultSuccessMsg;
+					self.showNotice(self.$verifyNotice, successMsg, 'success');
 					setTimeout(function() {
 						if (authData.isCheckout === 'yes') {
 							// Refresh checkout or redirect
