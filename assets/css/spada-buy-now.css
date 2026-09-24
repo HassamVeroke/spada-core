@@ -221,16 +221,13 @@ html[lang="ar"] .spada-buy-now-variation .variations select {
 	line-height: 1 !important;
 }
 
+.spada-change-option-arrow:active,
 .spada-change-option-arrow:hover {
 	background: rgba(0, 169, 187, 1) !important;
 	background: color-mix(in srgb, currentColor 28%, transparent) !important;
 	border: 2px solid rgba(0, 169, 187, 1) !important;
 	border: 2px solid rgba(0, 212, 255, 1) !important;
 	border-color: color-mix(in srgb, currentColor 45%, transparent) !important;
-}
-
-.spada-change-option-arrow:active {
-	background: color-mix(in srgb, currentColor 35%, transparent) !important;
 }
 
 .spada-change-option-arrow:focus-visible {
@@ -256,7 +253,7 @@ html[lang="ar"] .spada-change-option-arrow {
 .spada-buy-now .woocommerce-Price-amount {
 	display: inline-flex !important;
 	align-items: center !important;
-	margin: 0 4px !important;
+	margin: 0 !important;
 	vertical-align: middle !important;
 }
 
@@ -266,11 +263,6 @@ html[lang="ar"] .spada-change-option-arrow {
 	align-items: center !important;
 	margin: 0 5px !important;
 	vertical-align: middle !important;
-}
-
-.spada-currency-spacer {
-	display: inline-block !important;
-	width: 4px !important;
 }
 
 .spada-buy-now .elementor-button-text img,

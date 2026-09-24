@@ -133,21 +133,20 @@ jQuery(function ($) {
 			? '<span class="woocommerce-Price-currencySymbol notranslate" data-no-translation="true" data-no-dynamic-translation="true">' + symbol + '</span>'
 			: '';
 		var numberHtml = '<span class="spada-price-number notranslate" data-no-translation="true" data-no-dynamic-translation="true">' + formattedNumber + '</span>';
-		var spacer = '<span class="spada-currency-spacer">&nbsp;</span>';
 		var pos = settings.position || 'right_space';
 
 		var priceInner;
 		if (!symbolHtml) {
 			priceInner = numberHtml;
 		} else if (pos === 'left') {
-			priceInner = symbolHtml + spacer + numberHtml;
+			priceInner = symbolHtml + numberHtml;
 		} else if (pos === 'left_space') {
-			priceInner = symbolHtml + spacer + numberHtml;
+			priceInner = symbolHtml + '&nbsp;' + numberHtml;
 		} else if (pos === 'right') {
-			priceInner = numberHtml + spacer + symbolHtml;
+			priceInner = numberHtml + symbolHtml;
 		} else {
 			// 'right_space' or default
-			priceInner = numberHtml + spacer + symbolHtml;
+			priceInner = numberHtml + '&nbsp;' + symbolHtml;
 		}
 
 		return '<span class="woocommerce-Price-amount amount notranslate trp-no-translation" data-no-translation="true" data-no-dynamic-translation="true">' +
