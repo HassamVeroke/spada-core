@@ -23,26 +23,40 @@ if (! defined('ABSPATH')) {
 		</a>
 	</div>
 
+<?php
+$current_method = isset( $initial_method ) ? $initial_method : 'email';
+$is_email       = ( 'email' === $current_method );
+$is_whatsapp    = ( 'whatsapp' === $current_method );
+$is_sms         = ( 'sms' === $current_method );
+?>
 	<!-- Centered Circle Icon -->
 	<div class="spada-circle-icon-wrap" id="spada-input-icon-wrap">
 		<!-- Email Icon -->
-		<svg class="spada-icon-email" width="28" height="28" viewBox="0 0 52 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg class="spada-icon-email <?php echo $is_email ? '' : 'is-hidden'; ?>" width="28" height="28" viewBox="0 0 52 35" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path d="M35.4291 17.1428L48.6494 5.65696V28.4976L35.4291 17.1428ZM18.3937 19.0879L23.0362 23.1179C23.7648 23.7369 24.7148 24.1109 25.7529 24.1109H25.7895H25.8174C26.8577 24.1109 27.8077 23.7347 28.5449 23.1114L28.5384 23.1157L33.1809 19.0858L47.2932 31.2057H4.28786L18.3937 19.0879ZM4.26851 2.9338H47.319L26.6406 20.8934C26.4091 21.0791 26.1206 21.1793 25.8239 21.1771H25.7938H25.7658C25.468 21.1792 25.1787 21.0782 24.9469 20.8912L24.9491 20.8934L4.26851 2.9338ZM2.9338 5.65481L16.152 17.1407L2.9338 28.489V5.65481ZM49.3587 0.408367C48.8429 0.150451 48.2368 0 47.5941 0H3.99555C3.37287 0.00246486 2.759 0.147294 2.20088 0.423412L2.22453 0.412666C1.55796 0.742545 0.996623 1.25183 0.603641 1.88326C0.210659 2.51469 0.0016106 3.24322 0 3.98695L0 30.1482C0.00113785 31.207 0.422235 32.2221 1.1709 32.9707C1.91956 33.7194 2.93463 34.1405 3.9934 34.1416H47.5877C48.6464 34.1405 49.6615 33.7194 50.4102 32.9707C51.1588 32.2221 51.5799 31.207 51.5811 30.1482V3.98695C51.5811 2.42441 50.6805 1.07035 49.3694 0.419114L49.3458 0.408367H49.3587Z" fill="#00A9BB" />
 		</svg>
 		<!-- WhatsApp Icon -->
-		<svg class="spada-icon-whatsapp is-hidden" width="28" height="28" viewBox="0 0 51 51" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg class="spada-icon-whatsapp <?php echo $is_whatsapp ? '' : 'is-hidden'; ?>" width="28" height="28" viewBox="0 0 51 51" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path fill-rule="evenodd" clip-rule="evenodd" d="M37.0049 30.5602C36.6947 30.4051 35.7912 29.9606 34.8826 29.5218L37.0049 30.5602ZM34.8826 29.5218C34.8802 29.5207 34.8851 29.523 34.8826 29.5218V29.5218ZM21.075 20.6845C21.0737 20.6871 21.0762 20.6819 21.075 20.6845C21.047 20.742 21.0165 20.8046 20.9899 20.8576L21.075 20.6845ZM17.8368 13.6229C17.8197 13.6228 17.8029 13.6226 17.7863 13.6222C17.8198 13.6231 17.8534 13.6229 17.8886 13.6228L17.9075 13.6228C17.9064 13.6228 17.9087 13.6228 17.9075 13.6228C17.9093 13.6228 17.9207 13.6228 17.9225 13.6228C17.9216 13.6228 17.9234 13.6228 17.9225 13.6228C17.9457 13.6228 17.972 13.6229 17.9959 13.6234M17.8886 13.6228C17.8705 13.6229 17.8545 13.6229 17.8368 13.6229L17.8886 13.6228ZM14.7807 43.3627C18.0177 45.2801 21.7194 46.2914 25.4817 46.2908C37.058 46.2908 46.4798 36.8669 46.4841 25.2862C46.4932 22.5264 45.9547 19.7923 44.8999 17.242C43.845 14.6917 42.2948 12.376 40.3389 10.429C38.3955 8.46953 36.082 6.91587 33.5329 5.85836C30.9838 4.80085 28.2499 4.26059 25.4902 4.26897C13.9032 4.26897 4.48138 13.6907 4.47714 25.2714C4.47128 29.2253 5.5844 33.1002 7.68785 36.4483L8.18719 37.243L6.06444 44.9946L14.0158 42.9079L14.7807 43.3627ZM35.1613 1.9154C38.2295 3.18761 41.0149 5.05575 43.3562 7.41168C45.7093 9.75466 47.5766 12.541 48.8459 15.6095C50.1152 18.678 50.7634 21.9677 50.753 25.2884C50.7487 39.2234 39.4103 50.5597 25.4838 50.5597H25.4732C21.2535 50.5579 17.1015 49.5001 13.3953 47.4828L0 50.9974L3.58469 37.9017C1.36885 34.0609 0.205627 29.7034 0.212494 25.2692C0.216736 11.3363 11.5551 7.05719e-05 25.4817 7.05719e-05C28.8031 -0.00780869 32.0932 0.643196 35.1613 1.9154ZM15.0742 14.5919C15.5855 14.0317 16.184 13.8995 16.5361 13.8995C16.9545 13.8995 17.3685 13.9034 17.7305 13.92C17.7893 13.9232 17.8499 13.9231 17.8994 13.9229C17.9315 13.9228 17.9612 13.923 17.9897 13.9237C18.0078 13.9241 18.0255 13.9248 18.043 13.9258C18.1302 13.931 18.2062 13.9452 18.2812 13.9805C18.4274 14.0495 18.6468 14.2361 18.8896 14.8194C19.071 15.2546 19.3396 15.9087 19.6205 16.5927C19.7471 16.901 19.8762 17.2154 20.001 17.5186C20.3981 18.4839 20.7597 19.3581 20.8447 19.5294C20.9853 19.8088 21.0473 20.0684 20.8975 20.3653C20.8631 20.4343 20.8321 20.498 20.803 20.5577C20.6478 20.8761 20.5485 21.0798 20.3076 21.3594C20.187 21.4995 20.0688 21.6435 19.954 21.7832C19.7478 22.0344 19.5525 22.2721 19.376 22.4473C19.2256 22.5967 19.0119 22.8089 18.9111 23.0811C18.7987 23.385 18.8323 23.722 19.0518 24.0987C19.425 24.7416 20.7127 26.8413 22.624 28.5469C24.6748 30.3754 26.4765 31.1577 27.3611 31.5418C27.5333 31.6166 27.6708 31.6763 27.7686 31.7257C28.1034 31.8925 28.4173 31.988 28.7207 31.9512C29.0364 31.9128 29.2827 31.7392 29.4961 31.4952C29.8603 31.0784 31.0838 29.6419 31.5176 28.9913C31.6971 28.7225 31.8385 28.6594 31.9551 28.6456C32.1039 28.6281 32.2888 28.678 32.5859 28.7872C32.8576 28.8871 33.7608 29.3124 34.6963 29.7637C35.6198 30.2094 36.5501 30.6692 36.8682 30.8282C37.0019 30.8951 37.1208 30.9524 37.228 31.0042C37.3884 31.0815 37.5235 31.1467 37.6426 31.212C37.8404 31.3204 37.9215 31.3935 37.9561 31.4512C37.957 31.4535 37.9589 31.4585 37.9614 31.4661C37.9645 31.4755 37.9684 31.4891 37.9727 31.5079C37.9828 31.553 37.9918 31.6152 37.998 31.6944C38.0105 31.853 38.0101 32.0652 37.9883 32.3194C37.9447 32.8274 37.8181 33.4868 37.5635 34.1993C37.3347 34.8393 36.6441 35.4994 35.8096 36.0343C34.9823 36.5644 34.0893 36.9239 33.54 37.0059C32.4773 37.1658 31.1493 37.229 29.6963 36.7657C28.8993 36.5142 27.9082 36.1874 26.6709 35.6778L26.125 35.4483C20.2969 32.932 16.349 27.2793 15.5772 26.1742C15.5221 26.0953 15.4832 26.0396 15.4609 26.0098C15.2986 25.7931 14.6685 24.9517 14.0811 23.794C13.486 22.6214 12.9434 21.1431 12.9434 19.6573C12.9434 16.8614 14.307 15.4095 14.9542 14.7204C14.9977 14.6742 15.0379 14.6314 15.0742 14.5919Z" fill="#00A9BB" />
 		</svg>
 
 		<!-- SMS Icon -->
-		<svg class="spada-icon-sms is-hidden" width="28" height="28" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<svg class="spada-icon-sms <?php echo $is_sms ? '' : 'is-hidden'; ?>" width="28" height="28" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path fill-rule="evenodd" clip-rule="evenodd" d="M4.18594 0C4.10644 0 4.0274 0.002031 3.94887 0.00604405L4.18594 0ZM41.2141 37.0282C41.2913 37.0282 41.3681 37.0262 41.4443 37.0225L41.2141 37.0282ZM3.74372 36.176L7.07685 32.842H41.6563V4.18629H3.74372V36.176ZM30.0855 20.386H33.8292V16.6423H30.0855V20.386ZM24.5715 20.386H20.8286V16.6423H24.5715V20.386ZM11.5717 20.386H15.3146V16.6423H11.5717V20.386ZM45.4001 4.62887V32.3995C45.4001 34.7007 43.515 36.5858 41.2138 36.5858H8.63104L0 45.2168V4.62887C0 2.32761 1.88503 0.442573 4.18629 0.442573H41.2138C43.515 0.442573 45.4001 2.32761 45.4001 4.62887Z" fill="#08A9BA" />
 		</svg>
 	</div>
 
-	<!-- Titles (Dynamic via JS) -->
-	<h2 class="spada-input-heading" id="spada-input-heading"><?php esc_html_e('Enter your email address', 'spada-core'); ?></h2>
-	<p class="spada-input-subheading" id="spada-input-subheading"><?php esc_html_e("We'll send a six digit code to your email adress.", 'spada-core'); ?></p>
+	<!-- Titles (Server renders based on initial method, TranslatePress translates on server) -->
+	<?php if ( $is_whatsapp ) : ?>
+		<h2 class="spada-input-heading" id="spada-input-heading"><?php esc_html_e('Enter your whatsapp number', 'spada-core'); ?></h2>
+		<p class="spada-input-subheading" id="spada-input-subheading"><?php esc_html_e("We'll send a six digit code to your whatsapp", 'spada-core'); ?></p>
+	<?php elseif ( $is_sms ) : ?>
+		<h2 class="spada-input-heading" id="spada-input-heading"><?php esc_html_e('Enter your mobile number', 'spada-core'); ?></h2>
+		<p class="spada-input-subheading" id="spada-input-subheading"><?php esc_html_e("We'll send a six digit code to your mobile number", 'spada-core'); ?></p>
+	<?php else : ?>
+		<h2 class="spada-input-heading" id="spada-input-heading"><?php esc_html_e('Enter your email address', 'spada-core'); ?></h2>
+		<p class="spada-input-subheading" id="spada-input-subheading"><?php esc_html_e("We'll send a six digit code to your email adress.", 'spada-core'); ?></p>
+	<?php endif; ?>
 
 	<!-- Input Form -->
 	<form class="spada-input-form" id="spada-identifier-form" onsubmit="return false;">
@@ -50,14 +64,14 @@ if (! defined('ABSPATH')) {
 		<div class="spada-form-notice is-hidden" id="spada-input-notice" role="alert"></div>
 
 		<!-- Email Input Row -->
-		<div class="spada-field-group" id="spada-field-group-email">
+		<div class="spada-field-group <?php echo $is_email ? '' : 'is-hidden'; ?>" id="spada-field-group-email">
 			<label for="spada-auth-email" class="spada-field-label"><?php esc_html_e('EMAIL ADDRESS', 'spada-core'); ?></label>
 			<input type="email" id="spada-auth-email" class="spada-input-control" placeholder="name@example.com" autocomplete="email" required />
 		</div>
 
 		<!-- Phone Input Row (Used for WhatsApp and SMS) -->
-		<div class="spada-field-group is-hidden" id="spada-field-group-phone">
-			<label for="spada-auth-phone" class="spada-field-label" id="spada-phone-label"><?php esc_html_e('MOBILE NUMBER', 'spada-core'); ?></label>
+		<div class="spada-field-group <?php echo $is_email ? 'is-hidden' : ''; ?>" id="spada-field-group-phone">
+			<label for="spada-auth-phone" class="spada-field-label" id="spada-phone-label"><?php echo $is_whatsapp ? esc_html__('WHATSAPP NUMBER', 'spada-core') : esc_html__('MOBILE NUMBER', 'spada-core'); ?></label>
 			<div class="spada-phone-input-wrap">
 				<span class="spada-phone-code">+966</span>
 				<input type="tel" id="spada-auth-phone" class="spada-input-control" placeholder="05XXXXXXXX" maxlength="10" pattern="^05[0-9]{8}$" title="<?php esc_attr_e('Must start with 05 and be exactly 10 digits.', 'spada-core'); ?>" autocomplete="tel-national" aria-invalid="false" />
@@ -81,4 +95,23 @@ if (! defined('ABSPATH')) {
 			<?php esc_html_e('Choose another option', 'spada-core'); ?>
 		</a>
 	</form>
+
+	<!-- Hidden translatable templates for input view per method (TranslatePress translates on server) -->
+	<div class="spada-method-content-template" style="display:none !important;" aria-hidden="true">
+		<div data-method-template="email">
+			<span class="tpl-heading"><?php esc_html_e('Enter your email address', 'spada-core'); ?></span>
+			<span class="tpl-subheading"><?php esc_html_e("We'll send a six digit code to your email adress.", 'spada-core'); ?></span>
+			<span class="tpl-label"><?php esc_html_e('EMAIL ADDRESS', 'spada-core'); ?></span>
+		</div>
+		<div data-method-template="whatsapp">
+			<span class="tpl-heading"><?php esc_html_e('Enter your whatsapp number', 'spada-core'); ?></span>
+			<span class="tpl-subheading"><?php esc_html_e("We'll send a six digit code to your whatsapp", 'spada-core'); ?></span>
+			<span class="tpl-label"><?php esc_html_e('WHATSAPP NUMBER', 'spada-core'); ?></span>
+		</div>
+		<div data-method-template="sms">
+			<span class="tpl-heading"><?php esc_html_e('Enter your mobile number', 'spada-core'); ?></span>
+			<span class="tpl-subheading"><?php esc_html_e("We'll send a six digit code to your mobile number", 'spada-core'); ?></span>
+			<span class="tpl-label"><?php esc_html_e('MOBILE NUMBER', 'spada-core'); ?></span>
+		</div>
+	</div>
 </div>

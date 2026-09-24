@@ -30,6 +30,18 @@ if ( isset( $_GET['step'] ) ) {
 	}
 }
 
+if ( isset( $_GET['auth_method'] ) ) {
+	$m = sanitize_key( $_GET['auth_method'] );
+	if ( in_array( $m, array( 'email', 'whatsapp', 'sms' ), true ) ) {
+		$initial_method = $m;
+	}
+} elseif ( isset( $_GET['method'] ) ) {
+	$m = sanitize_key( $_GET['method'] );
+	if ( in_array( $m, array( 'email', 'whatsapp', 'sms' ), true ) ) {
+		$initial_method = $m;
+	}
+}
+
 // Fallback to cookie if query param did not specify a non-choice step
 if ( 'choice' === $initial_view && ! empty( $_COOKIE['spada_auth_stage'] ) ) {
 	$cookie_stage = json_decode( stripslashes( (string) $_COOKIE['spada_auth_stage'] ), true );

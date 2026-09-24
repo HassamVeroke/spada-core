@@ -86,7 +86,6 @@
 				self.$choiceCards.removeClass('is-selected');
 				$(this).addClass('is-selected');
 
-				self.$mainTitle.text(action === 'signup' ? 'SIGNUP' : 'LOGIN');
 				self.updateMethodButtons(action);
 				self.showView('methods');
 			});
@@ -316,10 +315,8 @@
 			this.$choiceCards.removeClass('is-selected');
 			if (this.state.action === 'signup') {
 				$('#spada-choice-signup').addClass('is-selected');
-				this.$mainTitle.text('SIGNUP');
 			} else {
 				$('#spada-choice-login').addClass('is-selected');
-				this.$mainTitle.text('LOGIN');
 			}
 			this.updateMethodButtons(this.state.action);
 
@@ -381,21 +378,30 @@
 				var method = $btn.data('method');
 				var text = '';
 
-				if (isSignup) {
-					if (method === 'email') {
-						text = i18n.signupEmail || $btn.data('signup-text') || 'SignUp with Email';
-					} else if (method === 'whatsapp') {
-						text = i18n.signupWhatsapp || $btn.data('signup-text') || 'SignUp with Whatsapp';
-					} else if (method === 'sms') {
-						text = i18n.signupSms || $btn.data('signup-text') || 'SignUp with SMS';
-					}
-				} else {
-					if (method === 'email') {
-						text = i18n.signInEmail || $btn.data('login-text') || 'Sign in with Email';
-					} else if (method === 'whatsapp') {
-						text = i18n.signInWhatsapp || $btn.data('login-text') || 'Sign in with Whatsapp';
-					} else if (method === 'sms') {
-						text = i18n.signInSms || $btn.data('login-text') || 'Sign in with SMS';
+				// 1. Look in translated DOM template first (TranslatePress translates this on server)
+				var $tplText = $('[data-action-template="' + action + '"] [data-method-btn-text="' + method + '"]');
+				if ($tplText.length && $.trim($tplText.text())) {
+					text = $.trim($tplText.text());
+				}
+
+				// 2. Fallback to i18n or data attribute
+				if (!text) {
+					if (isSignup) {
+						if (method === 'email') {
+							text = i18n.signupEmail || $btn.data('signup-text') || 'SignUp with Email';
+						} else if (method === 'whatsapp') {
+							text = i18n.signupWhatsapp || $btn.data('signup-text') || 'SignUp with Whatsapp';
+						} else if (method === 'sms') {
+							text = i18n.signupSms || $btn.data('signup-text') || 'SignUp with SMS';
+						}
+					} else {
+						if (method === 'email') {
+							text = i18n.signInEmail || $btn.data('login-text') || 'Continue with Email';
+						} else if (method === 'whatsapp') {
+							text = i18n.signInWhatsapp || $btn.data('login-text') || 'Continue with Whatsapp';
+						} else if (method === 'sms') {
+							text = i18n.signInSms || $btn.data('login-text') || 'Continue with SMS';
+						}
 					}
 				}
 
@@ -412,27 +418,41 @@
 			$('#spada-input-icon-wrap svg, #spada-verify-icon-wrap svg').addClass('is-hidden');
 			$('#spada-input-icon-wrap .spada-icon-' + method + ', #spada-verify-icon-wrap .spada-icon-' + method).removeClass('is-hidden');
 
+			// Check translated DOM template
+			var $tpl = $('[data-method-template="' + method + '"]');
+			var tplHeading = $tpl.length ? $.trim($tpl.find('.tpl-heading').text()) : '';
+			var tplSubheading = $tpl.length ? $.trim($tpl.find('.tpl-subheading').text()) : '';
+			var tplLabel = $tpl.length ? $.trim($tpl.find('.tpl-label').text()) : '';
+
 			if (method === 'email') {
-				this.$inputHeading.text(i18n.enterEmail || 'Enter your email address');
-				this.$inputSubheading.text(i18n.subEmail || "We'll send a six digit code to your email address.");
+				var heading = tplHeading || i18n.enterEmail || 'Enter your email address';
+				var subheading = tplSubheading || i18n.subEmail || "We'll send a six digit code to your email address.";
+				this.$inputHeading.text(heading);
+				this.$inputSubheading.text(subheading);
 				this.$emailGroup.removeClass('is-hidden');
 				this.$phoneGroup.addClass('is-hidden');
 				this.clearPhoneError();
 				this.$emailInput.focus();
 			} else if (method === 'whatsapp') {
-				this.$inputHeading.text(i18n.enterWhatsapp || 'Enter your whatsapp number');
-				this.$inputSubheading.text(i18n.subWhatsapp || "We'll send a six digit code to your whatsapp");
+				var heading = tplHeading || i18n.enterWhatsapp || 'Enter your whatsapp number';
+				var subheading = tplSubheading || i18n.subWhatsapp || "We'll send a six digit code to your whatsapp";
+				var label = tplLabel || i18n.labelWhatsapp || 'WHATSAPP NUMBER';
+				this.$inputHeading.text(heading);
+				this.$inputSubheading.text(subheading);
+				this.$phoneLabel.text(label);
 				this.$emailGroup.addClass('is-hidden');
 				this.$phoneGroup.removeClass('is-hidden');
-				this.$phoneLabel.text('WHATSAPP NUMBER');
 				this.clearPhoneError();
 				this.$phoneInput.focus();
 			} else {
-				this.$inputHeading.text(i18n.enterMobile || 'Enter your mobile number');
-				this.$inputSubheading.text(i18n.subMobile || "We'll send a six digit code to your mobile number");
+				var heading = tplHeading || i18n.enterMobile || 'Enter your mobile number';
+				var subheading = tplSubheading || i18n.subMobile || "We'll send a six digit code to your mobile number";
+				var label = tplLabel || i18n.labelMobile || 'MOBILE NUMBER';
+				this.$inputHeading.text(heading);
+				this.$inputSubheading.text(subheading);
+				this.$phoneLabel.text(label);
 				this.$emailGroup.addClass('is-hidden');
 				this.$phoneGroup.removeClass('is-hidden');
-				this.$phoneLabel.text('MOBILE NUMBER');
 				this.clearPhoneError();
 				this.$phoneInput.focus();
 			}
@@ -447,21 +467,28 @@
 
 			this.$verifyTarget.text(targetDisplay);
 
+			// Check translated DOM template
+			var $tpl = $('[data-verify-template="' + method + '"]');
+			var tplHeading = $tpl.length ? $.trim($tpl.find('.tpl-heading').text()) : '';
+			var tplPrompt = $tpl.length ? $.trim($tpl.find('.tpl-prompt').text()) : '';
+			var tplChange = $tpl.length ? $.trim($tpl.find('.tpl-change').text()) : '';
+			var tplResend = $tpl.length ? $.trim($tpl.find('.tpl-resend').text()) : '';
+
 			if (method === 'email') {
-				this.$verifyHeading.text(i18n.checkEmail || 'Check your email address');
-				this.$verifyPrompt.text(i18n.promptEmail || "We've sent a six digit code to your email address");
-				this.$changeTargetText.text(i18n.changeEmail || 'Change Email');
-				$('#spada-resend-prompt').text(i18n.didntEmail || "Didn't receive the email?");
+				this.$verifyHeading.text(tplHeading || i18n.checkEmail || 'Check your email address');
+				this.$verifyPrompt.text(tplPrompt || i18n.promptEmail || "We've sent a six digit code to your email address");
+				this.$changeTargetText.text(tplChange || i18n.changeEmail || 'Change Email');
+				$('#spada-resend-prompt').text(tplResend || i18n.didntEmail || "Didn't receive the email?");
 			} else if (method === 'whatsapp') {
-				this.$verifyHeading.text(i18n.checkWhatsapp || 'Check your whatsapp account');
-				this.$verifyPrompt.text(i18n.promptWhatsapp || "We've sent a six digit code to your whatsapp account on");
-				this.$changeTargetText.text(i18n.changeNumber || 'Change Number');
-				$('#spada-resend-prompt').text(i18n.didntWhatsapp || "Didn't receive the message on whatsapp?");
+				this.$verifyHeading.text(tplHeading || i18n.checkWhatsapp || 'Check your whatsapp account');
+				this.$verifyPrompt.text(tplPrompt || i18n.promptWhatsapp || "We've sent a six digit code to your whatsapp account on");
+				this.$changeTargetText.text(tplChange || i18n.changeNumber || 'Change Number');
+				$('#spada-resend-prompt').text(tplResend || i18n.didntWhatsapp || "Didn't receive the message on whatsapp?");
 			} else {
-				this.$verifyHeading.text(i18n.checkMobile || 'Check your messages');
-				this.$verifyPrompt.text(i18n.promptMobile || "We've sent a six digit code to your mobile number");
-				this.$changeTargetText.text(i18n.changeNumber || 'Change Number');
-				$('#spada-resend-prompt').text(i18n.didntMobile || "Didn't receive the message on number?");
+				this.$verifyHeading.text(tplHeading || i18n.checkMobile || 'Check your messages');
+				this.$verifyPrompt.text(tplPrompt || i18n.promptMobile || "We've sent a six digit code to your mobile number");
+				this.$changeTargetText.text(tplChange || i18n.changeNumber || 'Change Number');
+				$('#spada-resend-prompt').text(tplResend || i18n.didntMobile || "Didn't receive the message on number?");
 			}
 
 			// Clear OTP fields & focus first
@@ -550,7 +577,7 @@
 			if (method === 'email') {
 				var email = this.$emailInput.val().trim();
 				if (!email) {
-					this.showNotice(this.$inputNotice, 'Please enter your email address.', 'error');
+					this.showNotice(this.$inputNotice, (authData.i18n && authData.i18n.invalidEmail) || 'Please enter your email address.', 'error');
 					this.setLoading(this.$inputSubmitBtn, false);
 					return;
 				}
@@ -565,11 +592,13 @@
 						self.setupVerifyView(email);
 						self.showView('verify');
 					} else {
-						self.showNotice(self.$inputNotice, res.data && res.data.message ? res.data.message : 'Error sending OTP.', 'error');
+						var defaultErr = authData.isRtl ? 'حدث خطأ أثناء إرسال رمز التحقق.' : 'Error sending OTP.';
+						self.showNotice(self.$inputNotice, res.data && res.data.message ? res.data.message : defaultErr, 'error');
 					}
 				}).fail(function(xhr) {
 					self.setLoading(self.$inputSubmitBtn, false);
-					var msg = (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || 'Network error. Please try again.';
+					var defaultNetErr = (authData.i18n && authData.i18n.genericError) || (authData.isRtl ? 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.' : 'Network error. Please try again.');
+					var msg = (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || defaultNetErr;
 					self.showNotice(self.$inputNotice, msg, 'error');
 				});
 			} else {
@@ -594,11 +623,13 @@
 						self.setupVerifyView(masked);
 						self.showView('verify');
 					} else {
-						self.showNotice(self.$inputNotice, res.data && res.data.message ? res.data.message : 'Error sending OTP.', 'error');
+						var defaultErr = authData.isRtl ? 'حدث خطأ أثناء إرسال رمز التحقق.' : 'Error sending OTP.';
+						self.showNotice(self.$inputNotice, res.data && res.data.message ? res.data.message : defaultErr, 'error');
 					}
 				}).fail(function(xhr) {
 					self.setLoading(self.$inputSubmitBtn, false);
-					var msg = (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || 'Network error. Please try again.';
+					var defaultNetErr = (authData.i18n && authData.i18n.genericError) || (authData.isRtl ? 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.' : 'Network error. Please try again.');
+					var msg = (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || defaultNetErr;
 					self.showNotice(self.$inputNotice, msg, 'error');
 				});
 			}
@@ -612,7 +643,8 @@
 			var otp = this.$otpFull.val().trim();
 
 			if (otp.length !== 6) {
-				this.showNotice(this.$verifyNotice, 'Please enter all 6 digits of the code.', 'error');
+				var digitErr = (authData.i18n && authData.i18n.invalidOtp) || (authData.isRtl ? 'يرجى إدخال جميع أرقام الرمز الستة.' : 'Please enter all 6 digits of the code.');
+				this.showNotice(this.$verifyNotice, digitErr, 'error');
 				return;
 			}
 
@@ -638,7 +670,8 @@
 				self.setLoading(self.$verifySubmitBtn, false);
 				if (res.success) {
 					self.clearStage();
-					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : 'Login successful!', 'success');
+					var successMsg = authData.isRtl ? 'تم تسجيل الدخول بنجاح!' : 'Login successful!';
+					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : successMsg, 'success');
 					setTimeout(function() {
 						if (authData.isCheckout === 'yes') {
 							// Refresh checkout or redirect
@@ -650,12 +683,12 @@
 						}
 					}, 500);
 				} else {
-					var defaultErr = (authData.i18n && authData.i18n.incorrectOtp) || 'Incorrect verification code.';
+					var defaultErr = (authData.i18n && authData.i18n.incorrectOtp) || (authData.isRtl ? 'رمز التحقق غير صحيح.' : 'Incorrect verification code.');
 					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : defaultErr, 'error');
 				}
 			}).fail(function(xhr) {
 				self.setLoading(self.$verifySubmitBtn, false);
-				var defaultErr = (authData.i18n && authData.i18n.incorrectOtp) || 'Incorrect verification code.';
+				var defaultErr = (authData.i18n && authData.i18n.incorrectOtp) || (authData.isRtl ? 'رمز التحقق غير صحيح.' : 'Incorrect verification code.');
 				var msg = (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || defaultErr;
 				self.showNotice(self.$verifyNotice, msg, 'error');
 			});
@@ -682,10 +715,12 @@
 
 			$.post(authData.ajaxUrl, data, function(res) {
 				if (res.success) {
-					self.showNotice(self.$verifyNotice, 'Verification code resent successfully.', 'success');
+					var resendSuccess = authData.isRtl ? 'تمت إعادة إرسال رمز التحقق بنجاح.' : 'Verification code resent successfully.';
+					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : resendSuccess, 'success');
 					self.startCountdown();
 				} else {
-					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : 'Error resending code.', 'error');
+					var resendErr = authData.isRtl ? 'حدث خطأ أثناء إعادة إرسال الرمز.' : 'Error resending code.';
+					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : resendErr, 'error');
 				}
 			});
 		},
