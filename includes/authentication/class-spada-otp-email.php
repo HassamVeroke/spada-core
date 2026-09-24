@@ -72,10 +72,12 @@ class Spada_OTP_Email {
 
 		// Store hashed OTP in transient
 		$transient_key = self::TRANSIENT_PREFIX . md5( $email );
+		$now           = time();
 		$otp_payload   = array(
 			'hash'       => wp_hash( $otp, 'nonce' ),
 			'attempts'   => 0,
-			'created_at' => time(),
+			'created_at' => $now,
+			'expires_at' => $now + self::EXPIRATION_SECONDS,
 			'email'      => $email,
 		);
 
@@ -130,24 +132,34 @@ class Spada_OTP_Email {
 			);
 		}
 
-		$transient_key = self::TRANSIENT_PREFIX . md5( $email );
-		$otp_payload   = get_transient( $transient_key );
+		$transient_key      = self::TRANSIENT_PREFIX . md5( $email );
+		$otp_payload        = get_transient( $transient_key );
+		$now                = time();
+		$is_arabic          = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$incorrect_code_msg = $is_arabic ? 'رمز التحقق غير صحيح.' : __( 'Incorrect verification code.', 'spada-core' );
 
-		if ( false === $otp_payload || ! is_array( $otp_payload ) ) {
-			$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		if ( false === $otp_payload || ! is_array( $otp_payload ) || empty( $otp_payload['hash'] ) ) {
 			return array(
 				'success' => false,
-				'message' => $is_arabic ? 'رمز التحقق غير صحيح.' : __( 'Incorrect verification code.', 'spada-core' ),
+				'message' => $incorrect_code_msg,
+			);
+		}
+
+		// Explicit authoritative expiration check: STRICT 120 SECONDS
+		if ( empty( $otp_payload['expires_at'] ) || $now > (int) $otp_payload['expires_at'] ) {
+			delete_transient( $transient_key );
+			return array(
+				'success' => false,
+				'message' => $incorrect_code_msg,
 			);
 		}
 
 		// Check attempt throttling
-		if ( $otp_payload['attempts'] >= self::MAX_ATTEMPTS ) {
+		if ( isset( $otp_payload['attempts'] ) && (int) $otp_payload['attempts'] >= self::MAX_ATTEMPTS ) {
 			delete_transient( $transient_key );
-			$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
 			return array(
 				'success' => false,
-				'message' => $is_arabic ? 'رمز التحقق غير صحيح.' : __( 'Incorrect verification code.', 'spada-core' ),
+				'message' => $incorrect_code_msg,
 			);
 		}
 
@@ -156,15 +168,15 @@ class Spada_OTP_Email {
 		$provided_hash = wp_hash( $entered_otp, 'nonce' );
 
 		if ( ! hash_equals( $expected_hash, $provided_hash ) ) {
-			// Increment attempts
-			$otp_payload['attempts']++;
-			set_transient( $transient_key, $otp_payload, self::EXPIRATION_SECONDS );
+			// Increment attempts but preserve remaining lifetime (NEVER reset to full 120s)
+			$otp_payload['attempts'] = isset( $otp_payload['attempts'] ) ? (int) $otp_payload['attempts'] + 1 : 1;
+			$remaining_ttl           = max( 1, (int) $otp_payload['expires_at'] - $now );
+			set_transient( $transient_key, $otp_payload, $remaining_ttl );
 
 			$remaining = self::MAX_ATTEMPTS - $otp_payload['attempts'];
-			$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
 			return array(
 				'success'   => false,
-				'message'   => $is_arabic ? 'رمز التحقق غير صحيح.' : __( 'Incorrect verification code.', 'spada-core' ),
+				'message'   => $incorrect_code_msg,
 				'remaining' => $remaining,
 			);
 		}

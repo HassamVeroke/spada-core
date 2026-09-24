@@ -227,13 +227,16 @@ class Spada_Mobile_Login {
 			$otp = (string) wp_rand( 100000, 999999 );
 		}
 
+		$now = time();
 		set_transient(
 			$transient_key,
 			array(
-				'hash'     => wp_hash( $otp, 'nonce' ),
-				'attempts' => 0,
-				'code'     => $phone_code,
-				'number'   => $phone_no,
+				'hash'       => wp_hash( $otp, 'nonce' ),
+				'attempts'   => 0,
+				'code'       => $phone_code,
+				'number'     => $phone_no,
+				'created_at' => $now,
+				'expires_at' => $now + 120, // 2 minutes strict
 			),
 			120
 		);
@@ -268,6 +271,9 @@ class Spada_Mobile_Login {
 		$phone_code = $normalized['code'];
 		$phone_no   = $normalized['number'];
 
+		$is_arabic          = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$incorrect_code_msg = $is_arabic ? 'رمز التحقق غير صحيح.' : __( 'Incorrect verification code.', 'spada-core' );
+
 		if ( empty( $phone_no ) || strlen( $otp_code ) !== 6 ) {
 			wp_send_json_error(
 				array( 'message' => __( 'Please enter the full 6-digit verification code.', 'spada-core' ) ),
@@ -275,33 +281,36 @@ class Spada_Mobile_Login {
 			);
 		}
 
-		$verified = false;
-
 		// Verify against secure server-side transient
 		$transient_key = 'spada_phone_otp_' . md5( $phone_code . $phone_no );
 		$payload       = get_transient( $transient_key );
+		$now           = time();
 
-		if ( is_array( $payload ) && isset( $payload['hash'] ) ) {
-			if ( hash_equals( $payload['hash'], wp_hash( $otp_code, 'nonce' ) ) ) {
-				$verified = true;
-				delete_transient( $transient_key );
-			} else {
-				$payload['attempts'] = isset( $payload['attempts'] ) ? $payload['attempts'] + 1 : 1;
-				set_transient( $transient_key, $payload, 120 );
-			}
+		if ( ! is_array( $payload ) || empty( $payload['hash'] ) ) {
+			wp_send_json_error( array( 'message' => $incorrect_code_msg ), 400 );
 		}
 
-		if ( ! $verified ) {
-			$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
-			wp_send_json_error(
-				array(
-					'message' => $is_arabic
-						? 'رمز التحقق غير صحيح.'
-						: __( 'Incorrect verification code.', 'spada-core' ),
-				),
-				400
-			);
+		// Explicit authoritative expiration check: STRICT 120 SECONDS
+		if ( empty( $payload['expires_at'] ) || $now > (int) $payload['expires_at'] ) {
+			delete_transient( $transient_key );
+			wp_send_json_error( array( 'message' => $incorrect_code_msg ), 400 );
 		}
+
+		// Check max attempts (5)
+		if ( isset( $payload['attempts'] ) && (int) $payload['attempts'] >= 5 ) {
+			delete_transient( $transient_key );
+			wp_send_json_error( array( 'message' => $incorrect_code_msg ), 400 );
+		}
+
+		if ( ! hash_equals( $payload['hash'], wp_hash( $otp_code, 'nonce' ) ) ) {
+			$payload['attempts'] = isset( $payload['attempts'] ) ? (int) $payload['attempts'] + 1 : 1;
+			$remaining_ttl       = max( 1, (int) $payload['expires_at'] - $now );
+			set_transient( $transient_key, $payload, $remaining_ttl );
+			wp_send_json_error( array( 'message' => $incorrect_code_msg ), 400 );
+		}
+
+		// Valid & within 120-second expiration window: immediately burn transient to prevent reuse
+		delete_transient( $transient_key );
 
 		// Authoritative Customer Login / Registration by phone
 		$user = self::get_user_by_phone( $phone_no, $phone_code );

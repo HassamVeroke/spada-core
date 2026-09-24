@@ -243,7 +243,8 @@
 						action: this.state.action || 'login',
 						method: this.state.method || 'email',
 						identifier: this.state.identifier || '',
-						maskedTarget: this.state.maskedTarget || ''
+						maskedTarget: this.state.maskedTarget || '',
+						otpExpiresAt: this.state.otpExpiresAt || 0
 					};
 					var serialized = JSON.stringify(payload);
 					try { sessionStorage.setItem('spada_auth_stage', serialized); } catch (e) {}
@@ -361,7 +362,10 @@
 				this.$methodBtns.removeClass('is-active');
 				$('#spada-method-' + method).addClass('is-active');
 
-				this.setupVerifyView(this.state.maskedTarget || this.state.identifier);
+				if (saved && saved.otpExpiresAt) {
+					this.state.otpExpiresAt = saved.otpExpiresAt;
+				}
+				this.setupVerifyView(this.state.maskedTarget || this.state.identifier, true);
 				this.showView('verify');
 			} else {
 				this.showView('choice');
@@ -458,9 +462,14 @@
 			}
 		},
 
-		setupVerifyView: function(targetDisplay) {
+		setupVerifyView: function(targetDisplay, isRestored) {
 			var i18n = (window.SpadaAuthData && window.SpadaAuthData.i18n) || {};
 			var method = this.state.method;
+
+			if (!isRestored || !this.state.otpExpiresAt) {
+				this.state.otpExpiresAt = Date.now() + (120 * 1000);
+				this.saveStage();
+			}
 
 			$('#spada-input-icon-wrap svg, #spada-verify-icon-wrap svg').addClass('is-hidden');
 			$('#spada-input-icon-wrap .spada-icon-' + method + ', #spada-verify-icon-wrap .spada-icon-' + method).removeClass('is-hidden');
@@ -648,6 +657,13 @@
 				return;
 			}
 
+			// Client-side 120-second expiration check
+			if (this.state.otpExpiresAt && Date.now() > this.state.otpExpiresAt) {
+				var expiredErr = (authData.i18n && authData.i18n.incorrectOtp) || (authData.isRtl ? 'رمز التحقق غير صحيح.' : 'Incorrect verification code.');
+				this.showNotice(this.$verifyNotice, expiredErr, 'error');
+				return;
+			}
+
 			this.clearNotices();
 			this.setLoading(this.$verifySubmitBtn, true);
 
@@ -715,6 +731,8 @@
 
 			$.post(authData.ajaxUrl, data, function(res) {
 				if (res.success) {
+					self.state.otpExpiresAt = Date.now() + (120 * 1000);
+					self.saveStage();
 					var resendSuccess = authData.isRtl ? 'تمت إعادة إرسال رمز التحقق بنجاح.' : 'Verification code resent successfully.';
 					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : resendSuccess, 'success');
 					self.startCountdown();
