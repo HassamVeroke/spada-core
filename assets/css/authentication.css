@@ -224,7 +224,7 @@ body.rtl .spada-back-btn:hover {
 	display: flex;
 	flex-direction: column;
 	gap: 14px;
-	max-width: 550px;
+	max-width: 440px;
 	margin: 0 auto;
 }
 
@@ -234,7 +234,7 @@ body.rtl .spada-back-btn:hover {
 	align-items: center;
 	justify-content: flex-start;
 	gap: 15px;
-	padding: 12px 60px;
+	padding: 12px 40px;
 	border: 1px solid var(--spada-border);
 	border-radius: var(--spada-radius-md);
 	background: #ffffff;
