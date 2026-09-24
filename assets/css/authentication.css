@@ -38,11 +38,6 @@
 	cursor: not-allowed !important;
 }
 
-.spada-btn-primary {
-	background-color: var(--spada-teal) !important;
-	color: var(--spada-bg-white) !important;
-}
-
 /* 2. Main Portal Card (Blends directly into Elementor's white curved sheet) */
 .spada-auth-card {
 	background: transparent;
@@ -410,11 +405,11 @@ body.rtl .spada-method-btn {
 }
 
 /* 7. Buttons with GW Flatgrip font */
-.spada-btn-primary {
+a.spada-btn-primary[role="button"] {
 	width: 100%;
 	min-height: 48px;
-	background-color: var(--spada-teal);
-	color: #ffffff;
+	background-color: var(--spada-teal) !important;
+	color: var(--spada-bg-white) !important;
 	border: none;
 	border-radius: var(--spada-radius-md);
 	font-family: var(--spada-font-button);
@@ -430,8 +425,9 @@ body.rtl .spada-method-btn {
 	box-sizing: border-box;
 }
 
-.spada-btn-primary:hover {
-	background-color: var(--spada-teal-hover);
+a.spada-btn-primary[role="button"]:hover {
+	background-color: var(--spada-teal-hover) !important;
+	color: var(--spada-bg-white) !important;
 }
 
 .spada-btn-outline {
