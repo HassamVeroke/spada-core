@@ -283,14 +283,14 @@ html[lang="ar"] .spada-change-option-arrow {
 
 @media (max-width: 480px) {
 	.spada-buy-now .elementor-button {
-		font-size: 18px !important;
+		font-size: 20px !important;
 	}
 
 	.spada-change-option-arrow {
-		width: 20px !important;
-		height: 20px !important;
-		min-width: 20px !important;
-		min-height: 20px !important;
+		width: 25px !important;
+		height: 25px !important;
+		min-width: 25px !important;
+		min-height: 25px !important;
 		border-radius: 3px !important;
 		border: 1px solid rgba(0, 212, 255, 1) !important;
 		border: 1px solid color-mix(in srgb, currentColor 28%, rgba(255, 255, 255, 1)) !important;
