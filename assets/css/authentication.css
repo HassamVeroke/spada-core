@@ -380,46 +380,45 @@ body.rtl .spada-method-btn {
 	outline: none;
 }
 
-.spada-phone-input-wrap {
+.spada-phone-input-wrap,
+body.rtl .spada-phone-input-wrap,
+html[dir="rtl"] .spada-phone-input-wrap {
 	display: flex;
 	align-items: center;
+	direction: ltr !important;
+	text-align: left !important;
 	background-color: transparent;
 	overflow: hidden;
 }
 
-.spada-phone-code {
+.spada-phone-code,
+body.rtl .spada-phone-code,
+html[dir="rtl"] .spada-phone-code {
 	padding: 10px;
 	font-size: 18px;
 	font-family: var(--spada-font-body);
 	font-weight: 600;
 	color: var(--spada-dark);
 	background: transparent;
-	border: 1px solid #b2b2b2;
-	border-right: 0;
+	border: 1px solid #b2b2b2 !important;
+	border-right: 0 !important;
 	align-self: stretch;
 	line-height: 39px;
-	border-radius: 10px 0 0 10px;
+	border-radius: 10px 0 0 10px !important;
+	direction: ltr !important;
 }
 
-.spada-phone-input-wrap .spada-input-control {
-	border: 1px solid #b2b2b2;
-	border-left: 0;
+.spada-phone-input-wrap .spada-input-control,
+body.rtl .spada-phone-input-wrap .spada-input-control,
+html[dir="rtl"] .spada-phone-input-wrap .spada-input-control {
+	border: 1px solid #b2b2b2 !important;
+	border-left: 0 !important;
 	background: transparent;
 	border-radius: 0 10px 10px 0 !important;
 	outline: 0 !important;
 	box-shadow: none !important;
-}
-
-body.rtl .spada-phone-code {
-	border: 1px solid #b2b2b2;
-	border-left: 0;
-	border-radius: 0 10px 10px 0;
-}
-
-body.rtl .spada-phone-input-wrap .spada-input-control {
-	border: 1px solid #b2b2b2;
-	border-right: 0;
-	border-radius: 10px 0 0 10px !important;
+	direction: ltr !important;
+	text-align: left !important;
 }
 
 .spada-phone-input-wrap.has-error .spada-phone-code,
@@ -438,7 +437,8 @@ body.rtl .spada-phone-input-wrap .spada-input-control {
 	line-height: 1.4;
 }
 
-body.rtl .custom-phone-error {
+body.rtl .custom-phone-error,
+html[dir="rtl"] .custom-phone-error {
 	text-align: right;
 }
 
@@ -492,15 +492,21 @@ a.spada-btn-primary[role="button"]:hover {
 }
 
 /* 8. 6-Digit OTP Matrix (Matches Login-5.png, 6.png, 7.png) */
-.spada-otp-grid {
+.spada-otp-grid,
+body.rtl .spada-otp-grid,
+html[dir="rtl"] .spada-otp-grid {
 	display: flex;
+	flex-direction: row !important;
+	direction: ltr !important;
 	align-items: center;
 	justify-content: center;
 	gap: 10px;
 	margin-bottom: 24px;
 }
 
-.spada-otp-digit {
+.spada-otp-digit,
+body.rtl .spada-otp-digit,
+html[dir="rtl"] .spada-otp-digit {
 	width: 48px;
 	height: 52px;
 	border: 1.5px solid var(--spada-teal);
@@ -510,7 +516,8 @@ a.spada-btn-primary[role="button"]:hover {
 	font-size: 22px;
 	font-weight: 700;
 	color: var(--spada-teal);
-	text-align: center;
+	text-align: center !important;
+	direction: ltr !important;
 	padding: 0;
 	box-sizing: border-box;
 	transition: transform 0.15s ease, box-shadow 0.15s ease;

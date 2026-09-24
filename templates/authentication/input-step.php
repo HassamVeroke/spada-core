@@ -60,7 +60,7 @@ if (! defined('ABSPATH')) {
 			<label for="spada-auth-phone" class="spada-field-label" id="spada-phone-label"><?php esc_html_e('MOBILE NUMBER', 'spada-core'); ?></label>
 			<div class="spada-phone-input-wrap">
 				<span class="spada-phone-code">+966</span>
-				<input type="tel" id="spada-auth-phone" class="spada-input-control" placeholder="5XXXXXXXX" maxlength="9" pattern="^5[0-9]{8}$" title="<?php esc_attr_e('Must start with 5 and be exactly 9 digits.', 'spada-core'); ?>" autocomplete="tel-national" aria-invalid="false" />
+				<input type="tel" id="spada-auth-phone" class="spada-input-control" placeholder="05XXXXXXXX" maxlength="10" pattern="^05[0-9]{8}$" title="<?php esc_attr_e('Must start with 05 and be exactly 10 digits.', 'spada-core'); ?>" autocomplete="tel-national" aria-invalid="false" />
 			</div>
 			<span class="custom-phone-error" id="spada-phone-custom-error" style="display: none;"></span>
 		</div>

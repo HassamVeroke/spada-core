@@ -25,9 +25,9 @@ class Spada_OTP_Email {
 	const RATE_LIMIT_PREFIX = 'spada_email_otp_rl_';
 
 	/**
-	 * Expiration time in seconds (5 minutes).
+	 * Expiration time in seconds (2 minutes).
 	 */
-	const EXPIRATION_SECONDS = 300;
+	const EXPIRATION_SECONDS = 120;
 
 	/**
 	 * Max verify attempts before invalidation.
@@ -134,18 +134,20 @@ class Spada_OTP_Email {
 		$otp_payload   = get_transient( $transient_key );
 
 		if ( false === $otp_payload || ! is_array( $otp_payload ) ) {
+			$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
 			return array(
 				'success' => false,
-				'message' => __( 'The verification code has expired. Please request a new one.', 'spada-core' ),
+				'message' => $is_arabic ? 'رمز التحقق غير صحيح.' : __( 'Incorrect verification code.', 'spada-core' ),
 			);
 		}
 
 		// Check attempt throttling
 		if ( $otp_payload['attempts'] >= self::MAX_ATTEMPTS ) {
 			delete_transient( $transient_key );
+			$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
 			return array(
 				'success' => false,
-				'message' => __( 'Too many invalid attempts. This code is now invalidated. Please request a new code.', 'spada-core' ),
+				'message' => $is_arabic ? 'رمز التحقق غير صحيح.' : __( 'Incorrect verification code.', 'spada-core' ),
 			);
 		}
 
@@ -159,13 +161,10 @@ class Spada_OTP_Email {
 			set_transient( $transient_key, $otp_payload, self::EXPIRATION_SECONDS );
 
 			$remaining = self::MAX_ATTEMPTS - $otp_payload['attempts'];
+			$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
 			return array(
 				'success'   => false,
-				'message'   => sprintf(
-					/* translators: %d: Remaining attempts */
-					__( 'Incorrect verification code. %d attempts remaining.', 'spada-core' ),
-					$remaining
-				),
+				'message'   => $is_arabic ? 'رمز التحقق غير صحيح.' : __( 'Incorrect verification code.', 'spada-core' ),
 				'remaining' => $remaining,
 			);
 		}

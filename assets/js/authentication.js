@@ -28,7 +28,6 @@
 		},
 
 		disarmUnfocusableInputs: function() {
-			$('input[name="xoo-ml-reg-phone"], input[name="xoo-ml-reg-phone-cc"], input.xoo-ml-phone-input').prop('required', false).removeAttr('required').removeAttr('aria-required');
 			$('.spada-native-login-hidden').find('input, select, textarea, button').prop('required', false).removeAttr('required').prop('disabled', true);
 			$('form').attr('novalidate', 'novalidate');
 		},
@@ -384,11 +383,11 @@
 
 				if (isSignup) {
 					if (method === 'email') {
-						text = i18n.signupEmail || $btn.data('signup-text') || 'Signup using Email';
+						text = i18n.signupEmail || $btn.data('signup-text') || 'SignUp with Email';
 					} else if (method === 'whatsapp') {
-						text = i18n.signupWhatsapp || $btn.data('signup-text') || 'Signup using Whatsapp';
+						text = i18n.signupWhatsapp || $btn.data('signup-text') || 'SignUp with Whatsapp';
 					} else if (method === 'sms') {
-						text = i18n.signupSms || $btn.data('signup-text') || 'Signup using SMS';
+						text = i18n.signupSms || $btn.data('signup-text') || 'SignUp with SMS';
 					}
 				} else {
 					if (method === 'email') {
@@ -651,11 +650,13 @@
 						}
 					}, 500);
 				} else {
-					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : 'Invalid code.', 'error');
+					var defaultErr = (authData.i18n && authData.i18n.incorrectOtp) || 'Incorrect verification code.';
+					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : defaultErr, 'error');
 				}
 			}).fail(function(xhr) {
 				self.setLoading(self.$verifySubmitBtn, false);
-				var msg = (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || 'Verification error. Please try again.';
+				var defaultErr = (authData.i18n && authData.i18n.incorrectOtp) || 'Incorrect verification code.';
+				var msg = (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || defaultErr;
 				self.showNotice(self.$verifyNotice, msg, 'error');
 			});
 		},
@@ -746,14 +747,9 @@
 			// Strip all non-digits
 			var digits = raw.replace(/\D/g, '');
 
-			// If user pastes 05..., auto-strip the leading 0 since +966 is already prefixed
-			if (digits.indexOf('05') === 0) {
-				digits = digits.substring(1);
-			}
-
-			// Restrict to max 9 digits
-			if (digits.length > 9) {
-				digits = digits.substring(0, 9);
+			// Restrict to max 10 digits
+			if (digits.length > 10) {
+				digits = digits.substring(0, 10);
 			}
 
 			// Update field value if sanitized
@@ -768,9 +764,9 @@
 				$('body').hasClass('rtl') ||
 				window.location.pathname.indexOf('/ar/') !== -1;
 
-			var mustStart5Msg = i18n.phoneMustStartWith5 || (isArabic ? 'يجب أن يبدأ رقم الجوال بالرقم 5.' : 'Phone number must start with 5.');
-			var mustBe9Msg    = i18n.phoneMustBe9Digits  || (isArabic ? 'يجب أن يتكون رقم الجوال من 9 أرقام' : 'Phone number must be 9 digits');
-			var requiredMsg   = i18n.phoneRequired       || i18n.invalidPhone || (isArabic ? 'يرجى إدخال رقم الجوال.' : 'Please enter your mobile number.');
+			var mustStart05Msg = i18n.phoneMustStartWith05 || i18n.phoneMustStartWith5 || (isArabic ? 'يجب أن يبدأ رقم الجوال بالرقم 05.' : 'Phone number must start with 05.');
+			var mustBe10Msg    = i18n.phoneMustBe10Digits  || i18n.phoneMustBe9Digits  || (isArabic ? 'يجب أن يتكون رقم الجوال من 10 أرقام' : 'Phone number must be 10 digits');
+			var requiredMsg    = i18n.phoneRequired        || i18n.invalidPhone        || (isArabic ? 'يرجى إدخال رقم الجوال.' : 'Please enter your mobile number.');
 
 			var len = digits.length;
 
@@ -784,19 +780,23 @@
 				}
 			}
 
-			// Must start with 5
-			if (digits.charAt(0) !== '5') {
-				this.showPhoneError(mustStart5Msg);
+			// Must start with 05
+			if (len >= 1 && digits.charAt(0) !== '0') {
+				this.showPhoneError(mustStart05Msg);
+				return false;
+			}
+			if (len >= 2 && digits.substring(0, 2) !== '05') {
+				this.showPhoneError(mustStart05Msg);
 				return false;
 			}
 
-			// Must be 9 digits
-			if (len < 9) {
-				this.showPhoneError(mustBe9Msg + ' (' + len + '/9).');
+			// Must be 10 digits
+			if (len < 10) {
+				this.showPhoneError(mustBe10Msg + ' (' + len + '/10).');
 				return false;
 			}
 
-			// Exactly 9 digits starting with 5 -> valid
+			// Exactly 10 digits starting with 05 -> valid
 			this.clearPhoneError();
 			return true;
 		},

@@ -157,7 +157,7 @@
 				}
 
 				// Standard fallback (non-portal)
-				if (isExplicitRegister || hasSavedSignup || $('.register-form:visible').length > 0 || $('.xoo-el-section-register:visible').length > 0) {
+				if (isExplicitRegister || hasSavedSignup || $('.register-form:visible').length > 0) {
 					setHeroTexts(signupHead, signupDesc);
 				} else if (isExplicitLogin || hasSavedLogin) {
 					setHeroTexts(loginHead, loginDesc);
@@ -184,12 +184,12 @@
 			});
 
 			// User proceeds with Login
-			$(document).on('click', '#spada-choice-login, [data-action="login"], #showLogin, .show-login, .xoo-el-login-tgr, a[href*="action=login"]', function() {
+			$(document).on('click', '#spada-choice-login, [data-action="login"], #showLogin, .show-login, a[href*="action=login"]', function() {
 				setHeroTexts(loginHead, loginDesc);
 			});
 
 			// User proceeds with SignUp
-			$(document).on('click', '#spada-choice-signup, [data-action="signup"], #showRegister, .show-register, .xoo-el-reg-tgr, a[href*="action=register"], a[href*="action=signup"]', function() {
+			$(document).on('click', '#spada-choice-signup, [data-action="signup"], #showRegister, .show-register, a[href*="action=register"], a[href*="action=signup"]', function() {
 				setHeroTexts(signupHead, signupDesc);
 			});
 
@@ -203,7 +203,6 @@
 		},
 
 		disarmUnfocusableInputs: function() {
-			$('input[name="xoo-ml-reg-phone"], input[name="xoo-ml-reg-phone-cc"], input.xoo-ml-phone-input').prop('required', false).removeAttr('required').removeAttr('aria-required');
 			$('.custom-account-form, #spada-profile-form, form.woocommerce-EditAccountForm').attr('novalidate', 'novalidate');
 		},
 
