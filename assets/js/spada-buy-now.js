@@ -141,12 +141,12 @@ jQuery(function ($) {
 		} else if (pos === 'left') {
 			priceInner = symbolHtml + numberHtml;
 		} else if (pos === 'left_space') {
-			priceInner = symbolHtml + '&nbsp;' + numberHtml;
+			priceInner = symbolHtml + numberHtml;
 		} else if (pos === 'right') {
 			priceInner = numberHtml + symbolHtml;
 		} else {
 			// 'right_space' or default
-			priceInner = numberHtml + '&nbsp;' + symbolHtml;
+			priceInner = numberHtml + symbolHtml;
 		}
 
 		return '<span class="woocommerce-Price-amount amount notranslate trp-no-translation" data-no-translation="true" data-no-dynamic-translation="true">' +
