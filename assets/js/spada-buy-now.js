@@ -108,6 +108,7 @@ jQuery(function ($) {
 
 	/**
 	 * Format price for variations matching WooCommerce standard price HTML.
+	 * Excludes price value and numbers from being translated into Arabic numerals or translated by TranslatePress.
 	 */
 	function formatVariationPrice(price) {
 		price = parseFloat(String(price).replace(/[^0-9.-]/g, ''));
@@ -128,24 +129,30 @@ jQuery(function ($) {
 		number[0] = number[0].replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeparator);
 		var formattedNumber = number.join(decimalSeparator);
 
-		var symbolHtml = symbol ? '<span class="woocommerce-Price-currencySymbol">' + symbol + '</span>' : '';
+		var symbolHtml = symbol
+			? '<span class="woocommerce-Price-currencySymbol notranslate" data-no-translation="true" data-no-dynamic-translation="true">' + symbol + '</span>'
+			: '';
+		var numberHtml = '<span class="spada-price-number notranslate" data-no-translation="true" data-no-dynamic-translation="true">' + formattedNumber + '</span>';
+		var spacer = '<span class="spada-currency-spacer">&nbsp;</span>';
 		var pos = settings.position || 'right_space';
 
 		var priceInner;
 		if (!symbolHtml) {
-			priceInner = formattedNumber;
+			priceInner = numberHtml;
 		} else if (pos === 'left') {
-			priceInner = symbolHtml + formattedNumber;
+			priceInner = symbolHtml + spacer + numberHtml;
 		} else if (pos === 'left_space') {
-			priceInner = symbolHtml + '&nbsp;' + formattedNumber;
+			priceInner = symbolHtml + spacer + numberHtml;
 		} else if (pos === 'right') {
-			priceInner = formattedNumber + symbolHtml;
+			priceInner = numberHtml + spacer + symbolHtml;
 		} else {
 			// 'right_space' or default
-			priceInner = formattedNumber + '&nbsp;' + symbolHtml;
+			priceInner = numberHtml + spacer + symbolHtml;
 		}
 
-		return '<span class="woocommerce-Price-amount amount">' + priceInner + '</span>';
+		return '<span class="woocommerce-Price-amount amount notranslate trp-no-translation" data-no-translation="true" data-no-dynamic-translation="true">' +
+			'<bdi class="notranslate" data-no-translation="true" data-no-dynamic-translation="true">' + priceInner + '</bdi>' +
+			'</span>';
 	}
 
 	/**
@@ -177,8 +184,8 @@ jQuery(function ($) {
 
 		var template = SpadaBuyNow.strings.buyNowFor || 'Buy Now for %s';
 		var labelParts = template.split('%s');
-		var prefix = labelParts[0] || '';
-		var suffix = labelParts[1] || '';
+		var prefix = (labelParts[0] || '').trim();
+		var suffix = (labelParts[1] || '').trim();
 
 		var arrowSvg = '<span class="spada-change-option-arrow" role="button" tabindex="0" title="' + (SpadaBuyNow.strings.selectOptions || 'Change option') + '" aria-label="' + (SpadaBuyNow.strings.selectOptions || 'Change option') + '">' +
 			'<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
@@ -186,7 +193,9 @@ jQuery(function ($) {
 			'</svg>' +
 			'</span>';
 
-		var label = prefix + formattedPrice + suffix + ' ' + arrowSvg;
+		var prefixHtml = prefix ? '<span class="spada-buy-now-prefix">' + prefix + '</span> ' : '';
+		var suffixHtml = suffix ? ' <span class="spada-buy-now-suffix">' + suffix + '</span>' : '';
+		var label = prefixHtml + formattedPrice + suffixHtml + ' ' + arrowSvg;
 
 		setButtonHtml($button, label);
 		$button.attr('data-spada-variable-state', 'ready');
@@ -587,13 +596,14 @@ jQuery(function ($) {
 					if (v.is_in_stock && v.is_purchasable) {
 						$button.data('selected-variation-id', v.variation_id);
 						$button.data('selected-variation-data', v);
-						setVariableBuyNowText($button, v);
 						$button.attr('data-spada-variable-state', 'ready');
 
 						// Close dropdown IMMEDIATELY without waiting for blur/click-away
 						$container.removeClass('is-open');
 						$wrapper.removeClass('is-dropdown-open');
 						$select.trigger('blur');
+
+						setVariableBuyNowText($button, v);
 						return;
 					}
 				}
@@ -618,14 +628,14 @@ jQuery(function ($) {
 		if (variation && variation.is_in_stock && variation.variation_is_visible && variation.is_purchasable) {
 			$button.data('selected-variation-id', variation.variation_id);
 			$button.data('selected-variation-data', variation);
-
-			setVariableBuyNowText($button, variation);
 			$button.attr('data-spada-variable-state', 'ready');
 
 			// Close dropdown immediately without waiting for blur/click-away
 			$container.removeClass('is-open');
 			$wrapper.removeClass('is-dropdown-open');
 			$form.find('select').trigger('blur');
+
+			setVariableBuyNowText($button, variation);
 		}
 	});
 
