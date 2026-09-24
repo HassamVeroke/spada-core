@@ -52,6 +52,13 @@ class Spada_FC_Order_Summary {
 
 		add_action( 'wp_ajax_spada_fc_apply_coupon', array( __CLASS__, 'ajax_apply_coupon' ) );
 		add_action( 'wp_ajax_nopriv_spada_fc_apply_coupon', array( __CLASS__, 'ajax_apply_coupon' ) );
+
+		// Localize coupon validation errors across WooCommerce & custom inline form
+		add_filter( 'woocommerce_coupon_error', array( __CLASS__, 'filter_coupon_error' ), 999, 3 );
+
+		// Suppress WooCommerce native coupon applied confirmation notices & toast banners
+		add_filter( 'woocommerce_coupon_message', array( __CLASS__, 'filter_coupon_message' ), 999, 3 );
+		add_filter( 'woocommerce_add_success', array( __CLASS__, 'suppress_coupon_success_notice' ), 999 );
 	}
 
 	/**
@@ -336,6 +343,8 @@ class Spada_FC_Order_Summary {
 			true
 		);
 
+		$is_arabic = self::is_arabic();
+
 		wp_localize_script(
 			'spada-fc-order-summary',
 			'SpadaFCOrderSummary',
@@ -343,8 +352,8 @@ class Spada_FC_Order_Summary {
 				'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
 				'nonce'       => wp_create_nonce( 'spada_fc_order_summary_nonce' ),
 				'shopUrl'     => function_exists( 'wc_get_page_permalink' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/shop/' ),
-				'isRtl'       => is_rtl(),
-				'couponEmpty' => __( 'Please enter a coupon code.', 'spada-core' ),
+				'isRtl'       => $is_arabic,
+				'couponEmpty' => $is_arabic ? 'يرجى إدخال رمز العرض.' : __( 'Please enter a coupon code.', 'spada-core' ),
 				'userEmail'   => class_exists( 'Spada_FC_Checkout_Fields' ) ? Spada_FC_Checkout_Fields::get_logged_in_user_email() : '',
 				'userProfile' => class_exists( 'Spada_FC_Checkout_Fields' ) ? Spada_FC_Checkout_Fields::get_logged_in_user_profile() : array(),
 			)
@@ -403,25 +412,216 @@ class Spada_FC_Order_Summary {
 		check_ajax_referer( 'spada_fc_order_summary_nonce', 'security' );
 
 		$coupon_code = isset( $_POST['coupon_code'] ) ? sanitize_text_field( wp_unslash( $_POST['coupon_code'] ) ) : '';
+		$is_arabic   = self::is_arabic();
 
 		if ( empty( $coupon_code ) ) {
-			wp_send_json_error( array( 'message' => __( 'Please enter a coupon code.', 'spada-core' ) ) );
+			$msg = $is_arabic ? 'يرجى إدخال رمز العرض.' : __( 'Please enter a coupon code.', 'spada-core' );
+			wp_send_json_error( array( 'message' => $msg ) );
 		}
 
 		if ( WC()->cart->has_discount( $coupon_code ) ) {
-			wp_send_json_error( array( 'message' => __( 'Coupon code already applied.', 'spada-core' ) ) );
+			$msg = self::get_localized_coupon_error( '', 104, $coupon_code, $is_arabic );
+			wp_send_json_error( array( 'message' => $msg ) );
 		}
 
 		$result = WC()->cart->apply_coupon( $coupon_code );
 
 		if ( $result ) {
 			WC()->cart->calculate_totals();
-			wp_send_json_success( array( 'message' => __( 'Coupon code applied successfully.', 'spada-core' ) ) );
+			// Clear all WooCommerce session notices so native confirmation toast/notice banner does not appear
+			wc_clear_notices();
+			$success_msg = $is_arabic ? 'تم تطبيق رمز العرض بنجاح.' : __( 'Coupon code applied successfully.', 'spada-core' );
+			wp_send_json_success( array( 'message' => $success_msg ) );
 		} else {
 			$notices = wc_get_notices( 'error' );
-			$msg = ! empty( $notices ) ? wp_strip_all_tags( end( $notices )['notice'] ) : __( 'Invalid coupon code.', 'spada-core' );
+			$msg     = ! empty( $notices ) ? wp_strip_all_tags( end( $notices )['notice'] ) : '';
 			wc_clear_notices();
-			wp_send_json_error( array( 'message' => $msg ) );
+
+			$localized_msg = self::get_localized_coupon_error( $msg, 0, $coupon_code, $is_arabic );
+			wp_send_json_error( array( 'message' => $localized_msg ) );
 		}
+	}
+
+	/**
+	 * Get properly localized coupon error message in Arabic or English.
+	 *
+	 * @param string    $err         Error text.
+	 * @param int       $err_code    WooCommerce coupon error code.
+	 * @param string    $coupon_code The coupon code.
+	 * @param bool|null $is_arabic   Whether the context is Arabic.
+	 * @return string Localized error string.
+	 */
+	public static function get_localized_coupon_error( $err = '', $err_code = 0, $coupon_code = '', $is_arabic = null ) {
+		if ( null === $is_arabic ) {
+			$is_arabic = self::is_arabic();
+		}
+
+		if ( empty( $coupon_code ) ) {
+			if ( preg_match( '/["“\']([^"”\']+)["”\']/', $err, $matches ) ) {
+				$coupon_code = $matches[1];
+			} elseif ( ! empty( $_POST['coupon_code'] ) ) {
+				$coupon_code = sanitize_text_field( wp_unslash( $_POST['coupon_code'] ) );
+			}
+		}
+
+		$code_display = ! empty( $coupon_code ) ? $coupon_code : '';
+
+		// 1. Check: Does not exist / Wrong coupon
+		$is_not_exist = ( 105 === (int) $err_code )
+			|| ( defined( 'WC_Coupon::E_WC_COUPON_NOT_EXIST' ) && WC_Coupon::E_WC_COUPON_NOT_EXIST === (int) $err_code )
+			|| false !== stripos( $err, 'does not exist' )
+			|| false !== stripos( $err, 'cannot be applied because it does not exist' )
+			|| false !== stripos( $err, 'not exist' )
+			|| ( empty( $err ) && 0 === (int) $err_code );
+
+		if ( $is_not_exist && ( 105 === (int) $err_code || false !== stripos( $err, 'exist' ) || empty( $err ) ) ) {
+			if ( $is_arabic ) {
+				return $code_display
+					? sprintf( 'لا يمكن تطبيق رمز العرض "%s" لأنه غير موجود.', $code_display )
+					: 'رمز العرض المدخل غير موجود.';
+			} else {
+				return $code_display
+					? sprintf( 'Promo "%s" cannot be applied because it does not exist.', $code_display )
+					: 'Promo code does not exist.';
+			}
+		}
+
+		// 2. Check: Expired coupon
+		$is_expired = ( 107 === (int) $err_code )
+			|| ( defined( 'WC_Coupon::E_WC_COUPON_EXPIRED' ) && WC_Coupon::E_WC_COUPON_EXPIRED === (int) $err_code )
+			|| false !== stripos( $err, 'expired' )
+			|| false !== strpos( $err, 'منتهي' );
+
+		if ( $is_expired ) {
+			if ( $is_arabic ) {
+				return $code_display
+					? sprintf( 'انتهت صلاحية رمز العرض "%s".', $code_display )
+					: 'انتهت صلاحية رمز العرض.';
+			} else {
+				return $code_display
+					? sprintf( 'Promo "%s" has expired.', $code_display )
+					: 'Promo code has expired.';
+			}
+		}
+
+		// 3. Check: Already applied
+		$is_already_applied = ( 104 === (int) $err_code )
+			|| ( defined( 'WC_Coupon::E_WC_COUPON_ALREADY_APPLIED' ) && WC_Coupon::E_WC_COUPON_ALREADY_APPLIED === (int) $err_code )
+			|| false !== stripos( $err, 'already applied' );
+
+		if ( $is_already_applied ) {
+			if ( $is_arabic ) {
+				return $code_display
+					? sprintf( 'تم تطبيق رمز العرض "%s" مسبقاً.', $code_display )
+					: 'تم تطبيق رمز العرض مسبقاً.';
+			} else {
+				return $code_display
+					? sprintf( 'Promo code "%s" has already been applied.', $code_display )
+					: 'Promo code already applied.';
+			}
+		}
+
+		// 4. Check: Usage limit reached
+		$is_usage_limit = ( 106 === (int) $err_code )
+			|| ( defined( 'WC_Coupon::E_WC_COUPON_USAGE_LIMIT_REACHED' ) && WC_Coupon::E_WC_COUPON_USAGE_LIMIT_REACHED === (int) $err_code )
+			|| false !== stripos( $err, 'usage limit' );
+
+		if ( $is_usage_limit ) {
+			if ( $is_arabic ) {
+				return $code_display
+					? sprintf( 'تم الوصول إلى الحد الأقصى لاستخدام رمز العرض "%s".', $code_display )
+					: 'تم الوصول إلى الحد الأقصى لاستخدام رمز العرض.';
+			} else {
+				return 'Promo code usage limit has been reached.';
+			}
+		}
+
+		// 5. Check: User's own coupon (child theme restriction)
+		if ( false !== stripos( $err, 'own' ) || false !== stripos( $err, 'خاص بك' ) ) {
+			return $is_arabic ? 'لا يمكنك استخدام رمز العرض الخاص بك.' : 'You cannot use your own promotional code.';
+		}
+
+		// 6. Check: Empty code
+		if ( false !== stripos( $err, 'enter a coupon' ) || false !== stripos( $err, 'enter a promo' ) ) {
+			return $is_arabic ? 'يرجى إدخال رمز العرض.' : 'Please enter a promotional code.';
+		}
+
+		// 7. Check: Minimum spend limit
+		if ( 108 === (int) $err_code || false !== stripos( $err, 'minimum spend' ) ) {
+			return $is_arabic ? 'لم يتم الوصول إلى الحد الأدنى للطلب لتطبيق رمز العرض.' : str_replace( 'Coupon', 'Promo', $err );
+		}
+
+		// 8. If message already contains Arabic text, preserve it
+		if ( $is_arabic && preg_match( '/[\x{0600}-\x{06FF}]/u', $err ) ) {
+			return $err;
+		}
+
+		// Fallback
+		if ( $is_arabic ) {
+			return 'رمز العرض غير صالح أو لا يمكن تطبيقه.';
+		}
+
+		return str_replace( 'Coupon', 'Promo', $err );
+	}
+
+	/**
+	 * Filter WooCommerce coupon validation error to properly localize in Arabic and format in English.
+	 *
+	 * @param string           $err      Error text.
+	 * @param int              $err_code Error code.
+	 * @param WC_Coupon|string $coupon   Coupon object or code.
+	 * @return string Localized error message.
+	 */
+	public static function filter_coupon_error( $err, $err_code = 0, $coupon = null ) {
+		$coupon_code = '';
+		if ( is_a( $coupon, 'WC_Coupon' ) ) {
+			$coupon_code = $coupon->get_code();
+		} elseif ( is_string( $coupon ) ) {
+			$coupon_code = $coupon;
+		}
+
+		return self::get_localized_coupon_error( $err, $err_code, $coupon_code );
+	}
+
+	/**
+	 * Suppress WooCommerce native coupon applied message.
+	 *
+	 * @param string $msg      Message.
+	 * @param int    $msg_code Message code.
+	 * @param mixed  $coupon   Coupon.
+	 * @return string Empty string to suppress native notice.
+	 */
+	public static function filter_coupon_message( $msg, $msg_code = 0, $coupon = null ) {
+		if ( defined( 'WC_Coupon::WC_COUPON_SUCCESS' ) && WC_Coupon::WC_COUPON_SUCCESS === $msg_code ) {
+			return '';
+		}
+		return $msg;
+	}
+
+	/**
+	 * Suppress WooCommerce native coupon applied success notice on checkout.
+	 *
+	 * @param string $message Notice message.
+	 * @return string|false False if notice is a coupon applied confirmation.
+	 */
+	public static function suppress_coupon_success_notice( $message ) {
+		$is_checkout = ( function_exists( 'is_checkout' ) && is_checkout() )
+			|| ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() )
+			|| ( defined( 'WOOCOMMERCE_CHECKOUT' ) && WOOCOMMERCE_CHECKOUT );
+
+		if ( $is_checkout ) {
+			$lower = strtolower( wp_strip_all_tags( $message ) );
+			if (
+				false !== strpos( $lower, 'applied successfully' )
+				|| false !== strpos( $lower, 'coupon code applied' )
+				|| false !== strpos( $lower, 'promotional code applied' )
+				|| false !== strpos( $lower, 'promo code applied' )
+				|| false !== strpos( $message, 'تم تطبيق' )
+			) {
+				return false;
+			}
+		}
+
+		return $message;
 	}
 }

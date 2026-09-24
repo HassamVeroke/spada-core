@@ -39,6 +39,15 @@
 				$('.spada-order-summary-table').removeClass('is-loading');
 				// Ensure no Undo/Dismiss elements or messages linger
 				$('.restore-item, .restore-item-dismiss, .cart_item.removed.undo, [id$="_restore_button"]').remove();
+				// Suppress native WooCommerce/Fluid Checkout coupon applied confirmation notice or toast
+				$('.woocommerce-message, .fc-coupon-code-messages, .fc-toast').filter(function () {
+					var text = $(this).text().toLowerCase();
+					return text.indexOf('applied successfully') !== -1 ||
+						text.indexOf('تم تطبيق') !== -1 ||
+						text.indexOf('promotional code') !== -1 ||
+						text.indexOf('coupon code') !== -1 ||
+						text.indexOf('promo code') !== -1;
+				}).remove();
 			});
 
 			// Toggle Coupon Form
@@ -213,6 +222,15 @@
 					if (response.success) {
 						$msg.text(response.data.message).removeClass('is-hidden is-error').addClass('is-success');
 						$input.val('');
+						// Immediately clean any native confirmation notice/toast
+						$('.woocommerce-message, .fc-coupon-code-messages, .fc-toast').filter(function () {
+							var text = $(this).text().toLowerCase();
+							return text.indexOf('applied successfully') !== -1 ||
+								text.indexOf('تم تطبيق') !== -1 ||
+								text.indexOf('promotional code') !== -1 ||
+								text.indexOf('coupon code') !== -1 ||
+								text.indexOf('promo code') !== -1;
+						}).remove();
 						$(document.body).trigger('update_checkout');
 					} else {
 						$table.removeClass('is-loading');
@@ -252,9 +270,9 @@
 					}
 				}
 
-				// 3. Make shipping_email, billing_email and any email fields optional in DOM
-				var $allEmailFields = $('input[name="shipping_email"], input[name="billing_email"], input[type="email"]');
-				$allEmailFields.each(function () {
+				// 3. Make billing_email optional in DOM so browser validation doesn't block submission
+				var $billingEmailFields = $('input[name="billing_email"]');
+				$billingEmailFields.each(function () {
 					var $input = $(this);
 					$input.prop('required', false).removeAttr('required');
 					var $row = $input.closest('.form-row, .fc-substep__field, .fc-field');
@@ -262,10 +280,22 @@
 					$row.find('label .required, label .fc-field__required-mark').remove();
 				});
 
-				// Remove (optional) from shipping email label
-				$('#shipping_email_field label .optional, .shipping_email_field label .optional').remove();
+				// 4. Ensure shipping_email remains strictly required with its required asterisk in label
+				if ($shippingEmail.length) {
+					$shippingEmail.prop('required', true).attr('required', 'required');
+					var $shippingRow = $shippingEmail.closest('.form-row, .fc-substep__field, .fc-field');
+					$shippingRow.removeClass('validate-optional is-optional').addClass('validate-required is-required');
+					var $shippingLabel = $shippingRow.find('label');
+					if ($shippingLabel.length) {
+						$shippingLabel.find('.optional').remove();
+						if (!$shippingLabel.find('.required, .fc-field__required-mark').length) {
+							var isRtl = (window.SpadaFCOrderSummary && SpadaFCOrderSummary.isRtl);
+							$shippingLabel.append('&nbsp;<abbr class="required" title="' + (isRtl ? 'مطلوب' : 'required') + '"><span class="fc-field__required-mark" aria-hidden="true">*</span></abbr>');
+						}
+					}
+				}
 
-				// 4. Ensure billing_email input exists in checkout form so POST always carries it
+				// 5. Ensure billing_email input exists in checkout form so POST always carries it
 				var currentShippingVal = $shippingEmail.length ? $.trim($shippingEmail.val()) : '';
 				if (currentShippingVal) {
 					if ($billingEmail.length) {

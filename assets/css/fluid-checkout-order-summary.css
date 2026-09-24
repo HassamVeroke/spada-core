@@ -783,3 +783,12 @@ html[lang="ar"] .spada-discount-row .woocommerce-remove-coupon {
 [id$="_restore_button"] {
 	display: none !important;
 }
+
+/* Suppress WooCommerce native coupon applied confirmation notices & toast banners on checkout */
+.woocommerce-checkout .woocommerce-message:has(.woocommerce-remove-coupon),
+.woocommerce-checkout .woocommerce-NoticeGroup .woocommerce-message:has(.woocommerce-remove-coupon),
+.woocommerce-checkout .fc-coupon-code-messages,
+.fc-coupon-code-messages,
+.fc-toast--coupon-success {
+	display: none !important;
+}
