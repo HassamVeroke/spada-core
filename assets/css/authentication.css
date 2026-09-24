@@ -258,13 +258,19 @@ body.rtl .spada-back-btn:hover {
 	color: var(--spada-teal);
 }
 
+.spada-method-btn:hover span,
+.spada-method-btn.is-active span {
+	color: var(--spada-teal);
+}
+
+.spada-method-btn .spada-method-icon svg {
+	max-width: 30px;
+	vertical-align: middle;
+}
+
 .spada-method-btn:hover .spada-method-icon,
 .spada-method-btn.is-active .spada-method-icon svg {
 	/* stroke: var(--spada-teal); */
-}
-
-.spada-method-btn.is-active .spada-method-icon svg {
-	max-width: 30px;
 }
 
 /* 6. Identifier Input & OTP Headings (Matches Login-2.png & Login-5.png) */
