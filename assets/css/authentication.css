@@ -198,7 +198,12 @@ body.rtl .spada-back-btn:hover {
 	border-image: linear-gradient(90deg, #000000 0%, #FFFFFF 100%) 1;
 }
 
+body.rtl .spada-choice-divider::after,
 .spada-choice-divider::before {
+	border-image: linear-gradient(270deg, #000000 0%, #FFFFFF 100%) 1;
+}
+
+body.rtl .spada-choice-divider::before {
 	border-image: linear-gradient(270deg, #000000 0%, #FFFFFF 100%) 1;
 }
 
