@@ -209,27 +209,27 @@ html[lang="ar"] .spada-buy-now-variation .variations select {
 	margin-left: 10px !important;
 	padding: 0 !important;
 	border-radius: 6px !important;
-	background: rgba(128, 128, 128, 0.18) !important;
+	background: rgba(0, 230, 255, 1) !important;
 	background: color-mix(in srgb, currentColor 16%, transparent) !important;
 	color: currentColor !important;
 	cursor: pointer !important;
 	box-sizing: border-box !important;
 	transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
-	border: 1.5px solid rgba(128, 128, 128, 0.25) !important;
-	border: 1.5px solid color-mix(in srgb, currentColor 28%, transparent) !important;
+	border: 2px solid rgba(0, 212, 255, 1) !important;
+	border: 2px solid color-mix(in srgb, currentColor 28%, rgba(255, 255, 255, 1)) !important;
 	outline: none !important;
 	line-height: 1 !important;
 }
 
 .spada-change-option-arrow:hover {
-	background: rgba(128, 128, 128, 0.3) !important;
+	background: rgba(0, 169, 187, 1) !important;
 	background: color-mix(in srgb, currentColor 28%, transparent) !important;
+	border: 2px solid rgba(0, 169, 187, 1) !important;
+	border: 2px solid rgba(0, 212, 255, 1) !important;
 	border-color: color-mix(in srgb, currentColor 45%, transparent) !important;
-	transform: scale(1.08) !important;
 }
 
 .spada-change-option-arrow:active {
-	transform: scale(0.95) !important;
 	background: color-mix(in srgb, currentColor 35%, transparent) !important;
 }
 
@@ -239,14 +239,10 @@ html[lang="ar"] .spada-buy-now-variation .variations select {
 
 .spada-change-option-arrow svg {
 	display: block !important;
-	width: 14px !important;
-	height: 14px !important;
+	width: 18px !important;
+	height: 18px !important;
 	pointer-events: none !important;
 	transition: transform 0.2s ease !important;
-}
-
-.spada-change-option-arrow:hover svg {
-	transform: translateY(1px) !important;
 }
 
 body.rtl .spada-change-option-arrow,
@@ -299,5 +295,7 @@ html[dir="rtl"] .spada-buy-now img {
 }
 
 @keyframes spada-buy-now-spin {
-	to { transform: rotate(360deg); }
+	to {
+		transform: rotate(360deg);
+	}
 }
