@@ -267,12 +267,20 @@ body.rtl .spada-method-btn {
 	color: var(--spada-teal);
 }
 
+.spada-method-btn .spada-method-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 35px;
+}
+
 .spada-method-btn .spada-method-icon svg {
 	max-width: 30px;
 	vertical-align: middle;
 }
 
-.spada-method-btn:hover .spada-method-icon svg {
+.spada-method-btn:hover .spada-method-icon svg,
+.spada-method-btn:hover .spada-method-icon svg path {
 	fill: var(--spada-teal);
 }
 
