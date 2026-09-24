@@ -66,10 +66,10 @@ class Spada_Auth
 		$is_arabic = (
 			get_locale() === 'ar' ||
 			get_locale() === 'ar_SA' ||
-			strpos( get_locale(), 'ar' ) === 0 ||
-			( function_exists( 'is_rtl' ) && is_rtl() ) ||
-			( function_exists( 'trp_get_locale' ) && strpos( trp_get_locale(), 'ar' ) === 0 ) ||
-			( ! empty( $_SERVER['REQUEST_URI'] ) && ( strpos( $_SERVER['REQUEST_URI'], '/ar/' ) !== false || substr( $_SERVER['REQUEST_URI'], -3 ) === '/ar' ) )
+			strpos(get_locale(), 'ar') === 0 ||
+			(function_exists('is_rtl') && is_rtl()) ||
+			(function_exists('trp_get_locale') && strpos(trp_get_locale(), 'ar') === 0) ||
+			(! empty($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/ar/') !== false || substr($_SERVER['REQUEST_URI'], -3) === '/ar'))
 		);
 
 		wp_localize_script(
@@ -137,7 +137,7 @@ class Spada_Auth
 					'verifying'            => $is_arabic ? 'جاري التحقق...' : __('Verifying...', 'spada-core'),
 					'continue'             => $is_arabic ? 'متابعة' : __('Continue', 'spada-core'),
 					'loginSuccess'         => $is_arabic ? 'تم تسجيل الدخول بنجاح!' : __('Login successful!', 'spada-core'),
-					'signupSuccess'        => $is_arabic ? 'تم إنشاء الحساب بنجاح!' : __('SignUp Successful', 'spada-core'),
+					'signupSuccess'        => $is_arabic ? 'تم التسجيل بنجاح!' : __('SignUp Successful!', 'spada-core'),
 				),
 			)
 		);

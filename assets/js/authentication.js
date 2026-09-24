@@ -5,7 +5,7 @@
  * paste distribution, countdown timers, and AJAX session handling.
  */
 
-(function($) {
+(function ($) {
 	'use strict';
 
 	var SpadaAuth = {
@@ -19,7 +19,7 @@
 			countdownSec: 60
 		},
 
-		init: function() {
+		init: function () {
 			this.cacheDom();
 			this.disarmUnfocusableInputs();
 			this.bindEvents();
@@ -27,59 +27,59 @@
 			this.restoreOrInitState();
 		},
 
-		disarmUnfocusableInputs: function() {
+		disarmUnfocusableInputs: function () {
 			$('.spada-native-login-hidden').find('input, select, textarea, button').prop('required', false).removeAttr('required').prop('disabled', true);
 			$('form').attr('novalidate', 'novalidate');
 		},
 
-		cacheDom: function() {
-			this.$wrap               = $('#spada-auth-portal');
-			this.$mainTitle          = $('#spada-auth-main-title');
-			this.$mainSubtitle       = $('#spada-auth-main-subtitle');
-			this.$views              = $('.spada-auth-view');
+		cacheDom: function () {
+			this.$wrap = $('#spada-auth-portal');
+			this.$mainTitle = $('#spada-auth-main-title');
+			this.$mainSubtitle = $('#spada-auth-main-subtitle');
+			this.$views = $('.spada-auth-view');
 
 			// Choice cards
-			this.$choiceCards        = $('.spada-choice-card');
+			this.$choiceCards = $('.spada-choice-card');
 
 			// Method buttons
-			this.$methodBtns         = $('.spada-method-btn');
+			this.$methodBtns = $('.spada-method-btn');
 
 			// Input View elements
-			this.$inputHeading       = $('#spada-input-heading');
-			this.$inputSubheading    = $('#spada-input-subheading');
-			this.$emailGroup         = $('#spada-field-group-email');
-			this.$phoneGroup         = $('#spada-field-group-phone');
-			this.$phoneLabel         = $('#spada-phone-label');
-			this.$emailInput         = $('#spada-auth-email');
-			this.$phoneInput         = $('#spada-auth-phone');
-			this.$phoneCustomError   = $('#spada-phone-custom-error');
-			this.$phoneWrap          = this.$phoneInput.closest('.spada-phone-input-wrap');
-			this.$inputNotice        = $('#spada-input-notice');
-			this.$inputSubmitBtn     = $('#spada-input-submit-btn');
-			this.$inputBackBtn       = $('#spada-input-back-btn');
+			this.$inputHeading = $('#spada-input-heading');
+			this.$inputSubheading = $('#spada-input-subheading');
+			this.$emailGroup = $('#spada-field-group-email');
+			this.$phoneGroup = $('#spada-field-group-phone');
+			this.$phoneLabel = $('#spada-phone-label');
+			this.$emailInput = $('#spada-auth-email');
+			this.$phoneInput = $('#spada-auth-phone');
+			this.$phoneCustomError = $('#spada-phone-custom-error');
+			this.$phoneWrap = this.$phoneInput.closest('.spada-phone-input-wrap');
+			this.$inputNotice = $('#spada-input-notice');
+			this.$inputSubmitBtn = $('#spada-input-submit-btn');
+			this.$inputBackBtn = $('#spada-input-back-btn');
 			this.$inputChooseAnother = $('#spada-input-choose-another-btn');
 
 			// Verify View elements
-			this.$verifyHeading      = $('#spada-verify-heading');
-			this.$verifyPrompt       = $('#spada-verify-prompt');
-			this.$verifyTarget       = $('#spada-verify-target');
-			this.$otpDigits          = $('.spada-otp-digit');
-			this.$otpFull            = $('#spada-otp-full');
-			this.$verifyNotice       = $('#spada-verify-notice');
-			this.$verifySubmitBtn    = $('#spada-verify-submit-btn');
-			this.$verifyBackBtn      = $('#spada-verify-back-btn');
-			this.$resendBtn          = $('#spada-resend-btn');
-			this.$countdownWrap      = $('#spada-countdown-wrap');
-			this.$countdownSec       = $('#spada-countdown-sec');
-			this.$changeTargetBtn    = $('#spada-change-target-btn');
-			this.$changeTargetText   = $('#spada-change-target-text');
+			this.$verifyHeading = $('#spada-verify-heading');
+			this.$verifyPrompt = $('#spada-verify-prompt');
+			this.$verifyTarget = $('#spada-verify-target');
+			this.$otpDigits = $('.spada-otp-digit');
+			this.$otpFull = $('#spada-otp-full');
+			this.$verifyNotice = $('#spada-verify-notice');
+			this.$verifySubmitBtn = $('#spada-verify-submit-btn');
+			this.$verifyBackBtn = $('#spada-verify-back-btn');
+			this.$resendBtn = $('#spada-resend-btn');
+			this.$countdownWrap = $('#spada-countdown-wrap');
+			this.$countdownSec = $('#spada-countdown-sec');
+			this.$changeTargetBtn = $('#spada-change-target-btn');
+			this.$changeTargetText = $('#spada-change-target-text');
 		},
 
-		bindEvents: function() {
+		bindEvents: function () {
 			var self = this;
 
 			// 1. Choice cards click (Signup vs Login)
-			this.$choiceCards.on('click', function(e) {
+			this.$choiceCards.on('click', function (e) {
 				e.preventDefault();
 				var action = $(this).data('action');
 				self.state.action = action;
@@ -91,7 +91,7 @@
 			});
 
 			// 2. Method selection (Email, WhatsApp, SMS)
-			this.$methodBtns.on('click', function(e) {
+			this.$methodBtns.on('click', function (e) {
 				e.preventDefault();
 				var method = $(this).data('method');
 				self.state.method = method;
@@ -103,56 +103,56 @@
 			});
 
 			// 3. Navigation buttons
-			$('#spada-methods-back-btn').on('click', function(e) {
+			$('#spada-methods-back-btn').on('click', function (e) {
 				e.preventDefault();
 				self.showView('choice');
 			});
 
-			this.$inputBackBtn.on('click', function(e) {
+			this.$inputBackBtn.on('click', function (e) {
 				e.preventDefault();
 				self.showView('methods');
 			});
 
-			this.$inputChooseAnother.on('click', function(e) {
+			this.$inputChooseAnother.on('click', function (e) {
 				e.preventDefault();
 				self.showView('methods');
 			});
 
-			this.$verifyBackBtn.on('click', function(e) {
+			this.$verifyBackBtn.on('click', function (e) {
 				e.preventDefault();
 				self.showView('input');
 			});
 
-			this.$changeTargetBtn.on('click', function(e) {
+			this.$changeTargetBtn.on('click', function (e) {
 				e.preventDefault();
 				self.showView('input');
 			});
 
 			// 4. Phone & Email input validation and stage caching
-			this.$emailInput.on('input propertychange', function() {
+			this.$emailInput.on('input propertychange', function () {
 				self.state.identifier = $(this).val().trim();
 				self.saveStage();
 			});
 
-			this.$phoneInput.on('input propertychange', function() {
+			this.$phoneInput.on('input propertychange', function () {
 				self.validatePhoneField(false);
 				self.state.identifier = $(this).val().trim();
 				self.saveStage();
 			});
 
-			this.$phoneInput.on('blur', function() {
+			this.$phoneInput.on('blur', function () {
 				self.validatePhoneField(true);
 			});
 
 			// 5. Identifier Form Submit (Request OTP)
-			this.$inputSubmitBtn.on('click', function(e) {
+			this.$inputSubmitBtn.on('click', function (e) {
 				e.preventDefault();
 				if (!$(this).hasClass('disabled') && !$(this).prop('disabled')) {
 					self.requestOtp();
 				}
 			});
 
-			$('#spada-identifier-form').on('submit', function(e) {
+			$('#spada-identifier-form').on('submit', function (e) {
 				e.preventDefault();
 				if (!self.$inputSubmitBtn.hasClass('disabled') && !self.$inputSubmitBtn.prop('disabled')) {
 					self.requestOtp();
@@ -160,14 +160,14 @@
 			});
 
 			// 5. Verify Form Submit (Verify OTP)
-			this.$verifySubmitBtn.on('click', function(e) {
+			this.$verifySubmitBtn.on('click', function (e) {
 				e.preventDefault();
 				if (!$(this).hasClass('disabled') && !$(this).prop('disabled')) {
 					self.verifyOtp();
 				}
 			});
 
-			$('#spada-otp-form').on('submit', function(e) {
+			$('#spada-otp-form').on('submit', function (e) {
 				e.preventDefault();
 				if (!self.$verifySubmitBtn.hasClass('disabled') && !self.$verifySubmitBtn.prop('disabled')) {
 					self.verifyOtp();
@@ -175,7 +175,7 @@
 			});
 
 			// 6. Resend Click
-			this.$resendBtn.on('click', function(e) {
+			this.$resendBtn.on('click', function (e) {
 				e.preventDefault();
 				if (!$(this).hasClass('disabled') && !$(this).prop('disabled')) {
 					self.resendOtp();
@@ -183,7 +183,7 @@
 			});
 		},
 
-		showView: function(viewName) {
+		showView: function (viewName) {
 			this.state.currentView = viewName;
 			this.$views.removeClass('is-active');
 			$('#spada-view-' + viewName).addClass('is-active');
@@ -196,15 +196,15 @@
 			$(document).trigger('spada_auth_view_change', [viewName, this.state.action]);
 		},
 
-		getSavedStage: function() {
+		getSavedStage: function () {
 			var raw = null;
 			try {
 				raw = sessionStorage.getItem('spada_auth_stage');
-			} catch (e) {}
+			} catch (e) { }
 			if (!raw) {
 				try {
 					raw = localStorage.getItem('spada_auth_stage');
-				} catch (e) {}
+				} catch (e) { }
 			}
 			if (!raw) {
 				try {
@@ -212,17 +212,17 @@
 					if (match) {
 						raw = decodeURIComponent(match[1]);
 					}
-				} catch (e) {}
+				} catch (e) { }
 			}
 			if (raw) {
 				try {
 					return JSON.parse(raw);
-				} catch (e) {}
+				} catch (e) { }
 			}
 			return null;
 		},
 
-		saveStage: function() {
+		saveStage: function () {
 			try {
 				var searchParams = new URLSearchParams(window.location.search);
 				if (this.state.currentView === 'choice') {
@@ -235,7 +235,7 @@
 						var cleanUrl = window.location.pathname + (cleanSearch ? '?' + cleanSearch : '') + window.location.hash;
 						try {
 							window.history.replaceState(null, '', cleanUrl);
-						} catch (e) {}
+						} catch (e) { }
 					}
 				} else {
 					var payload = {
@@ -247,11 +247,11 @@
 						otpExpiresAt: this.state.otpExpiresAt || 0
 					};
 					var serialized = JSON.stringify(payload);
-					try { sessionStorage.setItem('spada_auth_stage', serialized); } catch (e) {}
-					try { localStorage.setItem('spada_auth_stage', serialized); } catch (e) {}
+					try { sessionStorage.setItem('spada_auth_stage', serialized); } catch (e) { }
+					try { localStorage.setItem('spada_auth_stage', serialized); } catch (e) { }
 					try {
 						document.cookie = 'spada_auth_stage=' + encodeURIComponent(serialized) + '; path=/; max-age=86400; SameSite=Lax';
-					} catch (e) {}
+					} catch (e) { }
 
 					searchParams.set('action', this.state.action || 'login');
 					if (this.state.currentView !== 'methods') {
@@ -268,20 +268,20 @@
 					var newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
 					try {
 						window.history.replaceState(null, '', newUrl);
-					} catch (e) {}
+					} catch (e) { }
 				}
-			} catch (e) {}
+			} catch (e) { }
 		},
 
-		clearStage: function() {
-			try { sessionStorage.removeItem('spada_auth_stage'); } catch (e) {}
-			try { localStorage.removeItem('spada_auth_stage'); } catch (e) {}
+		clearStage: function () {
+			try { sessionStorage.removeItem('spada_auth_stage'); } catch (e) { }
+			try { localStorage.removeItem('spada_auth_stage'); } catch (e) { }
 			try {
 				document.cookie = 'spada_auth_stage=; path=/; max-age=0; SameSite=Lax';
-			} catch (e) {}
+			} catch (e) { }
 		},
 
-		restoreOrInitState: function() {
+		restoreOrInitState: function () {
 			if ($('body').hasClass('logged-in')) {
 				this.clearStage();
 				return;
@@ -290,17 +290,17 @@
 			var saved = this.getSavedStage();
 
 			var searchParams = new URLSearchParams(window.location.search);
-			var actionParam  = searchParams.get('action');
-			var stepParam    = searchParams.get('step');
-			var methodParam  = searchParams.get('auth_method');
-			var hash         = window.location.hash;
+			var actionParam = searchParams.get('action');
+			var stepParam = searchParams.get('step');
+			var methodParam = searchParams.get('auth_method');
+			var hash = window.location.hash;
 
-			var portalInitialView   = this.$wrap.attr('data-initial-view');
+			var portalInitialView = this.$wrap.attr('data-initial-view');
 			var portalInitialAction = this.$wrap.attr('data-initial-action');
 			var portalInitialMethod = this.$wrap.attr('data-initial-method');
 
 			var hasExplicitSignup = actionParam === 'signup' || actionParam === 'register' || hash === '#signup' || searchParams.has('signup');
-			var hasExplicitLogin  = actionParam === 'login' || hash === '#login';
+			var hasExplicitLogin = actionParam === 'login' || hash === '#login';
 
 			if (hasExplicitSignup) {
 				this.state.action = 'signup';
@@ -372,12 +372,12 @@
 			}
 		},
 
-		updateMethodButtons: function(action) {
+		updateMethodButtons: function (action) {
 			action = action || this.state.action || 'login';
 			var isSignup = (action === 'signup');
 			var i18n = (window.SpadaAuthData && window.SpadaAuthData.i18n) || {};
 
-			this.$methodBtns.each(function() {
+			this.$methodBtns.each(function () {
 				var $btn = $(this);
 				var method = $btn.data('method');
 				var text = '';
@@ -415,7 +415,7 @@
 			});
 		},
 
-		setupInputView: function(method) {
+		setupInputView: function (method) {
 			var i18n = (window.SpadaAuthData && window.SpadaAuthData.i18n) || {};
 
 			// Toggle icons in circle
@@ -462,7 +462,7 @@
 			}
 		},
 
-		setupVerifyView: function(targetDisplay, isRestored) {
+		setupVerifyView: function (targetDisplay, isRestored) {
 			var i18n = (window.SpadaAuthData && window.SpadaAuthData.i18n) || {};
 			var method = this.state.method;
 
@@ -508,10 +508,10 @@
 			this.startCountdown();
 		},
 
-		initOtpGrid: function() {
+		initOtpGrid: function () {
 			var self = this;
 
-			this.$otpDigits.on('input', function(e) {
+			this.$otpDigits.on('input', function (e) {
 				var $input = $(this);
 				var val = $input.val().replace(/\D/g, '');
 				$input.val(val ? val.charAt(0) : '');
@@ -527,7 +527,7 @@
 				self.updateFullOtp();
 			});
 
-			this.$otpDigits.on('keydown', function(e) {
+			this.$otpDigits.on('keydown', function (e) {
 				var $input = $(this);
 				var idx = parseInt($input.data('index'), 10);
 
@@ -541,7 +541,7 @@
 			});
 
 			// Paste handling (auto-distributes 6 digits across boxes)
-			this.$otpDigits.on('paste', function(e) {
+			this.$otpDigits.on('paste', function (e) {
 				var clipboardData = e.originalEvent.clipboardData || window.clipboardData;
 				if (!clipboardData) return;
 
@@ -557,9 +557,9 @@
 			});
 		},
 
-		updateFullOtp: function() {
+		updateFullOtp: function () {
 			var full = '';
-			this.$otpDigits.each(function() {
+			this.$otpDigits.each(function () {
 				full += $(this).val();
 			});
 			this.$otpFull.val(full);
@@ -570,7 +570,7 @@
 			}
 		},
 
-		requestOtp: function() {
+		requestOtp: function () {
 			var self = this;
 			var method = this.state.method;
 			var authAction = this.state.action || 'login';
@@ -594,7 +594,7 @@
 				data.email = email;
 				this.state.identifier = email;
 
-				$.post(authData.ajaxUrl, data, function(res) {
+				$.post(authData.ajaxUrl, data, function (res) {
 					self.setLoading(self.$inputSubmitBtn, false);
 					if (res.success) {
 						self.state.maskedTarget = email;
@@ -604,7 +604,7 @@
 						var defaultErr = authData.isRtl ? 'حدث خطأ أثناء إرسال رمز التحقق.' : 'Error sending OTP.';
 						self.showNotice(self.$inputNotice, res.data && res.data.message ? res.data.message : defaultErr, 'error');
 					}
-				}).fail(function(xhr) {
+				}).fail(function (xhr) {
 					self.setLoading(self.$inputSubmitBtn, false);
 					var defaultNetErr = (authData.i18n && authData.i18n.genericError) || (authData.isRtl ? 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.' : 'Network error. Please try again.');
 					var msg = (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || defaultNetErr;
@@ -624,7 +624,7 @@
 				data.channel = method; // whatsapp or sms
 				this.state.identifier = phone;
 
-				$.post(authData.ajaxUrl, data, function(res) {
+				$.post(authData.ajaxUrl, data, function (res) {
 					self.setLoading(self.$inputSubmitBtn, false);
 					if (res.success) {
 						var masked = res.data && res.data.masked ? res.data.masked : ('+966 ' + phone);
@@ -635,7 +635,7 @@
 						var defaultErr = authData.isRtl ? 'حدث خطأ أثناء إرسال رمز التحقق.' : 'Error sending OTP.';
 						self.showNotice(self.$inputNotice, res.data && res.data.message ? res.data.message : defaultErr, 'error');
 					}
-				}).fail(function(xhr) {
+				}).fail(function (xhr) {
 					self.setLoading(self.$inputSubmitBtn, false);
 					var defaultNetErr = (authData.i18n && authData.i18n.genericError) || (authData.isRtl ? 'خطأ في الشبكة. يرجى المحاولة مرة أخرى.' : 'Network error. Please try again.');
 					var msg = (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || defaultNetErr;
@@ -644,7 +644,7 @@
 			}
 		},
 
-		verifyOtp: function() {
+		verifyOtp: function () {
 			var self = this;
 			var method = this.state.method;
 			var authAction = this.state.action || 'login';
@@ -682,17 +682,17 @@
 				data.phone = this.state.identifier;
 			}
 
-			$.post(authData.ajaxUrl, data, function(res) {
+			$.post(authData.ajaxUrl, data, function (res) {
 				self.setLoading(self.$verifySubmitBtn, false);
 				if (res.success) {
 					self.clearStage();
 					var isSignup = (authAction === 'signup');
 					var defaultSuccessMsg = isSignup
-						? ((authData.i18n && authData.i18n.signupSuccess) || (authData.isRtl ? 'تم إنشاء الحساب بنجاح!' : 'SignUp Successful'))
+						? ((authData.i18n && authData.i18n.signupSuccess) || (authData.isRtl ? 'تم التسجيل بنجاح!' : 'SignUp Successful!'))
 						: ((authData.i18n && authData.i18n.loginSuccess) || (authData.isRtl ? 'تم تسجيل الدخول بنجاح!' : 'Login successful!'));
 					var successMsg = (res.data && res.data.message) ? res.data.message : defaultSuccessMsg;
 					self.showNotice(self.$verifyNotice, successMsg, 'success');
-					setTimeout(function() {
+					setTimeout(function () {
 						if (authData.isCheckout === 'yes') {
 							// Refresh checkout or redirect
 							$(document.body).trigger('update_checkout');
@@ -706,7 +706,7 @@
 					var defaultErr = (authData.i18n && authData.i18n.incorrectOtp) || (authData.isRtl ? 'رمز التحقق غير صحيح.' : 'Incorrect verification code.');
 					self.showNotice(self.$verifyNotice, res.data && res.data.message ? res.data.message : defaultErr, 'error');
 				}
-			}).fail(function(xhr) {
+			}).fail(function (xhr) {
 				self.setLoading(self.$verifySubmitBtn, false);
 				var defaultErr = (authData.i18n && authData.i18n.incorrectOtp) || (authData.isRtl ? 'رمز التحقق غير صحيح.' : 'Incorrect verification code.');
 				var msg = (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) || defaultErr;
@@ -714,7 +714,7 @@
 			});
 		},
 
-		resendOtp: function() {
+		resendOtp: function () {
 			var self = this;
 			var method = this.state.method;
 			var authAction = this.state.action || 'login';
@@ -733,7 +733,7 @@
 				data.channel = method;
 			}
 
-			$.post(authData.ajaxUrl, data, function(res) {
+			$.post(authData.ajaxUrl, data, function (res) {
 				if (res.success) {
 					self.state.otpExpiresAt = Date.now() + (120 * 1000);
 					self.saveStage();
@@ -747,7 +747,7 @@
 			});
 		},
 
-		startCountdown: function() {
+		startCountdown: function () {
 			var self = this;
 			var authData = window.SpadaAuthData || {};
 			clearInterval(this.state.countdownTimer);
@@ -767,7 +767,7 @@
 
 			this.$countdownSec.text('60');
 
-			this.state.countdownTimer = setInterval(function() {
+			this.state.countdownTimer = setInterval(function () {
 				self.state.countdownSec--;
 				if (!self.$countdownSec.length || !$('#spada-countdown-sec').length) {
 					self.$countdownSec = $('#spada-countdown-sec');
@@ -782,7 +782,7 @@
 			}, 1000);
 		},
 
-		setLoading: function($btn, isLoading) {
+		setLoading: function ($btn, isLoading) {
 			var $text = $btn.find('.spada-btn-text');
 			var $spinner = $btn.find('.spada-btn-spinner');
 
@@ -797,19 +797,19 @@
 			}
 		},
 
-		showNotice: function($container, message, type) {
+		showNotice: function ($container, message, type) {
 			$container.removeClass('is-hidden is-error is-success')
 				.addClass(type === 'success' ? 'is-success' : 'is-error')
 				.text(message);
 		},
 
-		clearNotices: function() {
+		clearNotices: function () {
 			this.$inputNotice.addClass('is-hidden').text('');
 			this.$verifyNotice.addClass('is-hidden').text('');
 			this.clearPhoneError();
 		},
 
-		validatePhoneField: function(showEmptyError) {
+		validatePhoneField: function (showEmptyError) {
 			var raw = this.$phoneInput.val();
 			if (typeof raw !== 'string') {
 				raw = '';
@@ -836,8 +836,8 @@
 				window.location.pathname.indexOf('/ar/') !== -1;
 
 			var mustStart05Msg = i18n.phoneMustStartWith05 || i18n.phoneMustStartWith5 || (isArabic ? 'يجب أن يبدأ رقم الجوال بالرقم 05.' : 'Phone number must start with 05.');
-			var mustBe10Msg    = i18n.phoneMustBe10Digits  || i18n.phoneMustBe9Digits  || (isArabic ? 'يجب أن يتكون رقم الجوال من 10 أرقام' : 'Phone number must be 10 digits');
-			var requiredMsg    = i18n.phoneRequired        || i18n.invalidPhone        || (isArabic ? 'يرجى إدخال رقم الجوال.' : 'Please enter your mobile number.');
+			var mustBe10Msg = i18n.phoneMustBe10Digits || i18n.phoneMustBe9Digits || (isArabic ? 'يجب أن يتكون رقم الجوال من 10 أرقام' : 'Phone number must be 10 digits');
+			var requiredMsg = i18n.phoneRequired || i18n.invalidPhone || (isArabic ? 'يرجى إدخال رقم الجوال.' : 'Please enter your mobile number.');
 
 			var len = digits.length;
 
@@ -872,7 +872,7 @@
 			return true;
 		},
 
-		showPhoneError: function(msg) {
+		showPhoneError: function (msg) {
 			this.$phoneInput.addClass('invalid-phone-input').attr('aria-invalid', 'true');
 			if (this.$phoneWrap && this.$phoneWrap.length) {
 				this.$phoneWrap.addClass('has-error');
@@ -882,7 +882,7 @@
 			}
 		},
 
-		clearPhoneError: function() {
+		clearPhoneError: function () {
 			this.$phoneInput.removeClass('invalid-phone-input').attr('aria-invalid', 'false');
 			if (this.$phoneWrap && this.$phoneWrap.length) {
 				this.$phoneWrap.removeClass('has-error');
@@ -893,7 +893,7 @@
 		}
 	};
 
-	$(document).ready(function() {
+	$(document).ready(function () {
 		SpadaAuth.init();
 	});
 
