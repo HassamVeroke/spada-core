@@ -402,11 +402,44 @@ body.rtl .spada-method-btn {
 }
 
 .spada-phone-input-wrap .spada-input-control {
-	border: none;
+	border: 1px solid #b2b2b2;
+	border-left: 0;
 	background: transparent;
 	border-radius: 0 10px 10px 0 !important;
 	outline: 0 !important;
 	box-shadow: none !important;
+}
+
+body.rtl .spada-phone-code {
+	border: 1px solid #b2b2b2;
+	border-left: 0;
+	border-radius: 0 10px 10px 0;
+}
+
+body.rtl .spada-phone-input-wrap .spada-input-control {
+	border: 1px solid #b2b2b2;
+	border-right: 0;
+	border-radius: 10px 0 0 10px !important;
+}
+
+.spada-phone-input-wrap.has-error .spada-phone-code,
+.spada-phone-input-wrap.has-error .spada-input-control,
+.spada-input-control.invalid-phone-input {
+	border-color: #e53935 !important;
+}
+
+.custom-phone-error {
+	display: none;
+	color: #e53935;
+	font-family: var(--spada-font-body);
+	font-size: 13px;
+	font-weight: 500;
+	margin-top: 6px;
+	line-height: 1.4;
+}
+
+body.rtl .custom-phone-error {
+	text-align: right;
 }
 
 /* 7. Buttons with GW Flatgrip font */

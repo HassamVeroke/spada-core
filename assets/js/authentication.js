@@ -52,6 +52,8 @@
 			this.$phoneLabel         = $('#spada-phone-label');
 			this.$emailInput         = $('#spada-auth-email');
 			this.$phoneInput         = $('#spada-auth-phone');
+			this.$phoneCustomError   = $('#spada-phone-custom-error');
+			this.$phoneWrap          = this.$phoneInput.closest('.spada-phone-input-wrap');
 			this.$inputNotice        = $('#spada-input-notice');
 			this.$inputSubmitBtn     = $('#spada-input-submit-btn');
 			this.$inputBackBtn       = $('#spada-input-back-btn');
@@ -127,7 +129,16 @@
 				self.showView('input');
 			});
 
-			// 4. Identifier Form Submit (Request OTP)
+			// 4. Phone input validation & digit restriction
+			this.$phoneInput.on('input propertychange', function() {
+				self.validatePhoneField(false);
+			});
+
+			this.$phoneInput.on('blur', function() {
+				self.validatePhoneField(true);
+			});
+
+			// 5. Identifier Form Submit (Request OTP)
 			this.$inputSubmitBtn.on('click', function(e) {
 				e.preventDefault();
 				if (!$(this).hasClass('disabled') && !$(this).prop('disabled')) {
@@ -238,6 +249,7 @@
 				this.$inputSubheading.text(i18n.subEmail || "We'll send a six digit code to your email address.");
 				this.$emailGroup.removeClass('is-hidden');
 				this.$phoneGroup.addClass('is-hidden');
+				this.clearPhoneError();
 				this.$emailInput.focus();
 			} else if (method === 'whatsapp') {
 				this.$inputHeading.text(i18n.enterWhatsapp || 'Enter your whatsapp number');
@@ -245,6 +257,7 @@
 				this.$emailGroup.addClass('is-hidden');
 				this.$phoneGroup.removeClass('is-hidden');
 				this.$phoneLabel.text('WHATSAPP NUMBER');
+				this.clearPhoneError();
 				this.$phoneInput.focus();
 			} else {
 				this.$inputHeading.text(i18n.enterMobile || 'Enter your mobile number');
@@ -252,6 +265,7 @@
 				this.$emailGroup.addClass('is-hidden');
 				this.$phoneGroup.removeClass('is-hidden');
 				this.$phoneLabel.text('MOBILE NUMBER');
+				this.clearPhoneError();
 				this.$phoneInput.focus();
 			}
 		},
@@ -383,12 +397,14 @@
 					self.showNotice(self.$inputNotice, msg, 'error');
 				});
 			} else {
-				var phone = this.$phoneInput.val().trim();
-				if (!phone) {
-					this.showNotice(this.$inputNotice, 'Please enter your phone number.', 'error');
+				var isValidPhone = this.validatePhoneField(true);
+				if (!isValidPhone) {
 					this.setLoading(this.$inputSubmitBtn, false);
+					this.$phoneInput.focus();
 					return;
 				}
+
+				var phone = this.$phoneInput.val().trim();
 				data.action = 'spada_request_phone_otp';
 				data.phone = phone;
 				data.channel = method; // whatsapp or sms
@@ -397,7 +413,7 @@
 				$.post(authData.ajaxUrl, data, function(res) {
 					self.setLoading(self.$inputSubmitBtn, false);
 					if (res.success) {
-						var masked = res.data && res.data.masked ? res.data.masked : phone;
+						var masked = res.data && res.data.masked ? res.data.masked : ('+966 ' + phone);
 						self.setupVerifyView(masked);
 						self.showView('verify');
 					} else {
@@ -532,6 +548,91 @@
 		clearNotices: function() {
 			this.$inputNotice.addClass('is-hidden').text('');
 			this.$verifyNotice.addClass('is-hidden').text('');
+			this.clearPhoneError();
+		},
+
+		validatePhoneField: function(showEmptyError) {
+			var raw = this.$phoneInput.val();
+			if (typeof raw !== 'string') {
+				raw = '';
+			}
+
+			// Strip all non-digits
+			var digits = raw.replace(/\D/g, '');
+
+			// If user pastes 05..., auto-strip the leading 0 since +966 is already prefixed
+			if (digits.indexOf('05') === 0) {
+				digits = digits.substring(1);
+			}
+
+			// Restrict to max 9 digits
+			if (digits.length > 9) {
+				digits = digits.substring(0, 9);
+			}
+
+			// Update field value if sanitized
+			if (raw !== digits) {
+				this.$phoneInput.val(digits);
+			}
+
+			var i18n = (window.SpadaAuthData && window.SpadaAuthData.i18n) || {};
+			var isArabic = (window.SpadaAuthData && window.SpadaAuthData.isRtl) ||
+				$('html').attr('lang') === 'ar' ||
+				$('html').attr('dir') === 'rtl' ||
+				$('body').hasClass('rtl') ||
+				window.location.pathname.indexOf('/ar/') !== -1;
+
+			var mustStart5Msg = i18n.phoneMustStartWith5 || (isArabic ? 'يجب أن يبدأ رقم الجوال بالرقم 5.' : 'Phone number must start with 5.');
+			var mustBe9Msg    = i18n.phoneMustBe9Digits  || (isArabic ? 'يجب أن يتكون رقم الجوال من 9 أرقام' : 'Phone number must be 9 digits');
+			var requiredMsg   = i18n.phoneRequired       || i18n.invalidPhone || (isArabic ? 'يرجى إدخال رقم الجوال.' : 'Please enter your mobile number.');
+
+			var len = digits.length;
+
+			if (len === 0) {
+				if (showEmptyError) {
+					this.showPhoneError(requiredMsg);
+					return false;
+				} else {
+					this.clearPhoneError();
+					return false;
+				}
+			}
+
+			// Must start with 5
+			if (digits.charAt(0) !== '5') {
+				this.showPhoneError(mustStart5Msg);
+				return false;
+			}
+
+			// Must be 9 digits
+			if (len < 9) {
+				this.showPhoneError(mustBe9Msg + ' (' + len + '/9).');
+				return false;
+			}
+
+			// Exactly 9 digits starting with 5 -> valid
+			this.clearPhoneError();
+			return true;
+		},
+
+		showPhoneError: function(msg) {
+			this.$phoneInput.addClass('invalid-phone-input').attr('aria-invalid', 'true');
+			if (this.$phoneWrap && this.$phoneWrap.length) {
+				this.$phoneWrap.addClass('has-error');
+			}
+			if (this.$phoneCustomError && this.$phoneCustomError.length) {
+				this.$phoneCustomError.text(msg).css('display', 'block');
+			}
+		},
+
+		clearPhoneError: function() {
+			this.$phoneInput.removeClass('invalid-phone-input').attr('aria-invalid', 'false');
+			if (this.$phoneWrap && this.$phoneWrap.length) {
+				this.$phoneWrap.removeClass('has-error');
+			}
+			if (this.$phoneCustomError && this.$phoneCustomError.length) {
+				this.$phoneCustomError.text('').hide();
+			}
 		}
 	};
 

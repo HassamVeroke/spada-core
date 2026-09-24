@@ -242,9 +242,14 @@ class Spada_Mobile_Login {
 		$phone_code = $normalized['code'];
 		$phone_no   = $normalized['number'];
 
-		if ( strlen( $phone_no ) < 7 ) {
+		if ( ! preg_match( '/^5[0-9]{8}$/', $phone_no ) ) {
+			$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+			$msg = ( strlen( $phone_no ) > 0 && strpos( $phone_no, '5' ) !== 0 )
+				? ( $is_arabic ? 'يجب أن يبدأ رقم الجوال بالرقم 5.' : __( 'Phone number must start with 5.', 'spada-core' ) )
+				: ( $is_arabic ? 'يجب أن يتكون رقم الجوال من 9 أرقام.' : __( 'Phone number must be exactly 9 digits.', 'spada-core' ) );
+
 			wp_send_json_error(
-				array( 'message' => __( 'Please enter a complete mobile number.', 'spada-core' ) ),
+				array( 'message' => $msg ),
 				400
 			);
 		}
