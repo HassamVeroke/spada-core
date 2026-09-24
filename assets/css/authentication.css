@@ -198,13 +198,8 @@ body.rtl .spada-back-btn:hover {
 	border-image: linear-gradient(90deg, #000000 0%, #FFFFFF 100%) 1;
 }
 
-.spada-choice-divider::after,
-body.rtl .spada-choice-divider::before {
+.spada-choice-divider::after {
 	border-image: linear-gradient(270deg, #000000 0%, #FFFFFF 100%) 1;
-}
-
-body.rtl .spada-choice-divider::after {
-	border-image: linear-gradient(90deg, #000000 0%, #FFFFFF 100%) 1;
 }
 
 .spada-choice-divider span {
@@ -631,16 +626,36 @@ html[dir="rtl"] .spada-otp-digit {
 		flex-direction: row;
 	}
 
-	.spada-choice-card {
-		flex: 1;
-		max-width: 145px;
-		height: 145px;
-		padding: 18px 12px;
+	.spada-method-title,
+	.spada-input-heading,
+	.spada-verify-heading {
+		font-size: 24px;
 	}
 
-	.spada-choice-divider {
-		flex: 0 0 40px;
-		width: 40px;
+	.spada-method-subtitle,
+	.spada-input-subheading,
+	.spada-verify-subheading {
+		font-size: 14px;
+	}
+
+	.spada-method-btn {
+		padding: 6px 20px;
+	}
+
+	.spada-method-btn .spada-method-icon svg {
+		max-width: 20px;
+	}
+
+	.spada-auth-wrapper a[role="button"],
+	.spada-auth-wrapper button {
+		font-size: 14px !important;
+	}
+
+	.spada-choice-card {
+		flex: 1;
+		max-width: 120px;
+		height: 120px;
+		padding: 18px 12px;
 	}
 
 	.spada-choice-divider span {
@@ -655,5 +670,23 @@ html[dir="rtl"] .spada-otp-digit {
 		width: 42px;
 		height: 48px;
 		font-size: 20px;
+	}
+
+	#spada-view-choice {
+		margin-top: 0;
+	}
+
+	.spada-choice-grid .spada-choice-divider {
+		flex: 0 0 20%;
+	}
+
+	.spada-choice-icon-wrap {
+		width: 42px;
+		height: 42px;
+		margin-bottom: 0;
+	}
+
+	.spada-choice-icon-wrap svg {
+		max-width: 18px;
 	}
 }
