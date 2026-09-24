@@ -383,25 +383,30 @@ body.rtl .spada-method-btn {
 .spada-phone-input-wrap {
 	display: flex;
 	align-items: center;
-	border: 1px solid var(--spada-border);
-	border-radius: var(--spada-radius-md);
-	background-color: #f9fafb;
+	background-color: transparent;
 	overflow: hidden;
 }
 
 .spada-phone-code {
-	padding: 13px 14px;
-	font-size: 14px;
+	padding: 10px;
+	font-size: 18px;
 	font-family: var(--spada-font-body);
 	font-weight: 600;
-	color: var(--spada-muted);
-	background: #f3f4f6;
-	border-inline-end: 1px solid var(--spada-border);
+	color: var(--spada-dark);
+	background: transparent;
+	border: 1px solid #b2b2b2;
+	border-right: 0;
+	align-self: stretch;
+	line-height: 39px;
+	border-radius: 10px 0 0 10px;
 }
 
 .spada-phone-input-wrap .spada-input-control {
 	border: none;
 	background: transparent;
+	border-radius: 0 10px 10px 0 !important;
+	outline: 0 !important;
+	box-shadow: none !important;
 }
 
 /* 7. Buttons with GW Flatgrip font */
