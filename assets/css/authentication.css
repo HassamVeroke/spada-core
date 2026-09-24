@@ -208,10 +208,9 @@ body.rtl .spada-back-btn:hover {
 
 .spada-choice-grid .spada-choice-divider {
 	flex: 0 0 40%;
-	direction: rtl;
 }
 
-body.rtl .spada-choice-grid .spada-choice-divider {
+body.rtl .spada-choice-divider {
 	direction: ltr;
 }
 
