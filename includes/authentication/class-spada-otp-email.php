@@ -144,7 +144,7 @@ class Spada_OTP_Email
 
 		// Subjects matching exact specifications
 		if ('signup' === $auth_action) {
-			$subject = $is_arabic ? 'تحقق من عنوان بريدك الإلكتروني' : 'Verify Your Email Address';
+			$subject = $is_arabic ? 'تحقق من حسابك' : 'Verify Your Account';
 		} else {
 			$subject = $is_arabic ? 'رسالة البريد الإلكتروني الخاصة بالتحقق من تسجيل الدخول' : 'Verify Your Account';
 		}
