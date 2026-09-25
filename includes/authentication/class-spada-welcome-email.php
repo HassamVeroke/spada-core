@@ -2,7 +2,7 @@
 /**
  * SPADA Welcome Email Manager
  *
- * Ensures newly registered customers receive the official WooCommerce Welcome Email
+ * Ensures newly registered customers receive exactly ONE official WooCommerce Welcome Email
  * (WC_Email_Customer_New_Account) after successful signup via any method (Email OTP,
  * checkout, or registration forms).
  *
@@ -21,20 +21,27 @@ class Spada_Welcome_Email {
 	const META_KEY_SENT = '_spada_welcome_email_sent';
 
 	/**
+	 * In-memory registry of user IDs that have had their welcome email dispatched in this request.
+	 *
+	 * @var array
+	 */
+	private static $dispatched_users = array();
+
+	/**
 	 * Init hooks.
 	 */
 	public static function init() {
 		// Hook into standard WooCommerce customer creation
 		add_action( 'woocommerce_created_customer', array( __CLASS__, 'on_woocommerce_created_customer' ), 20, 3 );
 
-		// Hook into WordPress user_register as fallback
-		add_action( 'user_register', array( __CLASS__, 'on_user_register' ), 20, 1 );
-
 		// Listen to native notification hook to record sent state
 		add_action( 'woocommerce_created_customer_notification', array( __CLASS__, 'on_native_notification' ), 5, 1 );
 
-		// Ensure customer_new_account email is enabled for real customers
-		add_filter( 'woocommerce_email_enabled_customer_new_account', array( __CLASS__, 'filter_email_enabled' ), 20, 3 );
+		// Listen to email sent hook to track dispatch
+		add_action( 'woocommerce_email_sent', array( __CLASS__, 'on_email_sent' ), 10, 2 );
+
+		// Ensure customer_new_account email is enabled for real customers, while strictly preventing duplicates
+		add_filter( 'woocommerce_email_enabled_customer_new_account', array( __CLASS__, 'filter_email_enabled' ), 99, 3 );
 
 		// Provide localized subject and heading if defaults are used
 		add_filter( 'woocommerce_email_subject_customer_new_account', array( __CLASS__, 'filter_email_subject' ), 10, 2 );
@@ -42,7 +49,8 @@ class Spada_Welcome_Email {
 	}
 
 	/**
-	 * Filter to ensure real customers have the welcome email enabled, while excluding dummy mobile accounts.
+	 * Filter to ensure real customers have the welcome email enabled, while strictly blocking
+	 * dummy mobile accounts and preventing any duplicate email dispatches.
 	 *
 	 * @param bool     $enabled Current enabled status.
 	 * @param WP_User  $user    User object.
@@ -54,8 +62,15 @@ class Spada_Welcome_Email {
 			if ( self::is_dummy_email( $user->user_email ) ) {
 				return false;
 			}
+
+			// If welcome email has already been sent to this user, block any secondary/duplicate email
+			if ( isset( self::$dispatched_users[ $user->ID ] ) || get_user_meta( $user->ID, self::META_KEY_SENT, true ) ) {
+				return false;
+			}
+
 			return true;
 		}
+
 		return $enabled;
 	}
 
@@ -105,8 +120,24 @@ class Spada_Welcome_Email {
 	 * @param int $customer_id Customer ID.
 	 */
 	public static function on_native_notification( $customer_id ) {
+		$customer_id = absint( $customer_id );
 		if ( $customer_id ) {
+			self::$dispatched_users[ $customer_id ] = true;
 			update_user_meta( $customer_id, self::META_KEY_SENT, time() );
+		}
+	}
+
+	/**
+	 * Record sent status when email is dispatched via WooCommerce mailer.
+	 *
+	 * @param bool     $return Mail return.
+	 * @param WC_Email $email  Email object.
+	 */
+	public static function on_email_sent( $return, $email ) {
+		if ( is_a( $email, 'WC_Email_Customer_New_Account' ) && ! empty( $email->object->ID ) ) {
+			$user_id = absint( $email->object->ID );
+			self::$dispatched_users[ $user_id ] = true;
+			update_user_meta( $user_id, self::META_KEY_SENT, time() );
 		}
 	}
 
@@ -118,39 +149,39 @@ class Spada_Welcome_Email {
 	 * @param bool  $password_generated Whether password was generated.
 	 */
 	public static function on_woocommerce_created_customer( $customer_id, $new_customer_data = array(), $password_generated = false ) {
+		$customer_id = absint( $customer_id );
+		if ( ! $customer_id ) {
+			return;
+		}
+
+		if ( isset( self::$dispatched_users[ $customer_id ] ) || get_user_meta( $customer_id, self::META_KEY_SENT, true ) ) {
+			return;
+		}
+
 		$password = '';
 		if ( is_array( $new_customer_data ) && ! empty( $new_customer_data['user_pass'] ) ) {
 			$password = $new_customer_data['user_pass'];
 		}
 
-		self::send_welcome_email( $customer_id, $password, (bool) $password_generated );
+		self::send_welcome_email( $customer_id, $password, false );
 	}
 
 	/**
-	 * Triggered on WordPress user_register as a fallback.
-	 *
-	 * @param int $user_id User ID.
-	 */
-	public static function on_user_register( $user_id ) {
-		self::send_welcome_email( $user_id, '', true );
-	}
-
-	/**
-	 * Dispatches the WooCommerce Customer New Account welcome email.
+	 * Dispatches the WooCommerce Customer New Account welcome email exactly once.
 	 *
 	 * @param int    $customer_id       User ID.
 	 * @param string $password          Clear-text password if available.
 	 * @param bool   $password_generated Whether password was auto-generated.
 	 * @return bool True if triggered, false otherwise.
 	 */
-	public static function send_welcome_email( $customer_id, $password = '', $password_generated = true ) {
+	public static function send_welcome_email( $customer_id, $password = '', $password_generated = false ) {
 		$customer_id = absint( $customer_id );
 		if ( ! $customer_id ) {
 			return false;
 		}
 
-		// Prevent duplicate welcome emails
-		if ( get_user_meta( $customer_id, self::META_KEY_SENT, true ) ) {
+		// Prevent duplicate welcome emails in-memory and in DB
+		if ( isset( self::$dispatched_users[ $customer_id ] ) || get_user_meta( $customer_id, self::META_KEY_SENT, true ) ) {
 			return false;
 		}
 
@@ -177,7 +208,8 @@ class Spada_Welcome_Email {
 		}
 
 		try {
-			// Mark as sent before triggering to avoid recursion
+			// Register in memory and mark in DB immediately before dispatching to block any race condition
+			self::$dispatched_users[ $customer_id ] = true;
 			update_user_meta( $customer_id, self::META_KEY_SENT, time() );
 
 			// Access WooCommerce Mailer
@@ -194,11 +226,11 @@ class Spada_Welcome_Email {
 			/** @var WC_Email_Customer_New_Account $new_account_email */
 			$new_account_email = $email_notifications['WC_Email_Customer_New_Account'];
 
-			// Ensure email is enabled for this dispatch
+			// Temporarily ensure email is enabled for this dispatch
 			$original_enabled = $new_account_email->enabled;
 			$new_account_email->enabled = 'yes';
 
-			// Trigger the email
+			// Trigger the email exactly once
 			$new_account_email->trigger( $customer_id, $password, (bool) $password_generated );
 
 			$new_account_email->enabled = $original_enabled;
