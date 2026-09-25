@@ -43,7 +43,7 @@ class Spada_Auth_Ajax {
 			);
 		}
 
-		$is_arabic   = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$is_arabic   = Spada_OTP_Email::is_arabic();
 		$user_exists = (bool) email_exists( $email );
 
 		if ( 'login' === $auth_action && ! $user_exists ) {
@@ -68,7 +68,7 @@ class Spada_Auth_Ajax {
 			);
 		}
 
-		$result = Spada_OTP_Email::send_otp( $email );
+		$result = Spada_OTP_Email::send_otp( $email, $auth_action );
 
 		if ( ! $result['success'] ) {
 			wp_send_json_error( array( 'message' => $result['message'] ), 400 );
@@ -146,7 +146,7 @@ class Spada_Auth_Ajax {
 			);
 		}
 
-		$is_arabic   = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
+		$is_arabic   = Spada_OTP_Email::is_arabic();
 		$user_exists = (bool) email_exists( $email );
 
 		if ( 'login' === $auth_action && ! $user_exists ) {
@@ -171,12 +171,12 @@ class Spada_Auth_Ajax {
 			);
 		}
 
-		$result = Spada_OTP_Email::send_otp( $email );
+		$result = Spada_OTP_Email::send_otp( $email, $auth_action );
 
 		if ( ! $result['success'] ) {
 			wp_send_json_error( array( 'message' => $result['message'] ), 400 );
 		}
 
-		wp_send_json_success( array( 'message' => __( 'New verification code has been sent.', 'spada-core' ) ) );
+		wp_send_json_success( array( 'message' => $is_arabic ? 'تم إرسال رمز تحقق جديد.' : __( 'New verification code has been sent.', 'spada-core' ) ) );
 	}
 }

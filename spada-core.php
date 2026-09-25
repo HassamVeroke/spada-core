@@ -66,3 +66,19 @@ add_action( 'wp_enqueue_scripts', function() {
 		SPADA_CORE_VERSION
 	);
 }, 5 );
+
+// Global RTL / Arabic detection helper for Spada templates & emails
+if ( ! function_exists( 'spada_is_rtl' ) ) {
+	/**
+	 * Check if current context/request is Arabic or RTL.
+	 *
+	 * @return bool
+	 */
+	function spada_is_rtl() {
+		if ( class_exists( 'Spada_Welcome_Email' ) ) {
+			return Spada_Welcome_Email::is_arabic();
+		}
+		return ( function_exists( 'is_rtl' ) && is_rtl() ) || ( get_locale() === 'ar' || strpos( get_locale(), 'ar' ) === 0 );
+	}
+}
+

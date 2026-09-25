@@ -37,12 +37,44 @@ class Spada_OTP_Email
 	const MAX_ATTEMPTS = 5;
 
 	/**
+	 * Detect if current request or context is Arabic.
+	 *
+	 * @return bool
+	 */
+	public static function is_arabic()
+	{
+		if ( ! empty( $_REQUEST['lang'] ) && strpos( sanitize_text_field( wp_unslash( $_REQUEST['lang'] ) ), 'ar' ) === 0 ) {
+			return true;
+		}
+
+		if ( class_exists( 'Spada_Welcome_Email' ) ) {
+			return Spada_Welcome_Email::is_arabic();
+		}
+
+		if ( function_exists( 'spada_is_rtl' ) ) {
+			return (bool) spada_is_rtl();
+		}
+
+		$locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
+		if ( ! empty( $locale ) && strpos( $locale, 'ar' ) === 0 ) {
+			return true;
+		}
+
+		if ( function_exists( 'is_rtl' ) && is_rtl() ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Send an Email OTP to the specified email address.
 	 *
 	 * @param string $email User email.
+	 * @param string $auth_action Optional. 'signup' or 'login'. Auto-detected if omitted.
 	 * @return array Result with status and message.
 	 */
-	public static function send_otp($email)
+	public static function send_otp($email, $auth_action = '')
 	{
 		$email = sanitize_email($email);
 
@@ -51,6 +83,13 @@ class Spada_OTP_Email
 				'success' => false,
 				'message' => __('Please enter a valid email address.', 'spada-core'),
 			);
+		}
+
+		// Determine auth action if omitted
+		if (empty($auth_action)) {
+			$auth_action = email_exists($email) ? 'login' : 'signup';
+		} else {
+			$auth_action = ('signup' === sanitize_key($auth_action)) ? 'signup' : 'login';
 		}
 
 		// Rate limiting: allow max 4 requests per 10 minutes per email
@@ -71,9 +110,10 @@ class Spada_OTP_Email
 		$existing_payload = get_transient($transient_key);
 		$now              = time();
 
+		$is_arabic = self::is_arabic();
+
 		if (is_array($existing_payload) && ! empty($existing_payload['expires_at']) && $now < (int) $existing_payload['expires_at']) {
 			$remaining = (int) $existing_payload['expires_at'] - $now;
-			$is_arabic = (get_locale() === 'ar' || (function_exists('is_rtl') && is_rtl()));
 			return array(
 				'success'   => false,
 				'message'   => $is_arabic
@@ -92,28 +132,32 @@ class Spada_OTP_Email
 
 		// Store hashed OTP in transient
 		$otp_payload = array(
-			'hash'       => wp_hash($otp, 'nonce'),
-			'attempts'   => 0,
-			'created_at' => $now,
-			'expires_at' => $now + self::EXPIRATION_SECONDS,
-			'email'      => $email,
+			'hash'        => wp_hash($otp, 'nonce'),
+			'attempts'    => 0,
+			'created_at'  => $now,
+			'expires_at'  => $now + self::EXPIRATION_SECONDS,
+			'email'       => $email,
+			'auth_action' => $auth_action,
 		);
 
 		set_transient($transient_key, $otp_payload, self::EXPIRATION_SECONDS);
 
-		// Prepare branded HTML email
-		$site_name = wp_specialchars_decode(get_bloginfo('name'), ENT_QUOTES);
-		$subject   = sprintf(
-			/* translators: %s: Site name */
-			__('%s Verification Code: %s', 'spada-core'),
-			$site_name,
-			$otp
-		);
+		// Subjects matching exact specifications
+		if ('signup' === $auth_action) {
+			$subject = $is_arabic ? 'تحقق من عنوان بريدك الإلكتروني' : 'Verify Your Email Address';
+		} else {
+			$subject = $is_arabic ? 'رسالة البريد الإلكتروني الخاصة بالتحقق من تسجيل الدخول' : 'Verify Your Account';
+		}
 
-		$message = self::get_email_template($otp, $site_name);
+		// Render WooCommerce email HTML using existing Header & Footer
+		$message = self::render_verification_email($otp, $auth_action, $is_arabic);
+
+		$site_name  = wp_specialchars_decode(get_option('woocommerce_email_from_name', get_bloginfo('name')), ENT_QUOTES);
+		$from_email = sanitize_email(get_option('woocommerce_email_from_address', get_option('admin_email')));
+
 		$headers = array(
 			'Content-Type: text/html; charset=UTF-8',
-			sprintf('From: %s <%s>', $site_name, get_option('admin_email')),
+			sprintf('From: %s <%s>', $site_name, $from_email),
 		);
 
 		$sent = wp_mail($email, $subject, $message, $headers);
@@ -127,7 +171,9 @@ class Spada_OTP_Email
 
 		return array(
 			'success' => true,
-			'message' => __('Verification code sent successfully to your email address.', 'spada-core'),
+			'message' => $is_arabic
+				? 'تم إرسال رمز التحقق بنجاح إلى بريدك الإلكتروني.'
+				: __('Verification code sent successfully to your email address.', 'spada-core'),
 			'email'   => $email,
 		);
 	}
@@ -154,7 +200,7 @@ class Spada_OTP_Email
 		$transient_key      = self::TRANSIENT_PREFIX . md5($email);
 		$otp_payload        = get_transient($transient_key);
 		$now                = time();
-		$is_arabic          = (get_locale() === 'ar' || (function_exists('is_rtl') && is_rtl()));
+		$is_arabic          = self::is_arabic();
 		$incorrect_code_msg = $is_arabic ? 'رمز التحقق غير صحيح.' : __('Incorrect verification code.', 'spada-core');
 
 		if (false === $otp_payload || ! is_array($otp_payload) || empty($otp_payload['hash'])) {
@@ -208,7 +254,7 @@ class Spada_OTP_Email
 
 		if (! $user) {
 			if ('login' === $auth_action) {
-				$is_arabic = (get_locale() === 'ar' || (function_exists('is_rtl') && is_rtl()));
+				$is_arabic = self::is_arabic();
 				return array(
 					'success' => false,
 					'message' => $is_arabic
@@ -258,7 +304,7 @@ class Spada_OTP_Email
 			WC()->session->set_customer_session_cookie(true);
 		}
 
-		$is_arabic       = (get_locale() === 'ar' || (function_exists('is_rtl') && is_rtl()));
+		$is_arabic       = self::is_arabic();
 		$success_message = ('signup' === $auth_action)
 			? ($is_arabic ? 'تم التسجيل بنجاح!' : __('SignUp Successful!', 'spada-core'))
 			: ($is_arabic ? 'تم تسجيل الدخول بنجاح!' : __('Login successful!', 'spada-core'));
@@ -272,63 +318,76 @@ class Spada_OTP_Email
 	}
 
 	/**
-	 * Branded HTML Email Template.
+	 * Render WooCommerce-compatible verification email HTML.
+	 * Reuses the existing SPADA WooCommerce email header and footer.
 	 *
 	 * @param string $otp 6-digit code.
-	 * @param string $site_name Site name.
-	 * @return string HTML content.
+	 * @param string $auth_action 'signup' or 'login'.
+	 * @param bool   $is_arabic Whether language is Arabic.
+	 * @return string Rendered HTML.
 	 */
-	private static function get_email_template($otp, $site_name)
+	public static function render_verification_email($otp, $auth_action, $is_arabic)
 	{
-		ob_start();
-?>
-		<!DOCTYPE html>
-		<html lang="en">
+		$target_locale = $is_arabic ? 'ar' : 'en_US';
+		$switched      = function_exists('switch_to_locale') ? switch_to_locale($target_locale) : false;
 
-		<head>
-			<meta charset="UTF-8">
-			<title><?php echo esc_html($site_name); ?></title>
-		</head>
+		$locale_filter = function () use ($target_locale) {
+			return $target_locale;
+		};
+		add_filter('locale', $locale_filter, 999);
+		add_filter('determine_locale', $locale_filter, 999);
 
-		<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f9fafb; margin: 0; padding: 40px 16px; color: #111827;">
-			<table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 480px; background: #ffffff; border-radius: 16px; border: 1px solid #e5e7eb; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-				<tr>
-					<td style="background-color: #000000; padding: 24px; text-align: center;">
-						<h1 style="color: #ffffff; margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px;">SPADA</h1>
-					</td>
-				</tr>
-				<tr>
-					<td style="padding: 36px 32px; text-align: center;">
-						<h2 style="font-size: 20px; font-weight: 700; margin: 0 0 12px 0; color: #111827;">
-							<?php esc_html_e('Your Verification Code', 'spada-core'); ?>
-						</h2>
-						<p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin: 0 0 28px 0;">
-							<?php esc_html_e('Use the 6-digit code below to securely sign in to your Spada account. This code will expire in 5 minutes.', 'spada-core'); ?>
-						</p>
+		if ($is_arabic) {
+			add_filter('is_rtl', '__return_true', 999);
+		} else {
+			add_filter('is_rtl', '__return_false', 999);
+		}
 
-						<div style="background-color: #f3f4f6; border-radius: 12px; padding: 18px 24px; display: inline-block; margin-bottom: 28px; border: 1.5px dashed #00adb5;">
-							<span style="font-family: monospace, Courier; font-size: 36px; font-weight: 800; letter-spacing: 10px; color: #00adb5;">
-								<?php echo esc_html($otp); ?>
-							</span>
-						</div>
+		// Ensure WooCommerce mailer is initialized
+		$mailer = null;
+		if (function_exists('WC') && WC()->mailer()) {
+			$mailer = WC()->mailer();
+		}
 
-						<p style="color: #9ca3af; font-size: 12px; margin: 0; line-height: 1.5;">
-							<?php esc_html_e('If you did not request this verification code, please ignore this email.', 'spada-core'); ?>
-						</p>
-					</td>
-				</tr>
-				<tr>
-					<td style="background-color: #f9fafb; padding: 18px 32px; text-align: center; border-top: 1px solid #e5e7eb;">
-						<p style="color: #9ca3af; font-size: 12px; margin: 0;">
-							&copy; <?php echo esc_html(date('Y')); ?> <?php echo esc_html($site_name); ?>. <?php esc_html_e('All rights reserved.', 'spada-core'); ?>
-						</p>
-					</td>
-				</tr>
-			</table>
-		</body>
+		$template_name = ('signup' === $auth_action)
+			? 'customer-signup-verification.php'
+			: 'customer-login-verification.php';
 
-		</html>
-<?php
-		return ob_get_clean();
+		$template_args = array(
+			'verification_code' => $otp,
+			'auth_action'       => $auth_action,
+			'is_rtl'            => (bool) $is_arabic,
+			'email'             => null,
+		);
+
+		// Exclusively load template from Spada Core plugin
+		$plugin_template = SPADA_CORE_PATH . 'templates/emails/' . $template_name;
+		$content         = '';
+
+		if ( file_exists( $plugin_template ) ) {
+			ob_start();
+			extract( $template_args );
+			include $plugin_template;
+			$content = ob_get_clean();
+		}
+
+		// Inline WooCommerce email CSS styles
+		if (! empty($mailer) && method_exists($mailer, 'style_inline')) {
+			$content = $mailer->style_inline($content);
+		}
+
+		// Cleanup filters & restore locale
+		remove_filter('locale', $locale_filter, 999);
+		remove_filter('determine_locale', $locale_filter, 999);
+		if ($is_arabic) {
+			remove_filter('is_rtl', '__return_true', 999);
+		} else {
+			remove_filter('is_rtl', '__return_false', 999);
+		}
+		if ($switched && function_exists('restore_previous_locale')) {
+			restore_previous_locale();
+		}
+
+		return $content;
 	}
 }
