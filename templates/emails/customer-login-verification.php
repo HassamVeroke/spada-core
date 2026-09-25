@@ -41,13 +41,15 @@ $team = $is_rtl
 	? 'فريق مشروبات سبادا'
 	: 'SPADA Drinks Team';
 
+$GLOBALS['spada_is_email_rtl'] = $is_rtl;
+
 /**
  * Output the email header.
  *
  * @hooked WC_Emails::email_header()
  */
 if (! has_action('woocommerce_email_header') && function_exists('wc_get_template')) {
-	wc_get_template('emails/email-header.php', array('email_heading' => $email_heading));
+	wc_get_template('emails/email-header.php', array('email_heading' => $email_heading, 'is_rtl' => $is_rtl));
 } else {
 	do_action('woocommerce_email_header', $email_heading, ! empty($email) ? $email : null);
 }
@@ -97,13 +99,15 @@ if (! has_action('woocommerce_email_header') && function_exists('wc_get_template
 </div>
 
 <?php
+$GLOBALS['spada_is_email_rtl'] = $is_rtl;
+
 /**
  * Output the email footer.
  *
  * @hooked WC_Emails::email_footer()
  */
 if (! has_action('woocommerce_email_footer') && function_exists('wc_get_template')) {
-	wc_get_template('emails/email-footer.php');
+	wc_get_template('emails/email-footer.php', array('is_rtl' => $is_rtl));
 } else {
 	do_action('woocommerce_email_footer', ! empty($email) ? $email : null);
 }

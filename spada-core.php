@@ -75,6 +75,9 @@ if ( ! function_exists( 'spada_is_rtl' ) ) {
 	 * @return bool
 	 */
 	function spada_is_rtl() {
+		if ( isset( $GLOBALS['spada_is_email_rtl'] ) ) {
+			return (bool) $GLOBALS['spada_is_email_rtl'];
+		}
 		if ( class_exists( 'Spada_OTP_Email' ) ) {
 			return Spada_OTP_Email::is_arabic();
 		}

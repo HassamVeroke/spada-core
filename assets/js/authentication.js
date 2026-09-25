@@ -570,15 +570,34 @@
 			}
 		},
 
+		isRtl: function () {
+			if (window.location.pathname.indexOf('/ar/') !== -1 || window.location.pathname.endsWith('/ar')) {
+				return true;
+			}
+			if ($('html').attr('dir') === 'rtl' || $('body').hasClass('rtl')) {
+				return true;
+			}
+			var htmlLang = ($('html').attr('lang') || '').toLowerCase();
+			if (htmlLang.indexOf('en') === 0) {
+				return false;
+			}
+			if (htmlLang.indexOf('ar') === 0) {
+				return true;
+			}
+			var authData = window.SpadaAuthData || {};
+			return !!authData.isRtl;
+		},
+
 		requestOtp: function () {
 			var self = this;
 			var method = this.state.method;
 			var authAction = this.state.action || 'login';
 			var authData = window.SpadaAuthData || {};
+			var isRtl = this.isRtl();
 			var data = {
 				nonce: authData.nonce,
 				auth_action: authAction,
-				lang: authData.isRtl ? 'ar' : 'en'
+				lang: isRtl ? 'ar' : 'en'
 			};
 
 			this.clearNotices();
@@ -720,10 +739,11 @@
 			var method = this.state.method;
 			var authAction = this.state.action || 'login';
 			var authData = window.SpadaAuthData || {};
+			var isRtl = this.isRtl();
 			var data = {
 				nonce: authData.nonce,
 				auth_action: authAction,
-				lang: authData.isRtl ? 'ar' : 'en'
+				lang: isRtl ? 'ar' : 'en'
 			};
 
 			if (method === 'email') {
@@ -844,11 +864,7 @@
 			}
 
 			var i18n = (window.SpadaAuthData && window.SpadaAuthData.i18n) || {};
-			var isArabic = (window.SpadaAuthData && window.SpadaAuthData.isRtl) ||
-				$('html').attr('lang') === 'ar' ||
-				$('html').attr('dir') === 'rtl' ||
-				$('body').hasClass('rtl') ||
-				window.location.pathname.indexOf('/ar/') !== -1;
+			var isArabic = this.isRtl();
 
 			var mustStart05Msg = i18n.phoneMustStartWith05 || i18n.phoneMustStartWith5 || (isArabic ? 'يجب أن يبدأ رقم الجوال بالرقم 05.' : 'Phone number must start with 05.');
 			var mustBe10Msg = i18n.phoneMustBe10Digits || i18n.phoneMustBe9Digits || (isArabic ? 'يجب أن يتكون رقم الجوال من 10 أرقام' : 'Phone number must be 10 digits');

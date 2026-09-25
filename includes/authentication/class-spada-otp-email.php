@@ -43,6 +43,11 @@ class Spada_OTP_Email
 	 */
 	public static function is_arabic()
 	{
+		// 0. Active email rendering override
+		if ( isset( $GLOBALS['spada_is_email_rtl'] ) ) {
+			return (bool) $GLOBALS['spada_is_email_rtl'];
+		}
+
 		// 1. Explicit request parameter (from frontend auth AJAX)
 		if ( ! empty( $_REQUEST['lang'] ) ) {
 			$lang = strtolower( trim( sanitize_text_field( wp_unslash( $_REQUEST['lang'] ) ) ) );
@@ -382,6 +387,8 @@ class Spada_OTP_Email
 	 */
 	public static function render_verification_email($otp, $auth_action, $is_arabic)
 	{
+		$GLOBALS['spada_is_email_rtl'] = (bool) $is_arabic;
+
 		$target_locale = $is_arabic ? 'ar' : 'en_US';
 		$switched      = function_exists('switch_to_locale') ? switch_to_locale($target_locale) : false;
 
@@ -441,6 +448,8 @@ class Spada_OTP_Email
 		if ($switched && function_exists('restore_previous_locale')) {
 			restore_previous_locale();
 		}
+
+		unset( $GLOBALS['spada_is_email_rtl'] );
 
 		return $content;
 	}

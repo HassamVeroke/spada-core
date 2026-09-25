@@ -64,14 +64,12 @@ class Spada_Auth
 			true
 		);
 
-		$is_arabic = (
-			get_locale() === 'ar' ||
-			get_locale() === 'ar_SA' ||
-			strpos(get_locale(), 'ar') === 0 ||
-			(function_exists('is_rtl') && is_rtl()) ||
-			(function_exists('trp_get_locale') && strpos(trp_get_locale(), 'ar') === 0) ||
-			(! empty($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/ar/') !== false || substr($_SERVER['REQUEST_URI'], -3) === '/ar'))
-		);
+		$is_arabic = class_exists( 'Spada_OTP_Email' )
+			? Spada_OTP_Email::is_arabic()
+			: (
+				( ! empty( $_SERVER['REQUEST_URI'] ) && ( strpos( $_SERVER['REQUEST_URI'], '/ar/' ) !== false || substr( $_SERVER['REQUEST_URI'], -3 ) === '/ar' ) ) ||
+				( function_exists( 'is_rtl' ) && is_rtl() )
+			);
 
 		wp_localize_script(
 			'spada-authentication',
