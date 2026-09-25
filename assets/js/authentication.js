@@ -577,7 +577,8 @@
 			var authData = window.SpadaAuthData || {};
 			var data = {
 				nonce: authData.nonce,
-				auth_action: authAction
+				auth_action: authAction,
+				lang: authData.isRtl ? 'ar' : 'en'
 			};
 
 			this.clearNotices();
@@ -721,7 +722,8 @@
 			var authData = window.SpadaAuthData || {};
 			var data = {
 				nonce: authData.nonce,
-				auth_action: authAction
+				auth_action: authAction,
+				lang: authData.isRtl ? 'ar' : 'en'
 			};
 
 			if (method === 'email') {

@@ -18,7 +18,7 @@ $email_heading = $is_rtl
 	: 'Verify Your Account';
 
 $preheader = $is_rtl
-	? 'استخدم رمز التحقق المكون من 6 أرقام لإتمام تسجيل حسابك على SPADA.'
+	? 'استخدم رمز التحقق المكون من 6 أرقام لإتمام تسجيل حسابك على سبادا.'
 	: 'Use your 6-digit verification code to complete your SPADA account registration.';
 
 $instructions = $is_rtl
@@ -30,7 +30,7 @@ $expire_notice = $is_rtl
 	: 'This verification code will expire in 2 minutes. Please do not share this code with anyone.';
 
 $ignore_notice = $is_rtl
-	? 'إذا لم تكن قد حاولت إنشاء حساب على SPADA، فيمكنك تجاهل هذه الرسالة الإلكترونية بأمان.'
+	? 'إذا لم تكن قد حاولت إنشاء حساب على سبادا، فيمكنك تجاهل هذه الرسالة الإلكترونية بأمان.'
 	: 'If you did not attempt to create a SPADA account, you can safely ignore this email.';
 
 $regards = $is_rtl
@@ -38,7 +38,7 @@ $regards = $is_rtl
 	: 'Best regards,';
 
 $team = $is_rtl
-	? 'فريق SPADA Drinks'
+	? 'فريق مشروبات سبادا'
 	: 'SPADA Drinks Team';
 
 /**

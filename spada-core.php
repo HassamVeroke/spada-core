@@ -75,6 +75,9 @@ if ( ! function_exists( 'spada_is_rtl' ) ) {
 	 * @return bool
 	 */
 	function spada_is_rtl() {
+		if ( class_exists( 'Spada_OTP_Email' ) ) {
+			return Spada_OTP_Email::is_arabic();
+		}
 		if ( class_exists( 'Spada_Welcome_Email' ) ) {
 			return Spada_Welcome_Email::is_arabic();
 		}

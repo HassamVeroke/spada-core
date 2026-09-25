@@ -18,11 +18,11 @@ $email_heading = $is_rtl
 	: 'Login to Your Account';
 
 $preheader = $is_rtl
-	? 'استخدم رمز التحقق المكون من 6 أرقام لتسجيل الدخول بأمان إلى حسابك على SPADA.'
+	? 'استخدم رمز التحقق المكون من 6 أرقام لتسجيل الدخول بأمان إلى حسابك على سبادا.'
 	: 'Use your 6-digit verification code to securely login to your SPADA account.';
 
 $instructions = $is_rtl
-	? 'استخدم رمز التحقق المكون من 6 أرقام أدناه لتسجيل الدخول بأمان إلى حسابك على SPADA:'
+	? 'استخدم رمز التحقق المكون من 6 أرقام أدناه لتسجيل الدخول بأمان إلى حسابك على سبادا:'
 	: 'Use the 6-digit verification code below to securely login to your SPADA account:';
 
 $expire_notice = $is_rtl
@@ -38,7 +38,7 @@ $regards = $is_rtl
 	: 'Best regards,';
 
 $team = $is_rtl
-	? 'فريق SPADA Drinks'
+	? 'فريق مشروبات سبادا'
 	: 'SPADA Drinks Team';
 
 /**

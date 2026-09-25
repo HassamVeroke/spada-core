@@ -43,23 +43,77 @@ class Spada_OTP_Email
 	 */
 	public static function is_arabic()
 	{
-		if ( ! empty( $_REQUEST['lang'] ) && strpos( sanitize_text_field( wp_unslash( $_REQUEST['lang'] ) ), 'ar' ) === 0 ) {
-			return true;
+		// 1. Explicit request parameter (from frontend auth AJAX)
+		if ( ! empty( $_REQUEST['lang'] ) ) {
+			$lang = strtolower( trim( sanitize_text_field( wp_unslash( $_REQUEST['lang'] ) ) ) );
+			if ( strpos( $lang, 'ar' ) === 0 ) {
+				return true;
+			}
+			if ( strpos( $lang, 'en' ) === 0 ) {
+				return false;
+			}
 		}
 
-		if ( class_exists( 'Spada_Welcome_Email' ) ) {
-			return Spada_Welcome_Email::is_arabic();
+		// 2. HTTP Referer (critical: distinguishes /ar/ from English pages like /account/)
+		$referer = ! empty( $_SERVER['HTTP_REFERER'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
+		if ( ! empty( $referer ) ) {
+			if ( strpos( $referer, '/ar/' ) !== false || substr( $referer, -3 ) === '/ar' ) {
+				return true;
+			}
+			// If referer is explicitly an English URL (e.g. /account/ without /ar/), it is English
+			$parsed_path = wp_parse_url( $referer, PHP_URL_PATH );
+			if ( ! empty( $parsed_path ) && strpos( $parsed_path, '/ar' ) === false ) {
+				return false;
+			}
 		}
 
-		if ( function_exists( 'spada_is_rtl' ) ) {
-			return (bool) spada_is_rtl();
+		// 3. TranslatePress form language parameter
+		if ( ! empty( $_REQUEST['trp-form-language'] ) ) {
+			$trp_form_lang = strtolower( trim( sanitize_text_field( wp_unslash( $_REQUEST['trp-form-language'] ) ) ) );
+			if ( strpos( $trp_form_lang, 'ar' ) === 0 ) {
+				return true;
+			}
+			if ( strpos( $trp_form_lang, 'en' ) === 0 ) {
+				return false;
+			}
 		}
 
+		// 4. TranslatePress cookie
+		if ( ! empty( $_COOKIE['trp_language'] ) ) {
+			$cookie_lang = strtolower( trim( sanitize_text_field( wp_unslash( $_COOKIE['trp_language'] ) ) ) );
+			if ( strpos( $cookie_lang, 'ar' ) === 0 ) {
+				return true;
+			}
+			if ( strpos( $cookie_lang, 'en' ) === 0 ) {
+				return false;
+			}
+		}
+
+		// 5. TranslatePress current language function
+		if ( function_exists( 'trp_get_current_language' ) ) {
+			$trp_lang = strtolower( trim( (string) trp_get_current_language() ) );
+			if ( ! empty( $trp_lang ) ) {
+				if ( strpos( $trp_lang, 'ar' ) === 0 ) {
+					return true;
+				}
+				if ( strpos( $trp_lang, 'en' ) === 0 ) {
+					return false;
+				}
+			}
+		}
+
+		// 6. WordPress locale
 		$locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
-		if ( ! empty( $locale ) && strpos( $locale, 'ar' ) === 0 ) {
-			return true;
+		if ( ! empty( $locale ) ) {
+			if ( strpos( $locale, 'ar' ) === 0 ) {
+				return true;
+			}
+			if ( strpos( $locale, 'en' ) === 0 ) {
+				return false;
+			}
 		}
 
+		// 7. Right-to-left
 		if ( function_exists( 'is_rtl' ) && is_rtl() ) {
 			return true;
 		}
@@ -146,7 +200,7 @@ class Spada_OTP_Email
 		if ('signup' === $auth_action) {
 			$subject = $is_arabic ? 'تحقق من حسابك' : 'Verify Your Account';
 		} else {
-			$subject = $is_arabic ? 'رسالة البريد الإلكتروني الخاصة بالتحقق من تسجيل الدخول' : 'Verify Your Account';
+			$subject = $is_arabic ? 'تحقق من حسابك' : 'Verify Your Account';
 		}
 
 		// Render WooCommerce email HTML using existing Header & Footer
