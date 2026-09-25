@@ -20,6 +20,7 @@ class Spada_Auth
 	 */
 	public static function init()
 	{
+		Spada_Welcome_Email::init();
 		Spada_Auth_Ajax::init();
 		Spada_Mobile_Login::init();
 

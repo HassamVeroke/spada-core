@@ -29,6 +29,7 @@ define( 'SPADA_BUY_NOW_PATH', SPADA_CORE_PATH );
 require_once SPADA_CORE_PATH . 'includes/class-spada-buy-now.php';
 
 // Load Authentication & OTP modules
+require_once SPADA_CORE_PATH . 'includes/authentication/class-spada-welcome-email.php';
 require_once SPADA_CORE_PATH . 'includes/authentication/class-spada-otp-email.php';
 require_once SPADA_CORE_PATH . 'includes/authentication/class-spada-auth-ajax.php';
 require_once SPADA_CORE_PATH . 'includes/mobile-login/class-spada-mobile-login.php';

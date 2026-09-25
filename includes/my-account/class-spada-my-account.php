@@ -241,6 +241,11 @@ class Spada_My_Account {
 			wp_set_auth_cookie( $user_id, true );
 		}
 
+		// Dispatch welcome email if user previously had no real email (e.g. phone signup)
+		if ( class_exists( 'Spada_Welcome_Email' ) && ! empty( $email ) && ! Spada_Welcome_Email::is_dummy_email( $email ) ) {
+			Spada_Welcome_Email::send_welcome_email( $user_id, $password, empty( $password ) );
+		}
+
 		$is_arabic = ( get_locale() === 'ar' || ( function_exists( 'is_rtl' ) && is_rtl() ) );
 		$msg = $is_arabic ? 'تم حفظ التغييرات بنجاح.' : __( 'Account details updated successfully.', 'spada-core' );
 
@@ -291,6 +296,11 @@ class Spada_My_Account {
 				wp_set_password( $password, $user_id );
 				wp_set_current_user( $user_id );
 				wp_set_auth_cookie( $user_id, true );
+			}
+
+			// Dispatch welcome email if user previously had no real email (e.g. phone signup)
+			if ( class_exists( 'Spada_Welcome_Email' ) && ! empty( $email ) && ! Spada_Welcome_Email::is_dummy_email( $email ) ) {
+				Spada_Welcome_Email::send_welcome_email( $user_id, $password, empty( $password ) );
 			}
 		}
 

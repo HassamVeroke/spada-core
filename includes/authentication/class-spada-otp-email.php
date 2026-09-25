@@ -240,6 +240,11 @@ class Spada_OTP_Email
 			}
 
 			$user = get_user_by('id', $customer_id);
+
+			// Dispatch WooCommerce customer welcome email
+			if (class_exists('Spada_Welcome_Email')) {
+				Spada_Welcome_Email::send_welcome_email($customer_id, $password, true);
+			}
 		}
 
 		// Authoritative login
